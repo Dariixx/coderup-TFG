@@ -1,0 +1,34 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/layout/Navbar.astro";
+import Footer from "../../components/layout/Footer.astro";
+import BackToTop from "../../components/react/BackToTop.tsx";
+import CoursePagination from "../../components/react/CoursePagination.tsx";
+import { getCourses } from "../../lib/strapi";
+
+// Astro obtiene los datos de forma asíncrona y delega la interacción al island React.
+const cursos = await getCourses();
+---
+
+<BaseLayout title="Cursos | CoderUp">
+  <Navbar />
+
+  <section class="pt-32 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-12">
+        <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Catálogo</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mt-3 mb-4">Todos los Cursos</h1>
+        <p class="text-[#888] text-lg max-w-2xl mx-auto">
+          Explora nuestro catálogo completo. Filtra por categoría, nivel o busca lo que necesites.
+        </p>
+      </div>
+
+      <CoursePagination client:load cursos={cursos} cursosPerPage={6} />
+
+    </div>
+  </section>
+
+  <Footer />
+  <BackToTop client:load />
+</BaseLayout>

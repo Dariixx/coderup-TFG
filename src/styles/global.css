@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-primary: #00FF66;
+    --color-primary-dark: #00CC52;
+    --color-secondary: #00FF66;
+    --color-accent: #00FF66;
+    --color-bg: #0A0A0A;
+    --color-bg-alt: #111111;
+    --color-bg-card: #1A1A1A;
+    --color-text: #E0E0E0;
+    --color-text-muted: #888888;
+    --color-border: #2A2A2A;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+  }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background-color: #00FF6633;
+    color: #00FF66;
+  }
+}

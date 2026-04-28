@@ -1,0 +1,93 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<footer class="border-t border-[#2A2A2A] py-16 mt-auto bg-[#0A0A0A]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid md:grid-cols-4 gap-12 mb-12">
+      
+      <div class="md:col-span-1">
+        <a href="/" class="flex items-center gap-2 mb-4">
+          <img src="/logo.webp" alt="Logo de CoderUp" class="w-8 h-8 rounded-md object-cover" />
+          <span class="text-xl font-bold">
+            <span class="text-white">Coder</span><span class="text-[#00FF66]">Up</span>
+          </span>
+        </a>
+        <p class="text-[#888] text-sm leading-relaxed">
+          Aprende. Practica. Evoluciona.<br/>
+          La plataforma de cursos para developers.
+        </p>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold mb-4">Plataforma</h4>
+        <div class="flex flex-col gap-3 text-sm">
+          <a href="/cursos" class="text-[#888] hover:text-[#00FF66] transition flex items-center gap-2">
+            <Icon name="lucide:book-open" class="w-4 h-4" /> Cursos
+          </a>
+          <a href="/categorias" class="text-[#888] hover:text-[#00FF66] transition flex items-center gap-2">
+            <Icon name="lucide:layers" class="w-4 h-4" /> Categorías
+          </a>
+          <a href="/blog" class="text-[#888] hover:text-[#00FF66] transition flex items-center gap-2">
+            <Icon name="lucide:file-text" class="w-4 h-4" /> Blog
+          </a>
+          <a href="/sobre-nosotros" class="text-[#888] hover:text-[#00FF66] transition flex items-center gap-2">
+            <Icon name="lucide:users" class="w-4 h-4" /> Sobre Nosotros
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold mb-4">Soporte</h4>
+        <div class="flex flex-col gap-3 text-sm">
+          <a href="/contacto" class="text-[#888] hover:text-[#00FF66] transition flex items-center gap-2">
+            <Icon name="lucide:mail" class="w-4 h-4" /> Contacto
+          </a>
+          <a href="/blog" class="text-[#888] hover:text-[#00FF66] transition flex items-center gap-2">
+            <Icon name="lucide:help-circle" class="w-4 h-4" /> FAQ
+          </a>
+          <a href="/sobre-nosotros" class="text-[#888] hover:text-[#00FF66] transition flex items-center gap-2">
+            <Icon name="lucide:shield" class="w-4 h-4" /> Términos
+          </a>
+          <a href="/contacto" class="text-[#888] hover:text-[#00FF66] transition flex items-center gap-2">
+            <Icon name="lucide:lock" class="w-4 h-4" /> Privacidad
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <h4 class="text-white font-semibold mb-4">Newsletter</h4>
+        <p class="text-[#888] text-sm mb-4">Recibe las últimas novedades y cursos.</p>
+        <form class="flex gap-2">
+          <input 
+            type="email" 
+            placeholder="tu@email.com" 
+            class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-sm text-white placeholder-[#888] focus:outline-none focus:border-[#00FF66] flex-1"
+          />
+          <button type="submit" class="bg-[#00FF66] text-[#0A0A0A] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#00CC52] transition">
+            <Icon name="lucide:send" class="w-4 h-4" />
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <div class="border-t border-[#2A2A2A] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-sm text-[#888]">© 2026 CoderUp. Todos los derechos reservados.</p>
+      <div class="flex gap-6">
+        <a href="https://github.com/" class="text-[#888] hover:text-[#00FF66] transition" aria-label="GitHub" target="_blank" rel="noreferrer">
+          <Icon name="lucide:github" class="w-5 h-5" />
+        </a>
+        <a href="https://x.com/" class="text-[#888] hover:text-[#00FF66] transition" aria-label="X" target="_blank" rel="noreferrer">
+          <Icon name="lucide:twitter" class="w-5 h-5" />
+        </a>
+        <a href="https://www.linkedin.com/" class="text-[#888] hover:text-[#00FF66] transition" aria-label="LinkedIn" target="_blank" rel="noreferrer">
+          <Icon name="lucide:linkedin" class="w-5 h-5" />
+        </a>
+        <a href="https://www.youtube.com/" class="text-[#888] hover:text-[#00FF66] transition" aria-label="YouTube" target="_blank" rel="noreferrer">
+          <Icon name="lucide:youtube" class="w-5 h-5" />
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

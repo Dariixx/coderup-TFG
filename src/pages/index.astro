@@ -1,11 +1,191 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import AnimatedCounter from "../components/react/AnimatedCounter.tsx";
+import TestimonialCarousel from "../components/react/TestimonialCarousel.tsx";
+import FAQAccordion from "../components/react/FAQAccordion.tsx";
+import BackToTop from "../components/react/BackToTop.tsx";
+import { getFeaturedCourses } from "../lib/strapi";
+import { formatPrice } from "../lib/utils";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const featuredCourses = await getFeaturedCourses(3);
+
+const faqs = [
+  { question: "¿Los cursos son para principiantes?", answer: "Sí, tenemos cursos para todos los niveles. Desde cero absoluto hasta nivel avanzado. Cada curso indica claramente el nivel requerido." },
+  { question: "¿Cuánto tiempo tengo acceso al curso?", answer: "Acceso de por vida. Una vez compras un curso, es tuyo para siempre. Incluye todas las actualizaciones futuras sin coste adicional." },
+  { question: "¿Hay certificado al completar un curso?", answer: "Sí, todos los cursos incluyen un certificado de finalización que puedes añadir a tu LinkedIn o CV." },
+  { question: "¿Puedo pedir un reembolso?", answer: "Ofrecemos garantía de 30 días. Si no estás satisfecho, te devolvemos el 100% del dinero sin preguntas." },
+  { question: "¿Cómo se imparten los cursos?", answer: "Vídeos grabados en alta calidad, ejercicios prácticos, proyectos reales y acceso a la comunidad de estudiantes y mentores." },
+];
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<BaseLayout title="Inicio">
+  <Navbar />
+  <BackToTop client:load />
+
+  <!-- HERO -->
+  <section class="pt-32 pb-20 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#00FF66]/5 to-transparent"></div>
+    <div class="absolute top-20 left-1/4 w-96 h-96 bg-[#00FF66]/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-[#00FF66]/3 rounded-full blur-3xl"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Plataforma de cursos para developers</span>
+      <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 mt-4">
+        <span class="text-white">Aprende.</span><br />
+        <span class="text-white">Practica.</span><br />
+        <span class="text-[#00FF66]">Evoluciona.</span>
+      </h1>
+      <p class="text-lg md:text-xl text-[#888] max-w-2xl mx-auto mb-10">
+        Cursos prácticos de programación creados por developers, para developers. 
+        Sube de nivel con proyectos reales.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/cursos" class="bg-[#00FF66] text-[#0A0A0A] px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#00CC52] transition shadow-lg shadow-[#00FF66]/20 flex items-center gap-2 justify-center">
+          <Icon name="lucide:rocket" class="w-5 h-5" /> Empieza Gratis
+        </a>
+        <a href="#como-funciona" class="border border-[#2A2A2A] text-white px-8 py-4 rounded-xl font-bold text-lg hover:border-[#00FF66]/50 transition flex items-center gap-2 justify-center">
+          <Icon name="lucide:play" class="w-5 h-5" /> Cómo funciona
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="py-16 border-y border-[#2A2A2A]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div>
+          <AnimatedCounter client:visible end={50} prefix="+" />
+          <p class="text-[#888] mt-2">Cursos</p>
+        </div>
+        <div>
+          <AnimatedCounter client:visible end={10} suffix="K+" prefix="" />
+          <p class="text-[#888] mt-2">Estudiantes</p>
+        </div>
+        <div>
+          <AnimatedCounter client:visible end={9} suffix="/5" prefix="4." />
+          <p class="text-[#888] mt-2">Valoración</p>
+        </div>
+        <div>
+          <AnimatedCounter client:visible end={100} suffix="%" />
+          <p class="text-[#888] mt-2">Práctico</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CÓMO FUNCIONA -->
+  <section id="como-funciona" class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">¿Cómo funciona?</h2>
+        <p class="text-[#888] text-lg">Tres pasos para empezar a aprender</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8 text-center hover:border-[#00FF66]/50 transition group">
+          <div class="w-16 h-16 bg-[#00FF66]/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-[#00FF66]/20 transition">
+            <Icon name="lucide:target" class="w-8 h-8 text-[#00FF66]" />
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">1. Elige tu curso</h3>
+          <p class="text-[#888]">Explora nuestro catálogo y encuentra el curso perfecto para tu nivel y objetivos.</p>
+        </div>
+        <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8 text-center hover:border-[#00FF66]/50 transition group">
+          <div class="w-16 h-16 bg-[#00FF66]/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-[#00FF66]/20 transition">
+            <Icon name="lucide:code" class="w-8 h-8 text-[#00FF66]" />
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">2. Aprende practicando</h3>
+          <p class="text-[#888]">Vídeos claros + ejercicios prácticos + proyectos reales. Aprende haciendo, no memorizando.</p>
+        </div>
+        <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8 text-center hover:border-[#00FF66]/50 transition group">
+          <div class="w-16 h-16 bg-[#00FF66]/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-[#00FF66]/20 transition">
+            <Icon name="lucide:trophy" class="w-8 h-8 text-[#00FF66]" />
+          </div>
+          <h3 class="text-xl font-bold text-white mb-3">3. Sube de nivel</h3>
+          <p class="text-[#888]">Obtén tu certificado, mejora tu portfolio y consigue el trabajo de tus sueños.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CURSOS DESTACADOS -->
+  <section class="py-20 bg-[#111]/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Cursos Destacados</h2>
+        <p class="text-[#888] text-lg">Los más populares de nuestra plataforma</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        {featuredCourses.map((course) => (
+          <a href={`/cursos/${course.slug}`} class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1">
+            <div class={`h-48 bg-gradient-to-br ${course.gradientFrom} ${course.gradientTo} flex items-center justify-center`}>
+              <Icon name={course.icon} class={`w-16 h-16 ${course.iconColor}`} />
+            </div>
+            <div class="p-6">
+              <div class="flex gap-2 mb-3">
+                <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.category.name}</span>
+                <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.level}</span>
+              </div>
+              <h3 class="text-xl font-bold text-white mb-2 group-hover:text-[#00FF66] transition">{course.title}</h3>
+              <p class="text-[#888] text-sm mb-4">{course.shortDescription}</p>
+              <div class="flex justify-between items-center">
+                <span class="text-[#00FF66] font-bold text-lg">{formatPrice(course.price)}</span>
+                <div class="flex items-center gap-1 text-sm text-[#888]">
+                  <Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" />
+                  <span>{course.rating} · {course.students}</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-12">
+        <a href="/cursos" class="border border-[#00FF66] text-[#00FF66] px-8 py-3 rounded-xl font-semibold hover:bg-[#00FF66]/10 transition inline-flex items-center gap-2">
+          Ver todos los cursos <Icon name="lucide:arrow-right" class="w-5 h-5" />
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIOS -->
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Lo que dicen nuestros alumnos</h2>
+        <p class="text-[#888] text-lg">Miles de developers ya confían en CoderUp</p>
+      </div>
+      <TestimonialCarousel client:visible />
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="py-20 bg-[#111]/50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Preguntas Frecuentes</h2>
+        <p class="text-[#888] text-lg">Resolvemos tus dudas</p>
+      </div>
+      <FAQAccordion client:visible items={faqs} />
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-[#00FF66]/10 to-transparent"></div>
+    <div class="max-w-4xl mx-auto px-4 text-center relative z-10">
+      <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">
+        ¿Listo para subir de nivel?
+      </h2>
+      <p class="text-[#888] text-lg mb-10">
+        Únete a miles de developers que ya están evolucionando con CoderUp.
+      </p>
+      <a href="/cursos" class="bg-[#00FF66] text-[#0A0A0A] px-10 py-4 rounded-xl font-bold text-lg hover:bg-[#00CC52] transition shadow-lg shadow-[#00FF66]/20 hover:shadow-[#00FF66]/40 hover:scale-105 inline-flex items-center gap-2">
+        <Icon name="lucide:rocket" class="w-5 h-5" /> Empezar Ahora
+      </a>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>

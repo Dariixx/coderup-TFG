@@ -1,0 +1,160 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import BackToTop from "../components/react/BackToTop.tsx";
+import { Icon } from "astro-icon/components";
+
+const values = [
+  { icon: "lucide:target", title: "Práctica sobre teoría", description: "Creemos que se aprende haciendo. Todos nuestros cursos están basados en proyectos reales." },
+  { icon: "lucide:refresh-cw", title: "Siempre actualizado", description: "La tecnología cambia rápido. Nuestros cursos se actualizan constantemente." },
+  { icon: "lucide:users", title: "Comunidad", description: "Aprender juntos es mejor. Nuestra comunidad es parte fundamental de la experiencia." },
+  { icon: "lucide:heart", title: "Accesibilidad", description: "Educación de calidad al alcance de todos, sin importar tu background." },
+];
+
+const stats = [
+  { icon: "lucide:book-open", value: "+50", label: "Cursos" },
+  { icon: "lucide:users", value: "+10K", label: "Estudiantes" },
+  { icon: "lucide:star", value: "4.9", label: "Valoración media" },
+  { icon: "lucide:award", value: "+5K", label: "Certificados" },
+];
+---
+
+<BaseLayout title="Sobre Nosotros | CoderUp">
+  <Navbar />
+
+  <!-- HERO -->
+  <section class="pt-32 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto">
+        <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Nuestra historia</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mt-3 mb-6">
+          Creemos en aprender <span class="text-[#00FF66]">haciendo</span>
+        </h1>
+        <p class="text-[#888] text-lg leading-relaxed">
+          CoderUp nació con una misión clara: hacer que aprender programación sea práctico, 
+          accesible y relevante para el mundo real. No somos una universidad, somos developers 
+          que enseñan a developers.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="py-16 border-y border-[#2A2A2A]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+        {stats.map((stat) => (
+          <div class="text-center">
+            <div class="w-12 h-12 bg-[#00FF66]/10 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <Icon name={stat.icon} class="w-6 h-6 text-[#00FF66]" />
+            </div>
+            <p class="text-3xl font-bold text-white">{stat.value}</p>
+            <p class="text-[#888] text-sm mt-1">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- MISIÓN -->
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Nuestra misión</span>
+          <h2 class="text-3xl md:text-4xl font-bold text-white mt-3 mb-6">
+            Democratizar la educación tech
+          </h2>
+          <div class="space-y-4 text-[#888] leading-relaxed">
+            <p>
+              Creemos que cualquier persona debería tener acceso a educación de calidad en tecnología, 
+              sin importar su ubicación, su experiencia previa o su situación económica.
+            </p>
+            <p>
+              Nuestros cursos están diseñados por profesionales en activo que trabajan con estas 
+              tecnologías cada día. No enseñamos teoría vacía: enseñamos lo que realmente se usa 
+              en la industria.
+            </p>
+            <p>
+              Cada curso incluye proyectos prácticos, ejercicios y recursos para que puedas 
+              construir tu portfolio mientras aprendes.
+            </p>
+          </div>
+        </div>
+        <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8">
+          <div class="space-y-6">
+            <div class="flex items-start gap-4">
+              <Icon name="lucide:check-circle" class="w-6 h-6 text-[#00FF66] shrink-0 mt-0.5" />
+              <div>
+                <h3 class="text-white font-semibold">Cursos prácticos</h3>
+                <p class="text-[#888] text-sm">Aprende construyendo proyectos reales desde el primer día.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <Icon name="lucide:check-circle" class="w-6 h-6 text-[#00FF66] shrink-0 mt-0.5" />
+              <div>
+                <h3 class="text-white font-semibold">Instructores expertos</h3>
+                <p class="text-[#888] text-sm">Profesionales en activo con años de experiencia en la industria.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <Icon name="lucide:check-circle" class="w-6 h-6 text-[#00FF66] shrink-0 mt-0.5" />
+              <div>
+                <h3 class="text-white font-semibold">Comunidad activa</h3>
+                <p class="text-[#888] text-sm">Resuelve dudas y conecta con otros estudiantes y mentores.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <Icon name="lucide:check-circle" class="w-6 h-6 text-[#00FF66] shrink-0 mt-0.5" />
+              <div>
+                <h3 class="text-white font-semibold">Certificados</h3>
+                <p class="text-[#888] text-sm">Obtén certificados verificables al completar cada curso.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VALORES -->
+  <section class="py-20 border-t border-[#2A2A2A]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Lo que nos define</span>
+        <h2 class="text-3xl md:text-4xl font-bold text-white mt-3 mb-4">Nuestros valores</h2>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {values.map((v) => (
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-6 hover:border-[#00FF66]/50 transition text-center group">
+            <div class="w-14 h-14 bg-[#00FF66]/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-[#00FF66]/20 transition">
+              <Icon name={v.icon} class="w-7 h-7 text-[#00FF66]" />
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">{v.title}</h3>
+            <p class="text-[#888] text-sm">{v.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 border-t border-[#2A2A2A]">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">¿Listo para empezar?</h2>
+      <p class="text-[#888] text-lg mb-10">Únete a miles de developers que ya están aprendiendo con CoderUp.</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/cursos" class="bg-[#00FF66] text-[#0A0A0A] px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#00CC52] transition shadow-lg shadow-[#00FF66]/20 flex items-center gap-2 justify-center">
+          <Icon name="lucide:rocket" class="w-5 h-5" /> Explorar cursos
+        </a>
+        <a href="/contacto" class="border border-[#2A2A2A] text-white px-8 py-4 rounded-xl font-bold text-lg hover:border-[#00FF66]/50 transition flex items-center gap-2 justify-center">
+          <Icon name="lucide:mail" class="w-5 h-5" /> Contactar
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+  <BackToTop client:load />
+</BaseLayout>

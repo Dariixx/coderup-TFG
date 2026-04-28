@@ -1,0 +1,21 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Footer from "../components/layout/Footer.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import AuthForm from "../components/react/AuthForm";
+---
+
+<BaseLayout title="Login" description="Accede a tu cuenta de CoderUp para continuar con tus cursos, pedidos y ventajas freemium.">
+  <Navbar />
+  <main class="flex-1 pt-32 pb-20">
+    <section class="max-w-xl mx-auto px-4">
+      <div class="rounded-3xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 md:p-10">
+        <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Acceso</p>
+        <h1 class="text-4xl font-bold text-white mb-3">Inicia sesión</h1>
+        <p class="text-[#888] mb-8">Tu sesión se guarda en localStorage para simular una experiencia de plataforma real.</p>
+        <AuthForm client:load mode="login" />
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

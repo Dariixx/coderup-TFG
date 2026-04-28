@@ -1,0 +1,311 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/layout/Navbar.astro";
+import Footer from "../../components/layout/Footer.astro";
+import BackToTop from "../../components/react/BackToTop.tsx";
+import AddToCartButton from "../../components/react/AddToCartButton.tsx";
+import { getCourseBySlug, getCourses } from "../../lib/strapi";
+import { formatPrice } from "../../lib/utils";
+
+export async function getStaticPaths() {
+  const cursos = await getCourses();
+
+  return cursos.map((curso) => ({
+    params: { slug: curso.slug },
+  }));
+}
+
+const slug = Astro.params.slug ?? "";
+const curso = await getCourseBySlug(slug);
+const allCourses = await getCourses();
+const notFound = !curso;
+
+const temario = [
+  { title: "Introducción y configuración del entorno", duration: "45 min" },
+  { title: "Fundamentos y conceptos clave", duration: "1h 20 min" },
+  { title: "Primeros ejercicios prácticos", duration: "55 min" },
+  { title: "Patrones y buenas prácticas", duration: "1h 10 min" },
+  { title: "Proyecto práctico guiado", duration: "2h 30 min" },
+  { title: "Testing y calidad de código", duration: "1h 15 min" },
+  { title: "Despliegue y producción", duration: "50 min" },
+  { title: "Proyecto final y certificado", duration: "3h" },
+];
+
+const requisitos = [
+  "Conocimientos básicos de programación",
+  "Un ordenador con conexión a internet",
+  "Ganas de aprender y practicar",
+  "Editor de código (VS Code recomendado)",
+];
+
+const aprenderás = [
+  "Dominar los fundamentos y conceptos avanzados",
+  "Construir proyectos reales desde cero",
+  "Aplicar buenas prácticas profesionales",
+  "Prepararte para entrevistas técnicas",
+  "Desplegar aplicaciones en producción",
+  "Escribir código limpio y mantenible",
+];
+
+const relatedCursos = curso ? allCourses.filter((c) => c.slug !== curso.slug).slice(0, 3) : [];
+
+const cartItem = curso
+  ? {
+      courseId: String(curso.id),
+      slug: curso.slug,
+      title: curso.title,
+      price: curso.price,
+      isFree: curso.isFree,
+      accessType: curso.accessType,
+      icon: curso.icon,
+      iconColor: curso.iconColor,
+      gradientFrom: curso.gradientFrom,
+      gradientTo: curso.gradientTo,
+      category: curso.category.name,
+    }
+  : null;
+
+if (notFound) {
+  Astro.response.status = 404;
+}
+---
+
+<BaseLayout
+  title={notFound ? "Curso no encontrado" : curso.seo.metaTitle}
+  description={notFound ? "El curso solicitado no está disponible en CoderUp." : curso.seo.metaDescription}
+  canonical={notFound ? "/404" : `/cursos/${curso.slug}`}
+>
+  <Navbar />
+  <BackToTop client:load />
+
+  {notFound ? (
+    <main class="flex-1">
+      <section class="pt-32 pb-20">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+          <Icon name="lucide:book-x" class="w-16 h-16 text-[#00FF66] mx-auto mb-6" />
+          <h1 class="text-4xl font-bold text-white mb-4">Curso no encontrado</h1>
+          <p class="text-[#888] mb-8">Este detalle ya no existe o el slug no es válido. Vuelve al catálogo para seguir navegando.</p>
+          <a href="/cursos" class="inline-flex items-center gap-2 bg-[#00FF66] text-[#0A0A0A] px-6 py-3 rounded-xl font-semibold hover:bg-[#00CC52] transition">
+            <Icon name="lucide:arrow-left" class="w-4 h-4" />
+            Ver catálogo
+          </a>
+        </div>
+      </section>
+    </main>
+  ) : (
+    <>
+  <section class="pt-32 pb-16 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#00FF66]/5 to-transparent"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+        <!-- INFO -->
+        <div>
+          <div class="flex items-center gap-3 mb-6">
+            <a href="/cursos" class="text-[#888] text-sm hover:text-[#00FF66] transition flex items-center gap-1">
+              <Icon name="lucide:arrow-left" class="w-4 h-4" /> Volver a cursos
+            </a>
+          </div>
+
+          <div class="flex gap-2 mb-4">
+            <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-3 py-1 rounded-full font-medium">{curso.category.name}</span>
+            <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-3 py-1 rounded-full font-medium">{curso.level}</span>
+          </div>
+
+          <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">{curso.title}</h1>
+          <p class="text-[#888] text-lg mb-6">{curso.description}</p>
+
+          <div class="flex flex-wrap items-center gap-6 mb-8 text-sm text-[#888]">
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" />
+              <span class="text-white font-semibold">{curso.rating}</span>
+              <span>({curso.students} estudiantes)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:clock" class="w-4 h-4 text-[#00FF66]" />
+              <span>{curso.duration}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:play-circle" class="w-4 h-4 text-[#00FF66]" />
+              <span>{curso.lessons} lecciones</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:award" class="w-4 h-4 text-[#00FF66]" />
+              <span>Certificado incluido</span>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-4">
+            <AddToCartButton client:load size="large" item={cartItem} course={curso} />
+            <a href="#temario" class="border border-[#2A2A2A] text-white px-8 py-4 rounded-xl font-bold text-lg hover:border-[#00FF66]/50 transition flex items-center gap-2 justify-center">
+              <Icon name="lucide:play" class="w-5 h-5" /> Ver temario
+            </a>
+          </div>
+        </div>
+
+        <!-- CARD VISUAL -->
+        <div class="hidden lg:block">
+          <div class={`bg-gradient-to-br ${curso.gradientFrom} ${curso.gradientTo} rounded-2xl h-80 flex items-center justify-center border border-[#2A2A2A]`}>
+            <Icon name={curso.icon} class={`w-32 h-32 ${curso.iconColor} opacity-60`} />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-3 gap-12">
+
+        <!-- COLUMNA PRINCIPAL -->
+        <div class="lg:col-span-2 space-y-12">
+
+          <!-- QUÉ APRENDERÁS -->
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <Icon name="lucide:check-circle" class="w-6 h-6 text-[#00FF66]" />
+              Lo que aprenderás
+            </h2>
+            <div class="grid sm:grid-cols-2 gap-4">
+              {aprenderás.map((item) => (
+                <div class="flex items-start gap-3">
+                  <Icon name="lucide:check" class="w-5 h-5 text-[#00FF66] shrink-0 mt-0.5" />
+                  <span class="text-[#888] text-sm">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div id="temario">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <Icon name="lucide:list" class="w-6 h-6 text-[#00FF66]" />
+              Temario del curso
+            </h2>
+            <div class="space-y-3">
+              {temario.map((mod, i) => (
+                <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-5 flex items-center justify-between hover:border-[#00FF66]/30 transition group">
+                  <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-[#00FF66]/10 rounded-lg flex items-center justify-center group-hover:bg-[#00FF66]/20 transition">
+                      <span class="text-[#00FF66] font-bold text-sm">{String(i + 1).padStart(2, "0")}</span>
+                    </div>
+                    <div>
+                      <h3 class="text-white font-medium text-sm">{mod.title}</h3>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="text-[#888] text-xs flex items-center gap-1">
+                      <Icon name="lucide:clock" class="w-3 h-3" /> {mod.duration}
+                    </span>
+                    <Icon name="lucide:lock" class="w-4 h-4 text-[#2A2A2A]" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- REQUISITOS -->
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+              <Icon name="lucide:alert-circle" class="w-6 h-6 text-[#00FF66]" />
+              Requisitos previos
+            </h2>
+            <div class="space-y-3">
+              {requisitos.map((req) => (
+                <div class="flex items-center gap-3">
+                  <Icon name="lucide:chevron-right" class="w-4 h-4 text-[#00FF66]" />
+                  <span class="text-[#888] text-sm">{req}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- SIDEBAR -->
+        <div class="space-y-6">
+
+          <!-- CARD COMPRA -->
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8 sticky top-24">
+            <div class="text-center mb-6">
+              <p class="text-4xl font-bold text-white mb-1">
+                {formatPrice(curso.price)}
+              </p>
+              {curso.price > 0 && (
+                <p class="text-[#888] text-sm line-through">{formatPrice(curso.price * 1.5)}</p>
+              )}
+            </div>
+
+            <div class="mb-4">
+              <AddToCartButton client:load size="large" item={cartItem} course={curso} />
+            </div>
+
+            <p class="text-center text-[#888] text-xs mb-6">Garantía de devolución de 30 días</p>
+
+            <div class="space-y-4 border-t border-[#2A2A2A] pt-6">
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="lucide:infinity" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Acceso de por vida</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="lucide:smartphone" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Acceso en móvil y tablet</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="lucide:award" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Certificado de finalización</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="lucide:download" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Recursos descargables</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="lucide:refresh-cw" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Actualizaciones gratuitas</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm">
+                <Icon name="lucide:message-circle" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Acceso a la comunidad</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CURSOS RELACIONADOS -->
+  <section class="py-16 border-t border-[#2A2A2A]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-bold text-white mb-8">También te puede interesar</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        {relatedCursos.map((rel) => (
+          <a href={`/cursos/${rel.slug}`} class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1 block">
+            <div class={`h-36 bg-gradient-to-br ${rel.gradientFrom} ${rel.gradientTo} flex items-center justify-center`}>
+              <Icon name={rel.icon} class={`w-12 h-12 ${rel.iconColor} opacity-70`} />
+            </div>
+            <div class="p-5">
+              <div class="flex gap-2 mb-2">
+                <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{rel.category.name}</span>
+              </div>
+              <h3 class="text-white font-bold group-hover:text-[#00FF66] transition">{rel.title}</h3>
+              <div class="flex justify-between items-center mt-3">
+                <span class="text-[#00FF66] font-bold">{formatPrice(rel.price)}</span>
+                <div class="flex items-center gap-1 text-xs text-[#888]">
+                  <Icon name="lucide:star" class="w-3 h-3 text-[#00FF66]" />
+                  <span>{rel.rating}</span>
+                </div>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+    </>
+  )}
+
+  <Footer />
+</BaseLayout>

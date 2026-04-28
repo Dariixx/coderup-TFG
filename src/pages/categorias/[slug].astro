@@ -1,0 +1,107 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/layout/Navbar.astro";
+import Footer from "../../components/layout/Footer.astro";
+import BackToTop from "../../components/react/BackToTop.tsx";
+import { getCategories, getCoursesByCategory } from "../../lib/strapi";
+import { formatPrice } from "../../lib/utils";
+
+export async function getStaticPaths() {
+  const categories = await getCategories();
+
+  return categories.map((category) => ({
+    params: { slug: category.slug },
+    props: { category },
+  }));
+}
+
+const { category } = Astro.props;
+const courses = category ? await getCoursesByCategory(category.slug) : [];
+const notFound = !category;
+
+if (notFound) {
+  Astro.response.status = 404;
+}
+---
+
+<BaseLayout
+  title={notFound ? "Categoría no encontrada" : `${category.name} | Categorías`}
+  description={notFound ? "La categoría solicitada no existe en CoderUp." : category.description}
+  canonical={notFound ? "/404" : `/categorias/${category.slug}`}
+>
+  <Navbar />
+  <main class="flex-1">
+    {notFound ? (
+      <section class="pt-32 pb-20">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+          <Icon name="lucide:folder-x" class="w-16 h-16 text-[#00FF66] mx-auto mb-6" />
+          <h1 class="text-4xl font-bold text-white mb-4">Categoría no encontrada</h1>
+          <p class="text-[#888] mb-8">La categoría solicitada no está disponible. Puedes volver al listado general.</p>
+          <a href="/categorias" class="inline-flex items-center gap-2 bg-[#00FF66] text-[#0A0A0A] px-6 py-3 rounded-xl font-semibold hover:bg-[#00CC52] transition">
+            <Icon name="lucide:arrow-left" class="w-4 h-4" />
+            Volver a categorías
+          </a>
+        </div>
+      </section>
+    ) : (
+      <>
+        <section class="pt-32 pb-14 relative overflow-hidden">
+          <div class="absolute inset-0 bg-gradient-to-b from-[#00FF66]/5 to-transparent"></div>
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <a href="/categorias" class="inline-flex items-center gap-2 text-[#888] text-sm hover:text-[#00FF66] transition mb-6">
+              <Icon name="lucide:arrow-left" class="w-4 h-4" />
+              Volver a categorías
+            </a>
+            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+              <div class="max-w-3xl">
+                <div class="w-16 h-16 bg-[#00FF66]/10 rounded-2xl flex items-center justify-center mb-6">
+                  <Icon name={category.icon} class="w-8 h-8 text-[#00FF66]" />
+                </div>
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">{category.name}</h1>
+                <p class="text-[#888] text-lg">{category.description}</p>
+              </div>
+              <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl px-6 py-5 min-w-52">
+                <p class="text-sm text-[#888] mb-1">Cursos disponibles</p>
+                <p class="text-3xl font-bold text-white">{courses.length}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="pb-20">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+              {courses.map((course) => (
+                <article class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group">
+                  <a href={`/cursos/${course.slug}`} class="block">
+                    <div class={`h-44 bg-gradient-to-br ${course.gradientFrom} ${course.gradientTo} flex items-center justify-center`}>
+                      <Icon name={course.icon} class={`w-16 h-16 ${course.iconColor} opacity-80`} />
+                    </div>
+                    <div class="p-6">
+                      <div class="flex gap-2 mb-3">
+                        <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.level}</span>
+                        <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.students} alumnos</span>
+                      </div>
+                      <h2 class="text-xl font-bold text-white mb-2 group-hover:text-[#00FF66] transition">{course.title}</h2>
+                      <p class="text-[#888] text-sm mb-5">{course.shortDescription}</p>
+                      <div class="flex items-center justify-between">
+                        <span class="text-[#00FF66] font-bold">{formatPrice(course.price)}</span>
+                        <span class="inline-flex items-center gap-1 text-sm text-[#888]">
+                          <Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" />
+                          {course.rating}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+      </>
+    )}
+  </main>
+  <Footer />
+  <BackToTop client:load />
+</BaseLayout>

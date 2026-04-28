@@ -1,0 +1,65 @@
+---
+import { siteConfig } from "../../config/site";
+---
+
+<header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-2">
+        <span class="text-2xl">🎓</span>
+        <span class="text-xl font-bold text-indigo-600">{siteConfig.name}</span>
+      </a>
+
+      <!-- Nav Desktop -->
+      <div class="hidden md:flex items-center gap-8">
+        {siteConfig.nav.map((item) => (
+          <a
+            href={item.href}
+            class="text-slate-600 hover:text-indigo-600 font-medium transition-colors"
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+
+      <!-- CTA -->
+      <div class="hidden md:flex items-center gap-4">
+        <a href="/cursos" class="bg-indigo-600 text-white px-5 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+          Empezar gratis
+        </a>
+      </div>
+
+      <!-- Mobile menu button -->
+      <button id="menu-toggle" class="md:hidden p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden pb-4">
+      {siteConfig.nav.map((item) => (
+        <a
+          href={item.href}
+          class="block py-2 text-slate-600 hover:text-indigo-600 font-medium"
+        >
+          {item.label}
+        </a>
+      ))}
+      <a href="/cursos" class="block mt-2 bg-indigo-600 text-white text-center px-5 py-2 rounded-lg font-medium">
+        Empezar gratis
+      </a>
+    </div>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.getElementById("menu-toggle");
+  const menu = document.getElementById("mobile-menu");
+  toggle?.addEventListener("click", () => {
+    menu?.classList.toggle("hidden");
+  });
+</script>

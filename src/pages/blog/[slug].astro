@@ -1,0 +1,301 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/layout/Navbar.astro";
+import Footer from "../../components/layout/Footer.astro";
+import BackToTop from "../../components/react/BackToTop.tsx";
+import { getBlogPostBySlug, getBlogPosts } from "../../lib/strapi";
+import { formatDate } from "../../lib/utils";
+
+export async function getStaticPaths() {
+  const posts = await getBlogPosts();
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+  }));
+}
+
+const slug = Astro.params.slug ?? "";
+const post = await getBlogPostBySlug(slug);
+const posts = await getBlogPosts();
+const notFound = !post;
+const relatedPosts = post ? posts.filter((p) => p.slug !== post.slug && p.category.slug === post.category.slug).slice(0, 3) : [];
+const fallbackRelated = post
+  ? relatedPosts.length > 0
+    ? relatedPosts
+    : posts.filter((p) => p.slug !== post.slug).slice(0, 3)
+  : [];
+
+const sections = post
+  ? [
+      { id: "introduccion", title: "Introducción" },
+      { id: "por-que-importa", title: "¿Por qué importa?" },
+      { id: "aplicacion-real", title: "Aplicación real" },
+      { id: "conclusion", title: "Conclusión" },
+    ]
+  : [];
+
+if (notFound) {
+  Astro.response.status = 404;
+}
+---
+
+<BaseLayout
+  title={notFound ? "Artículo no encontrado" : post.seo.metaTitle}
+  description={notFound ? "El artículo solicitado no está disponible en CoderUp." : post.seo.metaDescription}
+  canonical={notFound ? "/404" : `/blog/${post.slug}`}
+>
+  <Navbar />
+  <BackToTop client:load />
+
+  {notFound ? (
+    <main class="flex-1">
+      <section class="pt-32 pb-20">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+          <Icon name="lucide:file-search" class="w-16 h-16 text-[#00FF66] mx-auto mb-6" />
+          <h1 class="text-4xl font-bold text-white mb-4">Artículo no encontrado</h1>
+          <p class="text-[#888] mb-8">No hemos podido localizar este post. Puedes volver al blog y seguir explorando contenido.</p>
+          <a href="/blog" class="inline-flex items-center gap-2 bg-[#00FF66] text-[#0A0A0A] px-6 py-3 rounded-xl font-semibold hover:bg-[#00CC52] transition">
+            <Icon name="lucide:arrow-left" class="w-4 h-4" />
+            Volver al blog
+          </a>
+        </div>
+      </section>
+    </main>
+  ) : (
+    <>
+  <section class="pt-32 pb-12 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#00FF66]/5 to-transparent"></div>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+
+      <div class="mb-8">
+        <a href="/blog" class="text-[#888] text-sm hover:text-[#00FF66] transition flex items-center gap-1 inline-flex">
+          <Icon name="lucide:arrow-left" class="w-4 h-4" /> Volver al blog
+        </a>
+      </div>
+
+      <div class="flex items-center gap-3 mb-4">
+        <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-3 py-1 rounded-full font-medium">{post.category.name}</span>
+        <span class="text-[#888] text-sm flex items-center gap-1">
+          <Icon name="lucide:clock" class="w-3 h-3" /> {post.readingTime} min lectura
+        </span>
+      </div>
+
+      <h1 class="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">{post.title}</h1>
+
+      <p class="text-[#888] text-lg mb-8">{post.excerpt}</p>
+
+      <div class="flex items-center gap-4 pb-8 border-b border-[#2A2A2A]">
+        <div class="w-12 h-12 bg-[#00FF66]/20 rounded-full flex items-center justify-center">
+          <span class="text-[#00FF66] font-bold text-lg">{post.author.charAt(0)}</span>
+        </div>
+        <div>
+          <p class="text-white font-semibold text-sm">{post.author}</p>
+          <p class="text-[#888] text-xs">{formatDate(post.publishedAt)}</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- IMAGEN DESTACADA -->
+  <section class="pb-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class={`bg-gradient-to-br ${post.gradientFrom} ${post.gradientTo} rounded-2xl h-64 md:h-80 flex items-center justify-center border border-[#2A2A2A]`}>
+        <Icon name={post.icon} class={`w-24 h-24 ${post.iconColor} opacity-50`} />
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTENIDO DEL ARTÍCULO -->
+  <section class="pb-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-4 gap-12">
+
+        <!-- ARTÍCULO -->
+        <article class="lg:col-span-3 prose-custom space-y-8">
+          <header class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
+            <p class="text-sm text-[#888] mb-3">
+              Este contenido se obtiene de forma asíncrona para poder conectarse con Strapi sin acoplar la presentación.
+            </p>
+            <div class="flex flex-wrap gap-2">
+              {post.tags.map((tag) => (
+                <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-3 py-1 rounded-full">{tag.name}</span>
+              ))}
+            </div>
+          </header>
+
+          <h2 id="introduccion" class="text-2xl font-bold text-white">Introducción</h2>
+          <p class="text-[#888] leading-relaxed">
+            {post.excerpt}
+          </p>
+
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
+            <div class="flex items-start gap-3">
+              <Icon name="lucide:lightbulb" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" />
+              <div>
+                <p class="text-white font-semibold text-sm mb-1">Tip importante</p>
+                <p class="text-[#888] text-sm">Este artículo asume conocimientos básicos de programación. Si estás empezando, te recomendamos primero nuestro curso introductorio.</p>
+              </div>
+            </div>
+          </div>
+
+          <h2 id="por-que-importa" class="text-2xl font-bold text-white">¿Por qué es importante?</h2>
+          <p class="text-[#888] leading-relaxed">
+            El ecosistema de desarrollo web evoluciona constantemente. Mantenerse actualizado no es solo una ventaja competitiva, 
+            es una necesidad. Los conceptos que cubrimos en este artículo te ayudarán a escribir código más limpio, 
+            más eficiente y más mantenible.
+          </p>
+
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
+            <p class="text-[#888] text-sm font-mono">
+              <span class="text-[#00FF66]">// Ejemplo de código</span><br />
+              <span class="text-purple-400">const</span> <span class="text-white">aprender</span> = <span class="text-purple-400">async</span> () =&gt; {"{"}<br />
+              &nbsp;&nbsp;<span class="text-purple-400">const</span> <span class="text-white">conocimiento</span> = <span class="text-purple-400">await</span> <span class="text-cyan-400">estudiar</span>();<br />
+              &nbsp;&nbsp;<span class="text-purple-400">return</span> <span class="text-cyan-400">aplicar</span>(<span class="text-white">conocimiento</span>);<br />
+              {"}"};
+            </p>
+          </div>
+
+          <h2 class="text-2xl font-bold text-white">Conceptos clave</h2>
+          <p class="text-[#888] leading-relaxed">
+            Antes de profundizar, es importante entender los fundamentos. Estos son los conceptos 
+            que necesitas dominar:
+          </p>
+
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <Icon name="lucide:check-circle" class="w-5 h-5 text-[#00FF66] shrink-0 mt-0.5" />
+              <p class="text-[#888] text-sm"><span class="text-white font-medium">Fundamentos sólidos:</span> Sin una base fuerte, las técnicas avanzadas pierden efectividad.</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <Icon name="lucide:check-circle" class="w-5 h-5 text-[#00FF66] shrink-0 mt-0.5" />
+              <p class="text-[#888] text-sm"><span class="text-white font-medium">Práctica constante:</span> La teoría sin práctica es inútil. Construye proyectos reales.</p>
+            </div>
+            <div class="flex items-start gap-3">
+              <Icon name="lucide:check-circle" class="w-5 h-5 text-[#00FF66] shrink-0 mt-0.5" />
+              <p class="text-[#888] text-sm"><span class="text-white font-medium">Comunidad:</span> Aprende de otros developers. Comparte y recibe feedback.</p>
+            </div>
+          </div>
+
+          <h2 id="aplicacion-real" class="text-2xl font-bold text-white">Aplicación real</h2>
+          <p class="text-[#888] leading-relaxed">
+            Vamos a ver un ejemplo práctico que puedes aplicar directamente en tus proyectos. 
+            Este patrón es utilizado por empresas como Vercel, Netflix y Spotify en sus aplicaciones de producción.
+          </p>
+
+          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
+            <p class="text-[#888] text-sm font-mono">
+              <span class="text-[#00FF66]">// Patrón recomendado</span><br />
+              <span class="text-purple-400">export function</span> <span class="text-cyan-400">useOptimized</span>() {"{"}<br />
+              &nbsp;&nbsp;<span class="text-purple-400">const</span> [<span class="text-white">state</span>, <span class="text-white">setState</span>] = <span class="text-cyan-400">useState</span>(<span class="text-orange-400">null</span>);<br />
+              &nbsp;&nbsp;<br />
+              &nbsp;&nbsp;<span class="text-cyan-400">useEffect</span>(() =&gt; {"{"}<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#00FF66]">// Tu lógica aquí</span><br />
+              &nbsp;&nbsp;{"}"}, []);<br />
+              &nbsp;&nbsp;<br />
+              &nbsp;&nbsp;<span class="text-purple-400">return</span> {"{"} <span class="text-white">state</span>, <span class="text-white">setState</span> {"}"};<br />
+              {"}"}
+            </p>
+          </div>
+
+          <h2 id="conclusion" class="text-2xl font-bold text-white">Conclusión</h2>
+          <p class="text-[#888] leading-relaxed">
+            {post.content.split("\n").slice(-2).join(" ")}
+          </p>
+
+          <div class="bg-gradient-to-br from-[#00FF66]/10 to-transparent border border-[#00FF66]/20 rounded-xl p-6">
+            <div class="flex items-start gap-3">
+              <Icon name="lucide:rocket" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" />
+              <div>
+                <p class="text-white font-semibold text-sm mb-1">¿Quieres profundizar más?</p>
+                <p class="text-[#888] text-sm mb-3">Tenemos un curso completo donde cubrimos todo esto en detalle con proyectos prácticos.</p>
+                <a href="/cursos" class="text-[#00FF66] text-sm font-semibold hover:underline flex items-center gap-1">
+                  Ver cursos relacionados <Icon name="lucide:arrow-right" class="w-4 h-4" />
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </article>
+
+        <!-- SIDEBAR -->
+        <aside class="hidden lg:block">
+          <div class="sticky top-24 space-y-6">
+
+            <!-- COMPARTIR -->
+            <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-6">
+              <h3 class="text-white font-semibold text-sm mb-4">Compartir</h3>
+              <div class="flex gap-3">
+                <button class="w-10 h-10 bg-[#00FF66]/10 rounded-lg flex items-center justify-center hover:bg-[#00FF66]/20 transition">
+                  <Icon name="lucide:twitter" class="w-4 h-4 text-[#00FF66]" />
+                </button>
+                <button class="w-10 h-10 bg-[#00FF66]/10 rounded-lg flex items-center justify-center hover:bg-[#00FF66]/20 transition">
+                  <Icon name="lucide:linkedin" class="w-4 h-4 text-[#00FF66]" />
+                </button>
+                <button class="w-10 h-10 bg-[#00FF66]/10 rounded-lg flex items-center justify-center hover:bg-[#00FF66]/20 transition">
+                  <Icon name="lucide:link" class="w-4 h-4 text-[#00FF66]" />
+                </button>
+              </div>
+            </div>
+
+            <!-- TABLA DE CONTENIDOS -->
+            <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-6">
+              <h3 class="text-white font-semibold text-sm mb-4">En este artículo</h3>
+              <nav class="space-y-3">
+                {sections.map((section) => (
+                  <a href={`#${section.id}`} class="text-[#888] text-xs hover:text-[#00FF66] transition block">{section.title}</a>
+                ))}
+              </nav>
+            </div>
+
+            <!-- NEWSLETTER -->
+            <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-6">
+              <Icon name="lucide:mail" class="w-8 h-8 text-[#00FF66] mb-3" />
+              <h3 class="text-white font-semibold text-sm mb-2">Newsletter</h3>
+              <p class="text-[#888] text-xs mb-4">Recibe artículos como este directamente en tu email.</p>
+              <input
+                type="email"
+                placeholder="tu@email.com"
+                class="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-white text-sm placeholder-[#888] focus:border-[#00FF66]/50 focus:outline-none mb-3"
+              />
+              <button class="w-full bg-[#00FF66] text-[#0A0A0A] py-2 rounded-lg font-semibold text-sm hover:bg-[#00CC52] transition">
+                Suscribirme
+              </button>
+            </div>
+
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ARTÍCULOS RELACIONADOS -->
+  <section class="py-16 border-t border-[#2A2A2A]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-2xl font-bold text-white mb-8">Artículos relacionados</h2>
+      <div class="grid md:grid-cols-3 gap-8">
+        {fallbackRelated.map((rel) => (
+          <a href={`/blog/${rel.slug}`} class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1 block">
+            <div class={`h-32 bg-gradient-to-br ${rel.gradientFrom} ${rel.gradientTo} flex items-center justify-center`}>
+              <Icon name={rel.icon} class={`w-10 h-10 ${rel.iconColor} opacity-70`} />
+            </div>
+            <div class="p-5">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{rel.category.name}</span>
+                <span class="text-[#888] text-xs">{rel.readingTime} min</span>
+              </div>
+              <h3 class="text-white font-bold text-sm group-hover:text-[#00FF66] transition leading-tight">{rel.title}</h3>
+              <p class="text-[#888] text-xs mt-2">{formatDate(rel.publishedAt)}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+    </>
+  )}
+
+  <Footer />
+</BaseLayout>

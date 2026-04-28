@@ -1,0 +1,47 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/layout/Navbar.astro";
+import Footer from "../../components/layout/Footer.astro";
+import BackToTop from "../../components/react/BackToTop.tsx";
+import { Icon } from "astro-icon/components";
+import { getCategories } from "../../lib/strapi";
+
+const categorias = await getCategories();
+---
+
+<BaseLayout title="Categorías | CoderUp">
+  <Navbar />
+
+  <section class="pt-32 pb-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-16">
+        <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Explora</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mt-3 mb-4">Categorías</h1>
+        <p class="text-[#888] text-lg max-w-2xl mx-auto">
+          Encuentra el área que más te interesa y empieza a aprender hoy mismo.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {categorias.map((cat) => (
+          <a href={`/categorias/${cat.slug}`} class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8 hover:border-[#00FF66]/50 transition group block">
+            <div class="w-14 h-14 bg-[#00FF66]/10 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#00FF66]/20 transition">
+              <Icon name={cat.icon} class="w-7 h-7 text-[#00FF66]" />
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">{cat.name}</h3>
+            <p class="text-[#888] text-sm mb-4">{cat.description}</p>
+            <div class="flex items-center justify-between">
+              <span class="text-[#00FF66] text-sm font-semibold">{cat.count ?? 0} cursos</span>
+              <Icon name="lucide:arrow-right" class="w-5 h-5 text-[#888] group-hover:text-[#00FF66] transition" />
+            </div>
+          </a>
+        ))}
+      </div>
+
+    </div>
+  </section>
+
+  <Footer />
+  <BackToTop client:load />
+</BaseLayout>

@@ -1,0 +1,44 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import BackToTop from "../components/react/BackToTop.tsx";
+
+Astro.response.status = 404;
+---
+
+<BaseLayout
+  title="Página no encontrada"
+  description="La ruta solicitada no existe en CoderUp. Explora cursos, categorías y artículos para volver a la navegación principal."
+  canonical="/404"
+>
+  <Navbar />
+  <main class="flex-1">
+    <section class="pt-32 pb-24 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-b from-[#00FF66]/8 to-transparent"></div>
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <div class="inline-flex items-center gap-2 border border-[#00FF66]/20 bg-[#00FF66]/8 rounded-full px-4 py-2 text-sm text-[#00FF66] mb-8">
+          <Icon name="lucide:triangle-alert" class="w-4 h-4" />
+          Error 404
+        </div>
+        <h1 class="text-5xl md:text-7xl font-extrabold text-white mb-6">Ruta no encontrada</h1>
+        <p class="text-lg text-[#888] max-w-2xl mx-auto mb-10">
+          La página que buscas no está disponible o ha cambiado de ubicación. Puedes volver al inicio, explorar el catálogo o revisar nuestras categorías.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a href="/" class="bg-[#00FF66] text-[#0A0A0A] px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#00CC52] transition shadow-lg shadow-[#00FF66]/20 flex items-center gap-2 justify-center">
+            <Icon name="lucide:house" class="w-5 h-5" />
+            Volver al inicio
+          </a>
+          <a href="/cursos" class="border border-[#2A2A2A] text-white px-8 py-4 rounded-xl font-bold text-lg hover:border-[#00FF66]/50 transition flex items-center gap-2 justify-center">
+            <Icon name="lucide:book-open" class="w-5 h-5" />
+            Ver cursos
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <BackToTop client:load />
+</BaseLayout>
