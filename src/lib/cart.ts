@@ -10,7 +10,7 @@ export const WELCOME_COUPON: Coupon = {
   code: "WELCOME20",
   discountType: "percentage",
   discountValue: 20,
-  onlyNewUsers: true,
+  onlyNewUsers: false,
   maxUses: 1,
   active: true,
 };
@@ -142,14 +142,6 @@ export function applyWelcomeCoupon(code: string) {
     return { ok: false as const, message: "El cupón no es válido." };
   }
 
-  if (WELCOME_COUPON.onlyNewUsers && !user.isNewUser) {
-    return { ok: false as const, message: "El cupón WELCOME20 solo está disponible para nuevos usuarios." };
-  }
-
-  if (user.usedWelcomeCoupon) {
-    return { ok: false as const, message: "Ya has usado el cupón de bienvenida." };
-  }
-
   const discountAmount = Number((getCartSubtotal() * (WELCOME_COUPON.discountValue / 100)).toFixed(2));
   appliedCoupon = {
     code: normalizedCode,
@@ -158,5 +150,5 @@ export function applyWelcomeCoupon(code: string) {
   persist();
   notify();
 
-  return { ok: true as const, message: "Cupón aplicado correctamente." };
+  return { ok: true as const, message: "Cupón aplicado. La validación final se realizará al confirmar el pedido." };
 }

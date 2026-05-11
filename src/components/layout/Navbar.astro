@@ -5,9 +5,9 @@ import CartButton from "../react/CartButton.tsx";
 import AccountNavButton from "../react/AccountNavButton.tsx";
 ---
 
-<nav class="fixed top-0 w-full z-50 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-[#2A2A2A]" id="navbar">
+<nav class="fixed top-0 w-full z-50 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-[#2A2A2A]" id="navbar" aria-label="Navegación principal">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-    <a href="/" class="flex items-center gap-2">
+    <a href="/" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A] focus:rounded-lg">
       <img src="/logo.webp" alt="Logo de CoderUp" class="w-8 h-8 rounded-md object-cover" />
       <span class="text-2xl font-bold">
         <span class="text-white">Coder</span><span class="text-[#00FF66]">Up</span>
@@ -16,33 +16,87 @@ import AccountNavButton from "../react/AccountNavButton.tsx";
 
     <div class="hidden md:flex gap-8 text-sm">
       {siteConfig.navigation.map((item) => (
-        <a href={item.href} class="text-[#888] hover:text-[#00FF66] transition">{item.label}</a>
+        <a 
+          href={item.href} 
+          class="text-[#888] hover:text-[#00FF66] transition focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A] focus:rounded-lg"
+          aria-label={item.label}
+        >
+          {item.label}
+        </a>
       ))}
     </div>
 
     <div class="flex items-center gap-4">
       <AccountNavButton client:load />
       <CartButton client:load />
-      <a href="/cursos" class="hidden md:inline-flex items-center gap-2 bg-[#00FF66] text-[#0A0A0A] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#00CC52] transition">
+      <a 
+        href="/cursos" 
+        class="hidden md:inline-flex items-center gap-2 bg-[#00FF66] text-[#0A0A0A] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#00CC52] transition focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A]"
+        aria-label="Empieza Gratis"
+      >
         <Icon name="lucide:rocket" class="w-4 h-4" />
         Empieza Gratis
       </a>
-      <button id="menu-toggle" class="md:hidden text-white focus:outline-none" aria-label="Menú">
+      <button 
+        id="menu-toggle" 
+        class="md:hidden text-white focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A] focus:rounded-lg" 
+        aria-label="Menú"
+        aria-expanded="false"
+      >
         <Icon name="lucide:menu" class="w-7 h-7" id="menu-open-icon" />
         <Icon name="lucide:x" class="w-7 h-7 hidden" id="menu-close-icon" />
       </button>
     </div>
   </div>
 
-  <div id="mobile-menu" class="hidden md:hidden bg-[#0A0A0A] border-t border-[#2A2A2A]">
+  <div 
+    id="mobile-menu" 
+    class="hidden md:hidden bg-[#0A0A0A] border-t border-[#2A2A2A]"
+    aria-hidden="true"
+  >
     <div class="px-4 py-6 flex flex-col gap-4">
       {siteConfig.navigation.map((item) => (
-        <a href={item.href} class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A]">{item.label}</a>
+        <a 
+          href={item.href} 
+          class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A] focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A] focus:rounded-lg"
+          aria-label={item.label}
+        >
+          {item.label}
+        </a>
       ))}
-      <a href="/login" class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A]">Login</a>
-      <a href="/mi-cuenta" class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A]">Mi cuenta</a>
-      <a href="/carrito" class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A]">Carrito</a>
-      <a href="/cursos" class="bg-[#00FF66] text-[#0A0A0A] px-4 py-3 rounded-lg font-semibold text-center hover:bg-[#00CC52] transition mt-2 inline-flex items-center justify-center gap-2">
+      <a 
+        href="/login" 
+        class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A] focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A] focus:rounded-lg"
+        aria-label="Login"
+      >
+        Iniciar sesión
+      </a>
+      <a 
+        href="/register" 
+        class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A] focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A] focus:rounded-lg"
+        aria-label="Registro"
+      >
+        Crear cuenta
+      </a>
+      <a 
+        href="/mi-cuenta" 
+        class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A] focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A] focus:rounded-lg"
+        aria-label="Mi cuenta"
+      >
+        Mi cuenta
+      </a>
+      <a 
+        href="/carrito" 
+        class="text-[#888] hover:text-[#00FF66] transition text-lg py-2 border-b border-[#2A2A2A] focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A] focus:rounded-lg"
+        aria-label="Carrito"
+      >
+        Carrito
+      </a>
+      <a 
+        href="/cursos" 
+        class="bg-[#00FF66] text-[#0A0A0A] px-4 py-3 rounded-lg font-semibold text-center hover:bg-[#00CC52] transition mt-2 inline-flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#00FF66] focus:ring-offset-2 focus:ring-offset-[#0A0A0A]"
+        aria-label="Empieza Gratis"
+      >
         <Icon name="lucide:rocket" class="w-4 h-4" />
         Empieza Gratis
       </a>
@@ -57,9 +111,11 @@ import AccountNavButton from "../react/AccountNavButton.tsx";
   const closeIcon = document.getElementById("menu-close-icon");
 
   toggle?.addEventListener("click", () => {
-    menu?.classList.toggle("hidden");
+    const isExpanded = menu?.classList.toggle("hidden");
     openIcon?.classList.toggle("hidden");
     closeIcon?.classList.toggle("hidden");
+    toggle?.setAttribute("aria-expanded", String(!isExpanded));
+    menu?.setAttribute("aria-hidden", String(isExpanded));
   });
 
   window.addEventListener("scroll", () => {

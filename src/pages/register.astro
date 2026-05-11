@@ -12,7 +12,7 @@ import AuthForm from "../components/react/AuthForm";
       <div class="rounded-3xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 md:p-10">
         <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Registro</p>
         <h1 class="text-4xl font-bold text-white mb-3">Crea tu cuenta</h1>
-        <p class="text-[#888] mb-8">Los nuevos usuarios pueden aplicar WELCOME20 en su primera compra premium.</p>
+        <p class="text-[#888] mb-8">El registro crea el usuario en MySQL con contraseña protegida mediante `password_hash()`.</p>
         <AuthForm client:load mode="register" />
       </div>
     </section>

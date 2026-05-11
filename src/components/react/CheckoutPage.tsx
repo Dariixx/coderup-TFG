@@ -1,15 +1,10 @@
 import { useState } from "react";
-import { createSimulatedOrder } from "../../lib/orders";
-import type { Course } from "../../lib/types";
+import { createOrder } from "../../lib/orders";
 import { formatPrice } from "../../lib/utils";
 import { useAuth } from "./useAuth";
 import { useCart } from "./useCart";
 
-interface Props {
-  courses: Course[];
-}
-
-export default function CheckoutPage({ courses }: Props) {
+export default function CheckoutPage() {
   const { user, initialized } = useAuth();
   const { cart, subtotal, discount, total } = useCart();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -44,7 +39,7 @@ export default function CheckoutPage({ courses }: Props) {
   const handleCheckout = async () => {
     setStatus("loading");
     setMessage("");
-    const result = await createSimulatedOrder(user, courses);
+    const result = await createOrder();
 
     if (!result.ok) {
       setStatus("error");
@@ -61,9 +56,9 @@ export default function CheckoutPage({ courses }: Props) {
 
   return (
     <div className="grid lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Pago simulado</h2>
-        <p className="text-[#888] mb-8">Este checkout demuestra la lógica de negocio sin integrar pasarela real.</p>
+      <div className="lg:col-span-2 rounded-[28px] border border-[#2A2A2A] bg-[radial-gradient(circle_at_top_left,_rgba(0,255,102,0.08),_transparent_30%),linear-gradient(180deg,#191919_0%,#121212_100%)] p-8">
+        <h2 className="text-2xl font-bold text-white mb-2">Confirmación del pedido</h2>
+        <p className="text-[#888] mb-8">El pedido se registra en el backend PHP y se guarda en MySQL mediante un endpoint JSON.</p>
 
         <div className="grid md:grid-cols-2 gap-5 mb-6">
           <div>
@@ -78,8 +73,23 @@ export default function CheckoutPage({ courses }: Props) {
 
         <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-6 mb-6">
           <p className="text-sm text-[#888] mb-2">Método de pago</p>
-          <p className="text-white font-semibold">Pago simulado de demostración</p>
-          <p className="text-sm text-[#666] mt-2">No se almacena información sensible ni datos de tarjeta.</p>
+          <p className="text-white font-semibold">Pago de demostración para entorno académico</p>
+          <p className="text-sm text-[#666] mt-2">No se almacenan datos sensibles. El objetivo es demostrar la lógica de pedidos y persistencia.</p>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-4 mb-6">
+          <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-[#666] mb-2">Backend</p>
+            <p className="text-white font-semibold">PHP + JSON</p>
+          </div>
+          <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-[#666] mb-2">Persistencia</p>
+            <p className="text-white font-semibold">MySQL + PDO</p>
+          </div>
+          <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-[#666] mb-2">Sesión</p>
+            <p className="text-white font-semibold">Usuario autenticado</p>
+          </div>
         </div>
 
         <button

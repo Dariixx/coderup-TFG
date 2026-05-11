@@ -5,7 +5,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import AddToCartButton from "../../components/react/AddToCartButton.tsx";
-import { getCourseBySlug, getCourses } from "../../lib/strapi";
+import { getCourseBySlug, getCourses } from "../../lib/content";
 import { formatPrice } from "../../lib/utils";
 
 export async function getStaticPaths() {

@@ -1,35 +1,45 @@
 import { cursos as mockCursos } from "../data/cursos";
 import { posts as mockPosts } from "../data/posts";
-import type { BlogCategory, BlogPost, Category, Course, SEO, StrapiCollectionResponse, Tag } from "./types";
+import { apiGet } from "./api";
+import type { BlogCategory, BlogPost, Category, Course, SEO, Tag } from "./types";
 import { getReadingTime, slugify, truncateText } from "./utils";
 
-const STRAPI_URL = import.meta.env.STRAPI_URL;
-const STRAPI_TOKEN = import.meta.env.STRAPI_TOKEN;
-
 const categoryMeta: Record<string, { description: string; icon: string }> = {
-  Frontend: {
-    description: "HTML, CSS, JavaScript, Astro, React Islands y experiencia de usuario moderna.",
-    icon: "lucide:monitor",
+  "Desarrollo Web": {
+    description: "Fundamentos web, maquetación moderna y experiencias responsive con enfoque práctico.",
+    icon: "lucide:monitor-smartphone",
+  },
+  JavaScript: {
+    description: "Programación moderna en frontend y fullstack con ejercicios reales.",
+    icon: "lucide:file-code-2",
   },
   Backend: {
-    description: "APIs, bases de datos, seguridad, Node.js y servicios desacoplados.",
+    description: "APIs, lógica de negocio, seguridad y desarrollo de servidor.",
     icon: "lucide:server",
   },
+  "Bases de Datos": {
+    description: "Modelado relacional, SQL y persistencia para proyectos académicos y reales.",
+    icon: "lucide:database",
+  },
+  "Diseño UX/UI": {
+    description: "Diseño centrado en el usuario, accesibilidad y colaboración con desarrollo.",
+    icon: "lucide:palette",
+  },
+  Frontend: {
+    description: "Interfaces modernas con HTML, CSS, Astro y React.",
+    icon: "lucide:monitor",
+  },
   Fullstack: {
-    description: "Arquitecturas end-to-end para crear productos completos.",
+    description: "Arquitecturas completas de extremo a extremo para productos digitales.",
     icon: "lucide:layers-3",
   },
   DevOps: {
-    description: "CI/CD, contenedores, despliegue e infraestructura para proyectos reales.",
+    description: "Automatización, despliegue y prácticas de entrega continua.",
     icon: "lucide:cloud",
   },
   Mobile: {
     description: "Desarrollo móvil multiplataforma y publicación de apps.",
     icon: "lucide:smartphone",
-  },
-  "Diseño UI/UX": {
-    description: "Diseño de interfaces, accesibilidad y colaboración diseño-desarrollo.",
-    icon: "lucide:palette",
   },
 };
 
@@ -44,6 +54,25 @@ const blogCategoryDescriptions: Record<string, string> = {
   IA: "Herramientas de IA aplicadas al trabajo diario del developer.",
   UX: "Accesibilidad, experiencia de usuario y diseño centrado en producto.",
 };
+
+interface ApiCourseRecord {
+  id: number;
+  category_id: number;
+  category_name: string;
+  category_slug: string;
+  category_description?: string | null;
+  title: string;
+  slug: string;
+  description: string;
+  short_description: string;
+  image?: string | null;
+  level: string;
+  duration: string;
+  price: number | string;
+  is_premium: number | boolean;
+  created_at?: string;
+  updated_at?: string;
+}
 
 function courseSeo(title: string, description: string): SEO {
   return {
@@ -76,7 +105,7 @@ function toStudentCount(value: string | number) {
   return Number.parseInt(normalized, 10) || 0;
 }
 
-function createCategory(name: string, count = 0): Category {
+function createCategory(name: string, count = 0, description?: string | null): Category {
   const meta = categoryMeta[name] ?? {
     description: `Contenido especializado en ${name} para avanzar con proyectos reales.`,
     icon: "lucide:folder",
@@ -86,12 +115,12 @@ function createCategory(name: string, count = 0): Category {
     id: slugify(name),
     name,
     slug: slugify(name),
-    description: meta.description,
+    description: description ?? meta.description,
     icon: meta.icon,
     count,
     seo: {
       metaTitle: `${name} | CoderUp`,
-      metaDescription: meta.description,
+      metaDescription: description ?? meta.description,
       canonicalURL: `/categorias/${slugify(name)}`,
       keywords: ["categorías", "coderup", name.toLowerCase()],
     },
@@ -114,17 +143,17 @@ function createInstructor(category: string, index: number) {
     {
       name: "Lucía Romero",
       role: "Senior Frontend Engineer",
-      bio: "Especialista en interfaces escalables con Astro, React y Tailwind CSS.",
+      bio: "Especialista en interfaces escalables con Astro, React y TypeScript.",
     },
     {
       name: "Javier Ortega",
       role: "Backend & API Architect",
-      bio: "Diseña arquitecturas desacopladas con Node.js, CMS headless y automatización.",
+      bio: "Diseña servicios backend claros con PHP, MySQL y APIs JSON defendibles.",
     },
     {
       name: "Marta Salas",
       role: "Product Engineer",
-      bio: "Combina experiencia de usuario, analítica y lógica de negocio en productos formativos.",
+      bio: "Conecta UX, producto y lógica de negocio en plataformas formativas.",
     },
   ];
 
@@ -176,10 +205,10 @@ En CoderUp trabajamos con una arquitectura desacoplada para que el contenido evo
 ## Qué aprenderás
 - Fundamentos aplicables a proyectos reales.
 - Buenas prácticas que puedes defender en un TFG.
-- Recomendaciones para escalar la solución con Astro y Strapi.
+- Recomendaciones para escalar la solución con Astro, React y un backend propio en PHP.
 
 ## Aplicación real
-La combinación de contenido bien modelado, páginas con await y componentes interactivos mediante Astro Islands permite mantener rendimiento, claridad y una UX profesional.
+La combinación de contenido bien modelado, páginas con render híbrido y componentes interactivos mediante Astro Islands permite mantener rendimiento, claridad y una UX profesional.
 
 ## Conclusión
 La clave no es solo conocer la tecnología, sino saber integrarla dentro de una arquitectura clara, mantenible y preparada para crecer.
@@ -192,7 +221,7 @@ function mapMockPost(post: (typeof mockPosts)[number], index: number): BlogPost 
   const tags: Tag[] = [
     { id: `${post.slug}-1`, name: post.category, slug: slugify(post.category) },
     { id: `${post.slug}-2`, name: "Astro", slug: "astro" },
-    { id: `${post.slug}-3`, name: "Strapi", slug: "strapi" },
+    { id: `${post.slug}-3`, name: "PHP", slug: "php" },
   ];
 
   return {
@@ -222,66 +251,89 @@ function getMockBlogPostsData() {
   return mockPosts.map(mapMockPost);
 }
 
-function normalizeStrapiData<T>(payload: unknown): T {
-  const data = payload as { data?: T };
-  return data?.data ?? (payload as T);
+function courseVisualFallback(slug: string, index: number) {
+  const mockCourses = getMockCoursesData();
+  return mockCourses.find((course) => course.slug === slug) ?? mockCourses[index % mockCourses.length];
 }
 
-export async function fetchFromStrapi<T>(endpoint: string): Promise<T | null> {
-  if (!STRAPI_URL) {
-    return null;
-  }
+function mapApiCourse(record: ApiCourseRecord, index: number): Course {
+  const fallback = courseVisualFallback(record.slug, index);
+  const price = Number(record.price);
+  const isPremium = Boolean(Number(record.is_premium));
+  const isFree = price <= 0 || !isPremium;
 
+  return {
+    id: record.id,
+    slug: record.slug,
+    title: record.title,
+    description: record.description,
+    shortDescription: record.short_description,
+    category: createCategory(record.category_name, 0, record.category_description),
+    level: record.level,
+    price,
+    isFree,
+    accessType: isFree ? "free" : "premium",
+    rating: fallback?.rating ?? 4.8,
+    students: fallback?.students ?? 1200,
+    duration: record.duration,
+    lessons: fallback?.lessons ?? 48,
+    featured: index < 6,
+    icon: fallback?.icon ?? "lucide:code-2",
+    iconColor: fallback?.iconColor ?? "text-[#00FF66]",
+    gradientFrom: fallback?.gradientFrom ?? "from-emerald-500/20",
+    gradientTo: fallback?.gradientTo ?? "to-teal-600/20",
+    instructor: fallback?.instructor ?? createInstructor(record.category_name, index),
+    seo: courseSeo(record.title, record.description),
+  };
+}
+
+async function fetchApiCourses(): Promise<Course[] | null> {
   try {
-    const url = new URL(endpoint, STRAPI_URL);
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        ...(STRAPI_TOKEN ? { Authorization: `Bearer ${STRAPI_TOKEN}` } : {}),
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Strapi respondió con ${response.status}`);
-    }
-
-    const payload = (await response.json()) as T;
-    return payload;
+    const response = await apiGet<{ courses: ApiCourseRecord[] }>("/courses/index.php");
+    const courses = response.data?.courses ?? [];
+    return courses.map(mapApiCourse);
   } catch (error) {
-    console.warn(`[CoderUp] Fallback mock activo para ${endpoint}:`, error);
+    if (!import.meta.env.SSR) {
+      console.warn("[CoderUp] Fallback a datos locales para cursos:", error);
+    }
     return null;
   }
 }
 
 export async function getCourses(): Promise<Course[]> {
-  const response = await fetchFromStrapi<StrapiCollectionResponse<Course>>("/api/courses?populate=*");
-  const strapiCourses = response ? normalizeStrapiData<Course[]>(response) : null;
-
-  // Fallback mock para desarrollo mientras Strapi no está disponible.
-  return Array.isArray(strapiCourses) && strapiCourses.length > 0 ? strapiCourses : getMockCoursesData();
+  const apiCourses = await fetchApiCourses();
+  return apiCourses && apiCourses.length > 0 ? apiCourses : getMockCoursesData();
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
+  try {
+    const response = await apiGet<{ course: ApiCourseRecord }>(`/courses/show.php?slug=${encodeURIComponent(slug)}`);
+    const course = response.data?.course;
+
+    if (course) {
+      return mapApiCourse(course, 0);
+    }
+  } catch (error) {
+    if (!import.meta.env.SSR) {
+      console.warn("[CoderUp] Fallback a detalle local de curso:", error);
+    }
+  }
+
   const courses = await getCourses();
   return courses.find((course) => course.slug === slug) ?? null;
 }
 
 export async function getCategories(): Promise<Category[]> {
-  const response = await fetchFromStrapi<StrapiCollectionResponse<Category>>("/api/categories?populate=*");
-  const strapiCategories = response ? normalizeStrapiData<Category[]>(response) : null;
-
-  if (Array.isArray(strapiCategories) && strapiCategories.length > 0) {
-    return strapiCategories;
-  }
-
   const courses = await getCourses();
   const counts = new Map<string, number>();
+  const descriptions = new Map<string, string>();
 
   courses.forEach((course) => {
     counts.set(course.category.name, (counts.get(course.category.name) ?? 0) + 1);
+    descriptions.set(course.category.name, course.category.description);
   });
 
-  return Array.from(counts.entries()).map(([name, count]) => createCategory(name, count));
+  return Array.from(counts.entries()).map(([name, count]) => createCategory(name, count, descriptions.get(name)));
 }
 
 export async function getCoursesByCategory(categorySlug: string): Promise<Course[]> {
@@ -295,10 +347,7 @@ export async function getFeaturedCourses(limit = 3): Promise<Course[]> {
 }
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  const response = await fetchFromStrapi<StrapiCollectionResponse<BlogPost>>("/api/posts?populate=*");
-  const strapiPosts = response ? normalizeStrapiData<BlogPost[]>(response) : null;
-
-  return Array.isArray(strapiPosts) && strapiPosts.length > 0 ? strapiPosts : getMockBlogPostsData();
+  return getMockBlogPostsData();
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {

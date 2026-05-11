@@ -4,7 +4,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import BlogPagination from "../../components/react/BlogPagination.tsx";
-import { getBlogPosts } from "../../lib/strapi";
+import { getBlogPosts } from "../../lib/content";
 
 const posts = await getBlogPosts();
 ---

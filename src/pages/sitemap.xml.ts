@@ -1,5 +1,5 @@
 import { siteConfig } from "../config/site";
-import { getBlogPosts, getCategories, getCourses } from "../lib/strapi";
+import { getBlogPosts, getCategories, getCourses } from "../lib/content";
 
 export async function GET() {
   const [courses, categories, posts] = await Promise.all([

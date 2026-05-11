@@ -1,13 +1,21 @@
-import type { StoredUser, User } from "./types";
-import { loadFromStorage, removeFromStorage, saveToStorage } from "./storage";
+import { apiGet, apiPost } from "./api";
+import { removeFromStorage, saveToStorage } from "./storage";
+import type { User } from "./types";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "./utils";
 
-const USERS_KEY = "coderup-users";
 const SESSION_KEY = "coderup-session";
 
 type AuthListener = () => void;
 
-let users: StoredUser[] = [];
+interface ApiUser {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  role_id: number;
+  created_at?: string | null;
+}
+
 let currentUser: User | null = null;
 let listeners: AuthListener[] = [];
 
@@ -15,13 +23,7 @@ function notify() {
   listeners.forEach((listener) => listener());
 }
 
-function sanitizeUser(user: StoredUser): User {
-  const { password: _password, ...safeUser } = user;
-  return safeUser;
-}
-
 function persist() {
-  saveToStorage(USERS_KEY, users);
   if (currentUser) {
     saveToStorage(SESSION_KEY, currentUser);
   } else {
@@ -29,17 +31,32 @@ function persist() {
   }
 }
 
-export function initAuth() {
-  users = loadFromStorage<StoredUser[]>(USERS_KEY, []);
-  currentUser = loadFromStorage<User | null>(SESSION_KEY, null);
+function mapApiUser(user: ApiUser): User {
+  return {
+    id: String(user.id),
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    roleId: user.role_id,
+    createdAt: user.created_at ?? null,
+  };
+}
+
+export async function initAuth() {
+  try {
+    const response = await apiGet<{ user: ApiUser }>("/auth/me.php");
+    const user = response.data?.user;
+    currentUser = user ? mapApiUser(user) : null;
+  } catch {
+    currentUser = null;
+  }
+
+  persist();
+  notify();
 }
 
 export function getCurrentUser() {
   return currentUser;
-}
-
-export function getStoredUsers() {
-  return users;
 }
 
 export function subscribeAuth(listener: AuthListener) {
@@ -65,28 +82,26 @@ export async function registerUser(input: { name: string; email: string; passwor
     return { ok: false as const, message: "La contraseña debe tener al menos 6 caracteres." };
   }
 
-  if (users.some((user) => user.email === email)) {
-    return { ok: false as const, message: "Ya existe una cuenta con este email." };
+  try {
+    const response = await apiPost<{ user: ApiUser }>("/auth/register.php", {
+      name,
+      email,
+      password: input.password,
+    });
+    const user = response.data?.user;
+
+    if (!user) {
+      return { ok: false as const, message: "No se ha recibido el usuario creado." };
+    }
+
+    currentUser = mapApiUser(user);
+    persist();
+    notify();
+
+    return { ok: true as const, user: currentUser };
+  } catch (error) {
+    return { ok: false as const, message: error instanceof Error ? error.message : "No se ha podido completar el registro." };
   }
-
-  await new Promise((resolve) => setTimeout(resolve, 900));
-
-  const nextUser: StoredUser = {
-    id: crypto.randomUUID(),
-    name,
-    email,
-    password: input.password,
-    isNewUser: true,
-    usedWelcomeCoupon: false,
-    createdAt: new Date().toISOString(),
-  };
-
-  users = [...users, nextUser];
-  currentUser = sanitizeUser(nextUser);
-  persist();
-  notify();
-
-  return { ok: true as const, user: currentUser };
 }
 
 export async function loginUser(input: { email: string; password: string }) {
@@ -100,34 +115,35 @@ export async function loginUser(input: { email: string; password: string }) {
     return { ok: false as const, message: "La contraseña debe tener al menos 6 caracteres." };
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  try {
+    const response = await apiPost<{ user: ApiUser }>("/auth/login.php", {
+      email,
+      password: input.password,
+    });
+    const user = response.data?.user;
 
-  const match = users.find((user) => user.email === email && user.password === input.password);
+    if (!user) {
+      return { ok: false as const, message: "No se ha recibido la sesión del usuario." };
+    }
 
-  if (!match) {
-    return { ok: false as const, message: "Credenciales incorrectas." };
+    currentUser = mapApiUser(user);
+    persist();
+    notify();
+
+    return { ok: true as const, user: currentUser };
+  } catch (error) {
+    return { ok: false as const, message: error instanceof Error ? error.message : "No se ha podido iniciar sesión." };
   }
-
-  currentUser = sanitizeUser(match);
-  persist();
-  notify();
-
-  return { ok: true as const, user: currentUser };
 }
 
-export function logoutUser() {
+export async function logoutUser() {
+  try {
+    await apiPost("/auth/logout.php");
+  } catch {
+    // Si el backend no responde, aun así limpiamos la interfaz local.
+  }
+
   currentUser = null;
-  persist();
-  notify();
-}
-
-export function updateCurrentUser(patch: Partial<User>) {
-  if (!currentUser) {
-    return;
-  }
-
-  currentUser = { ...currentUser, ...patch };
-  users = users.map((user) => (user.id === currentUser?.id ? { ...user, ...patch } : user));
   persist();
   notify();
 }

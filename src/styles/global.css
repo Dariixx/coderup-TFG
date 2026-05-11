@@ -1,11 +1,24 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-background: #0A0A0A;
+  --color-foreground: #E0E0E0;
+  --color-primary: #00FF66;
+  --color-primary-foreground: #0A0A0A;
+  --color-secondary: #00FF66;
+  --color-secondary-foreground: #0A0A0A;
+  --color-accent: #00FF66;
+  --color-accent-foreground: #0A0A0A;
+  --color-muted: #111111;
+  --color-muted-foreground: #888888;
+  --color-border: #2A2A2A;
+  --color-input: #2A2A2A;
+  --color-ring: #00FF66;
+}
+
 @layer base {
   :root {
-    --color-primary: #00FF66;
     --color-primary-dark: #00CC52;
-    --color-secondary: #00FF66;
-    --color-accent: #00FF66;
     --color-bg: #0A0A0A;
     --color-bg-alt: #111111;
     --color-bg-card: #1A1A1A;
@@ -21,8 +34,10 @@
   }
 
   body {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: "Inter", system-ui, sans-serif;
     min-height: 100vh;
+    background-color: var(--color-bg);
+    color: var(--color-text);
   }
 
   ::selection {

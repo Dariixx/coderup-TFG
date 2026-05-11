@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Footer from "../../components/layout/Footer.astro";
 import Navbar from "../../components/layout/Navbar.astro";
 import MyCoursesPage from "../../components/react/MyCoursesPage";
-import { getCourses } from "../../lib/strapi";
+import { getCourses } from "../../lib/content";
 
 const courses = await getCourses();
 ---

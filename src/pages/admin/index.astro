@@ -1,0 +1,28 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/layout/Navbar.astro";
+import Footer from "../../components/layout/Footer.astro";
+import AdminStats from "../../components/react/admin/AdminStats";
+---
+
+<BaseLayout title="Admin" description="Panel básico de administración de CoderUp para demostrar estadísticas y gestión académica.">
+  <Navbar />
+  <main class="flex-1 pt-32 pb-20">
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div>
+        <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Administración</p>
+        <h1 class="text-4xl font-bold text-white mb-3">Panel básico</h1>
+        <p class="text-[#888] max-w-3xl">Esta sección permite demostrar el backend PHP, la conexión con MySQL y los roles del proyecto final DAW.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <a href="/admin/cursos" class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 text-white hover:border-[#00FF66]/50 transition">Gestionar cursos</a>
+        <a href="/admin/pedidos" class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 text-white hover:border-[#00FF66]/50 transition">Ver pedidos</a>
+        <a href="/admin/usuarios" class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 text-white hover:border-[#00FF66]/50 transition">Gestionar usuarios</a>
+      </div>
+
+      <AdminStats client:load />
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

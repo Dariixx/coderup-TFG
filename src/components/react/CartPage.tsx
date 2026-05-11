@@ -31,7 +31,7 @@ export default function CartPage() {
           </svg>
         </div>
         <h2 className="text-2xl font-bold text-white mb-3">Tu carrito está vacío</h2>
-        <p className="text-[#888] mb-8">Añade cursos premium para probar el checkout simulado.</p>
+        <p className="text-[#888] mb-8">Añade cursos premium para probar el flujo real de carrito, descuento y pedido.</p>
         <a
           href="/cursos"
           className="bg-[#00FF66] text-[#0A0A0A] px-8 py-3 rounded-xl font-bold hover:bg-[#00CC52] transition inline-flex items-center gap-2"

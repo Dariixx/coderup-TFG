@@ -4,7 +4,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import CoursePagination from "../../components/react/CoursePagination.tsx";
-import { getCourses } from "../../lib/strapi";
+import { getCourses } from "../../lib/content";
 
 // Astro obtiene los datos de forma asíncrona y delega la interacción al island React.
 const cursos = await getCourses();

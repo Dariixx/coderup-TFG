@@ -12,8 +12,7 @@ export function useAuth() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    initAuth();
-    setInitialized(true);
+    initAuth().finally(() => setInitialized(true));
   }, []);
 
   const user = useSyncExternalStore(subscribeAuth, () => getCurrentUser(), () => null);

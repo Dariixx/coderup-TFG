@@ -7,7 +7,7 @@ import AnimatedCounter from "../components/react/AnimatedCounter.tsx";
 import TestimonialCarousel from "../components/react/TestimonialCarousel.tsx";
 import FAQAccordion from "../components/react/FAQAccordion.tsx";
 import BackToTop from "../components/react/BackToTop.tsx";
-import { getFeaturedCourses } from "../lib/strapi";
+import { getFeaturedCourses } from "../lib/content";
 import { formatPrice } from "../lib/utils";
 
 const featuredCourses = await getFeaturedCourses(3);

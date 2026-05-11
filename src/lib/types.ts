@@ -1,17 +1,17 @@
-export interface StrapiMediaFormat {
+export interface MediaFormat {
   url: string;
   width?: number;
   height?: number;
 }
 
-export interface StrapiMedia {
+export interface MediaAsset {
   id?: number;
   url: string;
   alternativeText?: string | null;
   caption?: string | null;
   width?: number | null;
   height?: number | null;
-  formats?: Record<string, StrapiMediaFormat>;
+  formats?: Record<string, MediaFormat>;
 }
 
 export interface SEO {
@@ -19,7 +19,7 @@ export interface SEO {
   metaDescription: string;
   canonicalURL?: string;
   keywords?: string[];
-  ogImage?: StrapiMedia | null;
+  ogImage?: MediaAsset | null;
 }
 
 export interface Instructor {
@@ -27,7 +27,7 @@ export interface Instructor {
   name: string;
   role: string;
   bio: string;
-  avatar?: StrapiMedia | null;
+  avatar?: MediaAsset | null;
 }
 
 export type CourseAccessType = "free" | "premium";
@@ -71,7 +71,7 @@ export interface Course {
   iconColor: string;
   gradientFrom: string;
   gradientTo: string;
-  cover?: StrapiMedia | null;
+  cover?: MediaAsset | null;
   instructor: Instructor;
   seo: SEO;
 }
@@ -98,11 +98,11 @@ export interface BlogPost {
   iconColor: string;
   gradientFrom: string;
   gradientTo: string;
-  cover?: StrapiMedia | null;
+  cover?: MediaAsset | null;
   seo: SEO;
 }
 
-export interface StrapiCollectionResponse<T> {
+export interface ContentCollectionResponse<T> {
   data: T[];
   meta?: Record<string, unknown>;
 }
@@ -111,13 +111,9 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  isNewUser: boolean;
-  usedWelcomeCoupon: boolean;
-  createdAt: string;
-}
-
-export interface StoredUser extends User {
-  password: string;
+  role: string;
+  roleId: number;
+  createdAt?: string | null;
 }
 
 export interface CartItem {
