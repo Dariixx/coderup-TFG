@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiGet } from "../../../lib/api";
+import { apiGet, getApiHelpMessage } from "../../../lib/api";
 import { useAuth } from "../useAuth";
 
 interface OrderRecord {
@@ -31,7 +31,7 @@ export default function AdminOrdersManager() {
         setMessage("");
       })
       .catch((error) => {
-        setMessage(error instanceof Error ? error.message : "No se han podido cargar los pedidos.");
+        setMessage(getApiHelpMessage(error));
       });
   }, []);
 
@@ -49,7 +49,11 @@ export default function AdminOrdersManager() {
 
   return (
     <div className="space-y-4">
-      {orders.map((order) => (
+      {orders.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[#2A2A2A] bg-[#1A1A1A] p-6 text-[#888]">
+          Aún no hay pedidos globales. Usa `cliente@coderup.com` o crea una compra desde el checkout para generar datos reales.
+        </div>
+      ) : orders.map((order) => (
         <article key={order.id} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
             <div>

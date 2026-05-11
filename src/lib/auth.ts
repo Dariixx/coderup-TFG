@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from "./api";
+import { apiGet, apiPost, getApiHelpMessage } from "./api";
 import { removeFromStorage, saveToStorage } from "./storage";
 import type { User } from "./types";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "./utils";
@@ -100,7 +100,7 @@ export async function registerUser(input: { name: string; email: string; passwor
 
     return { ok: true as const, user: currentUser };
   } catch (error) {
-    return { ok: false as const, message: error instanceof Error ? error.message : "No se ha podido completar el registro." };
+    return { ok: false as const, message: getApiHelpMessage(error) };
   }
 }
 
@@ -132,7 +132,7 @@ export async function loginUser(input: { email: string; password: string }) {
 
     return { ok: true as const, user: currentUser };
   } catch (error) {
-    return { ok: false as const, message: error instanceof Error ? error.message : "No se ha podido iniciar sesión." };
+    return { ok: false as const, message: getApiHelpMessage(error) };
   }
 }
 

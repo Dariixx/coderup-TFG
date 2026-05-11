@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useCart } from "./useCart";
 import { useAuth } from "./useAuth";
 import { useEnrollments } from "./useEnrollments";
+import { useOrders } from "./useOrders";
 import { createEnrollment } from "../../lib/enrollments";
 import type { CartItem, Course } from "../../lib/types";
 
@@ -15,6 +16,7 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
   const { addToCart, removeFromCart, isInCart, initialized } = useCart();
   const { user } = useAuth();
   const { enrollments, initialized: enrollmentsReady } = useEnrollments();
+  const { orders } = useOrders();
   const [inCart, setInCart] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [feedback, setFeedback] = useState("");
@@ -36,8 +38,16 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
     !!user &&
     enrollmentsReady &&
     enrollments.some((enrollment) => enrollment.userId === user.id && enrollment.courseSlug === item.slug);
+  const isPurchased =
+    !!user &&
+    orders.some((order) => order.userId === user.id && order.items.some((orderItem) => orderItem.slug === item.slug));
 
   const handleClick = () => {
+    if (isPurchased) {
+      window.location.href = "/mi-cuenta/mis-cursos";
+      return;
+    }
+
     if (inCart) {
       removeFromCart(item.slug);
       setInCart(false);
@@ -97,7 +107,14 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
           : "bg-[#00FF66] text-[#0A0A0A] hover:bg-[#00CC52] shadow-lg shadow-[#00FF66]/20"
       } ${size === "large" ? "px-8 py-4 text-lg" : "px-6 py-3 text-sm"}`}
     >
-      {inCart ? (
+      {isPurchased ? (
+        <>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          Acceso disponible
+        </>
+      ) : inCart ? (
         <>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

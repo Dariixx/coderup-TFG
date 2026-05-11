@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiGet, apiPost } from "../../../lib/api";
+import { apiGet, apiPost, getApiHelpMessage } from "../../../lib/api";
 import { useAuth } from "../useAuth";
 
 interface CourseRecord {
@@ -53,7 +53,7 @@ export default function AdminCoursesManager() {
   useEffect(() => {
     loadCourses().catch((error) => {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "No se han podido cargar los cursos.");
+      setMessage(getApiHelpMessage(error));
     });
   }, []);
 
@@ -96,7 +96,7 @@ export default function AdminCoursesManager() {
       await loadCourses();
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "No se ha podido guardar el curso.");
+      setMessage(getApiHelpMessage(error));
     }
   };
 
@@ -114,7 +114,7 @@ export default function AdminCoursesManager() {
       await loadCourses();
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "No se ha podido eliminar el curso.");
+      setMessage(getApiHelpMessage(error));
     }
   };
 
@@ -163,44 +163,50 @@ export default function AdminCoursesManager() {
 
       <section className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
         <h2 className="text-xl font-bold text-white mb-4">Listado de cursos</h2>
-        <div className="space-y-3">
-          {courses.map((course) => (
-            <div key={course.id} className="rounded-xl border border-[#2A2A2A] bg-[#111111] p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div>
-                <p className="text-white font-semibold">{course.title}</p>
-                <p className="text-sm text-[#888]">{course.category_name} · {course.level} · {Number(course.price).toFixed(2)} €</p>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setForm({
-                      id: String(course.id),
-                      category_id: String(course.category_id),
-                      title: course.title,
-                      slug: course.slug,
-                      description: course.description,
-                      short_description: course.short_description,
-                      image: "/logo.webp",
-                      level: course.level,
-                      duration: course.duration,
-                      price: String(course.price),
-                      is_premium: Boolean(Number(course.is_premium)),
-                    })
-                  }
-                  className="rounded-xl border border-[#2A2A2A] px-4 py-2 text-sm text-white hover:border-[#00FF66]/50 transition"
-                >
-                  Editar
-                </button>
-                {user.role === "admin" && (
-                  <button type="button" onClick={() => handleDelete(course.id)} className="rounded-xl border border-red-500/40 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10 transition">
-                    Eliminar
+        {courses.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[#2A2A2A] bg-[#111111] p-5 text-[#888]">
+            No hay cursos en la base de datos. Importa `seed.sql` o crea el primero desde este formulario para poder enseñarlo.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {courses.map((course) => (
+              <div key={course.id} className="rounded-xl border border-[#2A2A2A] bg-[#111111] p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                  <p className="text-white font-semibold">{course.title}</p>
+                  <p className="text-sm text-[#888]">{course.category_name} · {course.level} · {Number(course.price).toFixed(2)} €</p>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm({
+                        id: String(course.id),
+                        category_id: String(course.category_id),
+                        title: course.title,
+                        slug: course.slug,
+                        description: course.description,
+                        short_description: course.short_description,
+                        image: "/logo.webp",
+                        level: course.level,
+                        duration: course.duration,
+                        price: String(course.price),
+                        is_premium: Boolean(Number(course.is_premium)),
+                      })
+                    }
+                    className="rounded-xl border border-[#2A2A2A] px-4 py-2 text-sm text-white hover:border-[#00FF66]/50 transition"
+                  >
+                    Editar
                   </button>
-                )}
+                  {user.role === "admin" && (
+                    <button type="button" onClick={() => handleDelete(course.id)} className="rounded-xl border border-red-500/40 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10 transition">
+                      Eliminar
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

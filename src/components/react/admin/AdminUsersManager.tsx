@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiGet, apiPost } from "../../../lib/api";
+import { apiGet, apiPost, getApiHelpMessage } from "../../../lib/api";
 import { useAuth } from "../useAuth";
 
 interface UserRecord {
@@ -34,7 +34,7 @@ export default function AdminUsersManager() {
       .then(() => setMessage(""))
       .catch((error) => {
         setStatus("error");
-        setMessage(error instanceof Error ? error.message : "No se han podido cargar los usuarios.");
+        setMessage(getApiHelpMessage(error));
       });
   }, []);
 
@@ -54,7 +54,7 @@ export default function AdminUsersManager() {
       await loadUsers();
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "No se ha podido actualizar el rol.");
+      setMessage(getApiHelpMessage(error));
     }
   };
 

@@ -22,6 +22,8 @@ export default function OrdersPage() {
   }
 
   const myOrders = orders.filter((order) => order.userId === user.id);
+  const totalSpent = myOrders.reduce((sum, order) => sum + order.total, 0);
+  const totalCourses = new Set(myOrders.flatMap((order) => order.items.map((item) => item.slug))).size;
 
   if (!myOrders.length) {
     return (
@@ -37,6 +39,21 @@ export default function OrdersPage() {
 
   return (
     <div className="space-y-6">
+      <section className="grid md:grid-cols-3 gap-4">
+        <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+          <p className="text-sm text-[#888] mb-2">Pedidos completados</p>
+          <p className="text-3xl font-bold text-white">{myOrders.length}</p>
+        </div>
+        <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+          <p className="text-sm text-[#888] mb-2">Cursos adquiridos</p>
+          <p className="text-3xl font-bold text-white">{totalCourses}</p>
+        </div>
+        <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+          <p className="text-sm text-[#888] mb-2">Importe total</p>
+          <p className="text-3xl font-bold text-white">{formatPrice(totalSpent)}</p>
+        </div>
+      </section>
+
       {myOrders.map((order) => (
         <article key={order.id} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-5">

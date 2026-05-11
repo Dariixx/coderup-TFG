@@ -190,6 +190,32 @@ Capturas recomendadas:
 | Formularios de auth | Integrados con backend |
 | CRUD admin | Base funcional preparada |
 
+## 17.1. Guion recomendado para la demo
+
+Orden sugerido para la exposición:
+
+1. Mostrar la página principal y el catálogo.
+2. Enseñar el registro o el inicio de sesión con un usuario de prueba.
+3. Acceder a `Mi cuenta` para comprobar la sesión real.
+4. Añadir un curso premium al carrito y aplicar `WELCOME20`.
+5. Finalizar la compra desde checkout.
+6. Mostrar `Mis cursos` y `Pedidos`.
+7. Entrar con `admin@coderup.com` y mostrar el panel `/admin`.
+8. Enseñar en phpMyAdmin las tablas `users`, `courses`, `orders` y `order_items`.
+
+## 17.2. Cuentas y datos de demostración
+
+| Tipo | Email | Contraseña |
+| --- | --- | --- |
+| Admin | `admin@coderup.com` | `CoderUp123!` |
+| Editor | `editor@coderup.com` | `CoderUp123!` |
+| Cliente | `cliente@coderup.com` | `CoderUp123!` |
+| Invitado | `invitado@coderup.com` | `CoderUp123!` |
+
+Cupón académico de prueba:
+
+- `WELCOME20`
+
 ## 18. Incidencias y soluciones
 
 | Incidencia | Solución aplicada |
@@ -198,6 +224,7 @@ Capturas recomendadas:
 | Referencias al starter de Astro | Eliminadas y documentadas |
 | Build roto por tokens Tailwind | Ajuste de variables de tema en `global.css` |
 | Build estático sin backend activo | Fallback controlado a datos locales |
+| Base de datos vacía durante la demo | Se añadieron mensajes y documentación para importar `schema.sql` y `seed.sql` antes de probar auth y admin |
 
 ## 19. Conclusión de la fase
 

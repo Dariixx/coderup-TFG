@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiGet } from "../../../lib/api";
+import { apiGet, getApiHelpMessage } from "../../../lib/api";
 
 interface StatsPayload {
   stats: {
@@ -32,7 +32,7 @@ export default function AdminStats() {
       })
       .catch((error) => {
         setStatus("error");
-        setMessage(error instanceof Error ? error.message : "No se ha podido cargar el panel.");
+        setMessage(getApiHelpMessage(error));
       });
   }, []);
 
@@ -63,20 +63,26 @@ export default function AdminStats() {
 
       <section className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
         <h2 className="text-xl font-bold text-white mb-4">Últimos pedidos</h2>
-        <div className="space-y-3">
-          {stats.latest_orders.map((order) => (
-            <div key={order.id} className="rounded-xl border border-[#2A2A2A] bg-[#111111] p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-              <div>
-                <p className="text-white font-semibold">{order.user_name}</p>
-                <p className="text-sm text-[#888]">{order.user_email}</p>
+        {stats.latest_orders.length === 0 ? (
+          <div className="rounded-xl border border-dashed border-[#2A2A2A] bg-[#111111] p-5 text-[#888]">
+            Todavía no hay pedidos registrados. Importa `seed.sql` o crea un pedido desde el checkout para enseñar esta evidencia en la demo.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {stats.latest_orders.map((order) => (
+              <div key={order.id} className="rounded-xl border border-[#2A2A2A] bg-[#111111] p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div>
+                  <p className="text-white font-semibold">{order.user_name}</p>
+                  <p className="text-sm text-[#888]">{order.user_email}</p>
+                </div>
+                <div className="text-sm">
+                  <p className="text-white">{order.total.toFixed(2)} €</p>
+                  <p className="text-[#888] capitalize">{order.status}</p>
+                </div>
               </div>
-              <div className="text-sm">
-                <p className="text-white">{order.total.toFixed(2)} €</p>
-                <p className="text-[#888] capitalize">{order.status}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

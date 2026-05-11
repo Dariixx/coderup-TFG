@@ -21,6 +21,16 @@ import AdminStats from "../../components/react/admin/AdminStats";
         <a href="/admin/usuarios" class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 text-white hover:border-[#00FF66]/50 transition">Gestionar usuarios</a>
       </div>
 
+      <div class="rounded-2xl border border-[#2A2A2A] bg-gradient-to-br from-[#111111] to-[#171717] p-6">
+        <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-3">Modo demo</p>
+        <p class="text-[#888]">
+          Para la defensa puedes entrar con <span class="text-white font-semibold">admin@coderup.com</span> y contraseña
+          <span class="text-white font-semibold"> CoderUp123!</span>. Si la base de datos está vacía, importa primero
+          <code class="text-[#9CFFBF]"> database/schema.sql </code> y
+          <code class="text-[#9CFFBF]"> database/seed.sql </code>.
+        </p>
+      </div>
+
       <AdminStats client:load />
     </section>
   </main>
