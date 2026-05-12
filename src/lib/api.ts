@@ -9,6 +9,7 @@ export const API_BASE =
   "http://localhost:8000";
 
 export const API_BASE_URL = API_BASE;
+const AUTH_TOKEN_KEY = "coderup-auth-token";
 
 export interface ApiResponse<T = unknown> {
   ok: boolean;
@@ -33,12 +34,37 @@ interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
 }
 
+export function getApiAuthToken() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  return window.localStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+export function setApiAuthToken(token: string | null) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  if (token) {
+    window.localStorage.setItem(AUTH_TOKEN_KEY, token);
+  } else {
+    window.localStorage.removeItem(AUTH_TOKEN_KEY);
+  }
+}
+
 async function requestApi<T>(path: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
   const headers = new Headers(options.headers);
   const isFormData = options.body instanceof FormData;
+  const token = getApiAuthToken();
 
   if (!isFormData) {
     headers.set("Content-Type", "application/json");
+  }
+
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   let response: Response;
@@ -46,13 +72,14 @@ async function requestApi<T>(path: string, options: RequestOptions = {}): Promis
     response = await fetch(`${API_BASE}${path}`, {
       ...options,
       headers,
-      credentials: "include",
       body:
         options.body === undefined
           ? undefined
           : isFormData
             ? options.body
-            : JSON.stringify(options.body),
+            : typeof options.body === "string"
+              ? options.body
+              : JSON.stringify(options.body),
     });
   } catch {
     throw new ApiRequestError(

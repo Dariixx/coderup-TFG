@@ -13,7 +13,7 @@ function sendError($message, $statusCode = 400, $details = null) {
         'message' => $message
     ];
 
-    if ($details && $_ENV['APP_ENV'] === 'development') {
+    if ($details && getenv('APP_ENV') === 'development') {
         $response['details'] = $details;
     }
 
@@ -47,7 +47,29 @@ function requireMethods($methods = []) {
 
 function getJsonInput() {
     $input = file_get_contents('php://input');
-    return json_decode($input, true) ?? [];
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+
+    if ($input === false || trim($input) === '') {
+        return $_POST ?? [];
+    }
+
+    if (stripos($contentType, 'application/json') !== false) {
+        $decoded = json_decode($input, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+            sendError('JSON inválido', 400, json_last_error_msg());
+        }
+
+        return $decoded;
+    }
+
+    $decoded = json_decode($input, true);
+    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+        return $decoded;
+    }
+
+    parse_str($input, $parsed);
+    return is_array($parsed) ? $parsed : [];
 }
 
 function getOrQuery($key, $default = null) {

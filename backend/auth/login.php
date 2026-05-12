@@ -39,8 +39,6 @@ if (!$user || !verifyPassword($password, $user['password'])) {
     sendError('Credenciales incorrectas', 401);
 }
 
-unset($user['password']);
+$session = createSession($user);
 
-createSession($user);
-
-sendSuccess($user, 'Sesión iniciada correctamente');
+sendSuccess($session, 'Sesión iniciada correctamente');

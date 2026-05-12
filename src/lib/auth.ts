@@ -10,7 +10,7 @@
 import type { StoredUser, User } from "./types";
 import { loadFromStorage, removeFromStorage, saveToStorage } from "./storage";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "./utils";
-import { apiFetch, API_BASE } from "./api";
+import { apiFetch, setApiAuthToken } from "./api";
 
 const USERS_KEY = "coderup-users";
 const SESSION_KEY = "coderup-session";
@@ -41,15 +41,25 @@ function persist() {
 
 /** Convierte la respuesta del backend PHP al tipo User local */
 function backendUserToLocal(data: any): User {
+  const user = data?.user ?? data;
+
   return {
-    id: String(data.id),
-    name: data.name,
-    email: data.email,
-    role: data.role ?? "client",
+    id: String(user.id),
+    name: user.name,
+    email: user.email,
+    role: user.role ?? "client",
     isNewUser: false,
     usedWelcomeCoupon: false,
-    createdAt: data.created_at ?? new Date().toISOString(),
+    createdAt: user.created_at ?? new Date().toISOString(),
   };
+}
+
+function storeBackendSession(data: any) {
+  if (data?.token) {
+    setApiAuthToken(data.token);
+  }
+
+  return backendUserToLocal(data);
 }
 
 export function initAuth() {
@@ -63,6 +73,13 @@ export function getCurrentUser() {
 
 export function getStoredUsers() {
   return users;
+}
+
+export function syncCurrentUserFromBackend(data: any) {
+  currentUser = backendUserToLocal(data);
+  persist();
+  notify();
+  return currentUser;
 }
 
 export function subscribeAuth(listener: AuthListener) {
@@ -87,11 +104,11 @@ export async function registerUser(input: { name: string; email: string; passwor
   // ── Intento backend real ──
   const result = await apiFetch<any>("/auth/register.php", {
     method: "POST",
-    body: JSON.stringify({ name, email, password: input.password }),
+    body: { name, email, password: input.password },
   });
 
   if (result.ok) {
-    const user = backendUserToLocal(result.data);
+    const user = storeBackendSession(result.data);
     currentUser = user;
     persist();
     notify();
@@ -141,11 +158,11 @@ export async function loginUser(input: { email: string; password: string }) {
   // ── Intento backend real ──
   const result = await apiFetch<any>("/auth/login.php", {
     method: "POST",
-    body: JSON.stringify({ email, password: input.password }),
+    body: { email, password: input.password },
   });
 
   if (result.ok) {
-    const user = backendUserToLocal(result.data);
+    const user = storeBackendSession(result.data);
     currentUser = user;
     persist();
     notify();
@@ -174,6 +191,7 @@ export async function loginUser(input: { email: string; password: string }) {
 export async function logoutUser() {
   // Intentar invalidar sesión en backend (sin bloquear si falla)
   apiFetch("/auth/logout.php", { method: "POST" }).catch(() => {});
+  setApiAuthToken(null);
   currentUser = null;
   persist();
   notify();

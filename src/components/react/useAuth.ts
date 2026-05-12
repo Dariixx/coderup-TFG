@@ -6,6 +6,7 @@ import {
   logoutUser,
   registerUser,
   subscribeAuth,
+  syncCurrentUserFromBackend,
 } from "../../lib/auth";
 import { apiFetch } from "../../lib/api";
 
@@ -21,9 +22,7 @@ export function useAuth() {
     // sincronizamos. Si no hay backend, simplemente usamos la local.
     apiFetch<any>("/auth/me.php").then((result) => {
       if (result.ok && result.data) {
-        // Sesión válida en backend → ya initAuth() la habrá cargado desde cookie/localStorage
-        // Solo necesitamos re-inicializar por si el role cambió
-        initAuth();
+        syncCurrentUserFromBackend(result.data);
       }
       setInitialized(true);
     });

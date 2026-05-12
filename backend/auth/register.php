@@ -53,9 +53,9 @@ try {
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
 
-    createSession($user);
+    $session = createSession($user);
 
-    sendSuccess($user, 'Usuario registrado correctamente', 201);
+    sendSuccess($session, 'Usuario registrado correctamente', 201);
 } catch (PDOException $e) {
     sendError('Error al registrar usuario', 500);
 }
