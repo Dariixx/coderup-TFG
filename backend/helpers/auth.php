@@ -94,10 +94,10 @@ function sendPasswordResetEmail($email, $name, $resetUrl) {
     $body .= "El enlace caduca en 1 hora:\n\n{$resetUrl}\n\n";
     $body .= "Si no has solicitado este cambio, puedes ignorar este mensaje.\n\nCoderUp";
 
-    $from = getenv('SMTP_FROM') ?: getenv('SMTP_USER') ?: 'no-reply@coderup.local';
+    $from = parseMailFrom(getenv('SMTP_FROM') ?: getenv('SMTP_USER') ?: 'no-reply@coderup.local');
     $headers = [
-        'From: CoderUp <' . $from . '>',
-        'Reply-To: ' . $from,
+        'From: ' . $from['header'],
+        'Reply-To: ' . $from['email'],
         'Content-Type: text/plain; charset=UTF-8',
     ];
 
@@ -106,6 +106,26 @@ function sendPasswordResetEmail($email, $name, $resetUrl) {
     }
 
     return @mail($email, $subject, $body, implode("\r\n", $headers));
+}
+
+function parseMailFrom($rawFrom) {
+    $rawFrom = trim($rawFrom);
+
+    if (preg_match('/^(.*?)<([^>]+)>$/', $rawFrom, $matches)) {
+        $name = trim($matches[1], " \t\n\r\0\x0B\"'");
+        $email = trim($matches[2]);
+        return [
+            'name' => $name ?: 'CoderUp',
+            'email' => $email,
+            'header' => ($name ?: 'CoderUp') . ' <' . $email . '>',
+        ];
+    }
+
+    return [
+        'name' => 'CoderUp',
+        'email' => $rawFrom,
+        'header' => 'CoderUp <' . $rawFrom . '>',
+    ];
 }
 
 function sendSmtpMail($to, $subject, $body, $from) {
@@ -177,7 +197,7 @@ function sendSmtpMail($to, $subject, $body, $from) {
         fclose($socket);
         return false;
     }
-    if (!$write('MAIL FROM:<' . $from . '>', ['250'])) {
+    if (!$write('MAIL FROM:<' . $from['email'] . '>', ['250'])) {
         fclose($socket);
         return false;
     }
@@ -190,7 +210,7 @@ function sendSmtpMail($to, $subject, $body, $from) {
         return false;
     }
 
-    $message = "From: CoderUp <{$from}>\r\n";
+    $message = "From: {$from['header']}\r\n";
     $message .= "To: {$to}\r\n";
     $message .= "Subject: {$subject}\r\n";
     $message .= "MIME-Version: 1.0\r\n";
