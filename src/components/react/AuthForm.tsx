@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { PASSWORD_REGEX } from "../../lib/utils";
 import { useAuth } from "./useAuth";
 
 interface Props {
@@ -14,6 +15,12 @@ export default function AuthForm({ mode }: Props) {
     email: "",
     password: "",
   });
+  const passwordRequirements = [
+    {
+      label: "Mínimo 6 caracteres",
+      isValid: PASSWORD_REGEX.test(formData.password),
+    },
+  ];
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -73,6 +80,35 @@ export default function AuthForm({ mode }: Props) {
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="Mínimo 6 caracteres"
         />
+        {mode === "register" && (
+          <div className="mt-3 rounded-xl border border-[#2A2A2A] bg-[#111111]/70 px-4 py-3" aria-live="polite">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#888]">
+              Requisitos de contraseña
+            </p>
+            <ul className="space-y-1.5">
+              {passwordRequirements.map((requirement) => (
+                <li
+                  key={requirement.label}
+                  className={`flex items-center gap-2 text-sm ${
+                    requirement.isValid ? "text-[#9CFFBF]" : "text-red-300"
+                  }`}
+                >
+                  <span
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs font-bold ${
+                      requirement.isValid
+                        ? "border-[#00FF66]/40 bg-[#00FF66]/10 text-[#00FF66]"
+                        : "border-red-500/40 bg-red-500/10 text-red-300"
+                    }`}
+                    aria-hidden="true"
+                  >
+                    {requirement.isValid ? "✓" : "!"}
+                  </span>
+                  <span>{requirement.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       <button
