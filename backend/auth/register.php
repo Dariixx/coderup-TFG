@@ -8,6 +8,7 @@ require_once __DIR__ . '/../helpers/validators.php';
 require_once __DIR__ . '/../helpers/auth.php';
 
 requireMethod('POST');
+ensureAuthTables($conn);
 
 $input = getJsonInput();
 

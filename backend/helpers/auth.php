@@ -12,11 +12,38 @@ function base64UrlEncode($value) {
     return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
 }
 
+function ensureAuthTables($conn) {
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    $conn->exec("
+        CREATE TABLE IF NOT EXISTS users (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL UNIQUE,
+            password VARCHAR(255) NOT NULL,
+            remember_token VARCHAR(128) NULL UNIQUE,
+            role ENUM('admin', 'editor', 'client', 'guest') DEFAULT 'client',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX idx_email (email),
+            INDEX idx_remember_token (remember_token),
+            INDEX idx_role (role)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    $checked = true;
+}
+
 function ensureRememberTokenColumn($conn) {
     static $checked = false;
     if ($checked) {
         return;
     }
+
+    ensureAuthTables($conn);
 
     try {
         $conn->query('SELECT remember_token FROM users LIMIT 1');
