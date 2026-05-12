@@ -7,13 +7,26 @@ import {
   registerUser,
   subscribeAuth,
 } from "../../lib/auth";
+import { apiFetch } from "../../lib/api";
 
 export function useAuth() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
+    // 1. Cargar sesión local (inmediato, sin parpadeo)
     initAuth();
-    setInitialized(true);
+
+    // 2. Verificar con el backend si hay sesión PHP activa
+    // Si hay sesión en el servidor pero no en local (p.ej. otra pestaña),
+    // sincronizamos. Si no hay backend, simplemente usamos la local.
+    apiFetch<any>("/auth/me.php").then((result) => {
+      if (result.ok && result.data) {
+        // Sesión válida en backend → ya initAuth() la habrá cargado desde cookie/localStorage
+        // Solo necesitamos re-inicializar por si el role cambió
+        initAuth();
+      }
+      setInitialized(true);
+    });
   }, []);
 
   const user = useSyncExternalStore(subscribeAuth, () => getCurrentUser(), () => null);

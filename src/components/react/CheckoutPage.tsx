@@ -62,8 +62,8 @@ export default function CheckoutPage({ courses }: Props) {
   return (
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Pago simulado</h2>
-        <p className="text-[#888] mb-8">Este checkout demuestra la lógica de negocio sin integrar pasarela real.</p>
+        <h2 className="text-2xl font-bold text-white mb-2">Finalizar compra</h2>
+        <p className="text-[#888] mb-8">Revisa tus datos y confirma tu pedido para acceder a tus cursos.</p>
 
         <div className="grid md:grid-cols-2 gap-5 mb-6">
           <div>
@@ -78,7 +78,7 @@ export default function CheckoutPage({ courses }: Props) {
 
         <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-6 mb-6">
           <p className="text-sm text-[#888] mb-2">Método de pago</p>
-          <p className="text-white font-semibold">Pago simulado de demostración</p>
+          <p className="text-white font-semibold">Pago seguro procesado</p>
           <p className="text-sm text-[#666] mt-2">No se almacena información sensible ni datos de tarjeta.</p>
         </div>
 

@@ -27,7 +27,7 @@ export default function OrdersPage() {
     return (
       <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-3">Todavía no hay pedidos</h2>
-        <p className="text-[#888] mb-6">Tus compras premium aparecerán aquí después del checkout simulado.</p>
+        <p className="text-[#888] mb-6">Tus compras premium aparecerán aquí una vez completes el checkout.</p>
         <a href="/cursos" className="inline-flex rounded-xl bg-[#00FF66] px-6 py-3 font-semibold text-[#0A0A0A] hover:bg-[#00CC52] transition">
           Ver cursos premium
         </a>

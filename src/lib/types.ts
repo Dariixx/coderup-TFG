@@ -108,6 +108,7 @@ export interface StrapiCollectionResponse<T> {
 }
 
 export interface User {
+  role?: string;
   id: string;
   name: string;
   email: string;
@@ -117,6 +118,7 @@ export interface User {
 }
 
 export interface StoredUser extends User {
+  role: string;
   password: string;
 }
 

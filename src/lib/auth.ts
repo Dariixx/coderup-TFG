@@ -1,6 +1,16 @@
+/**
+ * auth.ts — Autenticación con backend PHP real + fallback a localStorage.
+ *
+ * Flujo:
+ *  1. Intenta POST /auth/login.php o /auth/register.php en el backend.
+ *  2. Si el backend responde OK → usa esos datos.
+ *  3. Si el backend no está disponible → fallback a localStorage (modo demo).
+ */
+
 import type { StoredUser, User } from "./types";
 import { loadFromStorage, removeFromStorage, saveToStorage } from "./storage";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "./utils";
+import { apiFetch, API_BASE } from "./api";
 
 const USERS_KEY = "coderup-users";
 const SESSION_KEY = "coderup-session";
@@ -29,6 +39,19 @@ function persist() {
   }
 }
 
+/** Convierte la respuesta del backend PHP al tipo User local */
+function backendUserToLocal(data: any): User {
+  return {
+    id: String(data.id),
+    name: data.name,
+    email: data.email,
+    role: data.role ?? "client",
+    isNewUser: false,
+    usedWelcomeCoupon: false,
+    createdAt: data.created_at ?? new Date().toISOString(),
+  };
+}
+
 export function initAuth() {
   users = loadFromStorage<StoredUser[]>(USERS_KEY, []);
   currentUser = loadFromStorage<User | null>(SESSION_KEY, null);
@@ -49,23 +72,39 @@ export function subscribeAuth(listener: AuthListener) {
   };
 }
 
+/* ─── REGISTER ─────────────────────────────────────────────────────────── */
+
 export async function registerUser(input: { name: string; email: string; password: string }) {
   const name = input.name.trim();
   const email = input.email.trim().toLowerCase();
 
-  if (!name) {
-    return { ok: false as const, message: "El nombre es obligatorio." };
-  }
-
-  if (!EMAIL_REGEX.test(email)) {
-    return { ok: false as const, message: "Introduce un email válido." };
-  }
-
-  if (!PASSWORD_REGEX.test(input.password)) {
+  // Validaciones cliente
+  if (!name) return { ok: false as const, message: "El nombre es obligatorio." };
+  if (!EMAIL_REGEX.test(email)) return { ok: false as const, message: "Introduce un email válido." };
+  if (!PASSWORD_REGEX.test(input.password))
     return { ok: false as const, message: "La contraseña debe tener al menos 6 caracteres." };
+
+  // ── Intento backend real ──
+  const result = await apiFetch<any>("/auth/register.php", {
+    method: "POST",
+    body: JSON.stringify({ name, email, password: input.password }),
+  });
+
+  if (result.ok) {
+    const user = backendUserToLocal(result.data);
+    currentUser = user;
+    persist();
+    notify();
+    return { ok: true as const, user };
   }
 
-  if (users.some((user) => user.email === email)) {
+  // Si el error es de negocio (email duplicado), lo devolvemos directamente
+  if (!result.message.includes("Backend no disponible")) {
+    return { ok: false as const, message: result.message };
+  }
+
+  // ── Fallback localStorage ──
+  if (users.some((u) => u.email === email)) {
     return { ok: false as const, message: "Ya existe una cuenta con este email." };
   }
 
@@ -76,6 +115,7 @@ export async function registerUser(input: { name: string; email: string; passwor
     name,
     email,
     password: input.password,
+    role: "client",
     isNewUser: true,
     usedWelcomeCoupon: false,
     createdAt: new Date().toISOString(),
@@ -89,24 +129,38 @@ export async function registerUser(input: { name: string; email: string; passwor
   return { ok: true as const, user: currentUser };
 }
 
+/* ─── LOGIN ─────────────────────────────────────────────────────────────── */
+
 export async function loginUser(input: { email: string; password: string }) {
   const email = input.email.trim().toLowerCase();
 
-  if (!EMAIL_REGEX.test(email)) {
-    return { ok: false as const, message: "Introduce un email válido." };
-  }
-
-  if (!PASSWORD_REGEX.test(input.password)) {
+  if (!EMAIL_REGEX.test(email)) return { ok: false as const, message: "Introduce un email válido." };
+  if (!PASSWORD_REGEX.test(input.password))
     return { ok: false as const, message: "La contraseña debe tener al menos 6 caracteres." };
+
+  // ── Intento backend real ──
+  const result = await apiFetch<any>("/auth/login.php", {
+    method: "POST",
+    body: JSON.stringify({ email, password: input.password }),
+  });
+
+  if (result.ok) {
+    const user = backendUserToLocal(result.data);
+    currentUser = user;
+    persist();
+    notify();
+    return { ok: true as const, user };
   }
 
+  if (!result.message.includes("Backend no disponible")) {
+    return { ok: false as const, message: result.message };
+  }
+
+  // ── Fallback localStorage ──
   await new Promise((resolve) => setTimeout(resolve, 800));
 
-  const match = users.find((user) => user.email === email && user.password === input.password);
-
-  if (!match) {
-    return { ok: false as const, message: "Credenciales incorrectas." };
-  }
+  const match = users.find((u) => u.email === email && u.password === input.password);
+  if (!match) return { ok: false as const, message: "Credenciales incorrectas." };
 
   currentUser = sanitizeUser(match);
   persist();
@@ -115,19 +169,20 @@ export async function loginUser(input: { email: string; password: string }) {
   return { ok: true as const, user: currentUser };
 }
 
-export function logoutUser() {
+/* ─── LOGOUT ────────────────────────────────────────────────────────────── */
+
+export async function logoutUser() {
+  // Intentar invalidar sesión en backend (sin bloquear si falla)
+  apiFetch("/auth/logout.php", { method: "POST" }).catch(() => {});
   currentUser = null;
   persist();
   notify();
 }
 
 export function updateCurrentUser(patch: Partial<User>) {
-  if (!currentUser) {
-    return;
-  }
-
+  if (!currentUser) return;
   currentUser = { ...currentUser, ...patch };
-  users = users.map((user) => (user.id === currentUser?.id ? { ...user, ...patch } : user));
+  users = users.map((u) => (u.id === currentUser?.id ? { ...u, ...patch } : u));
   persist();
   notify();
 }
