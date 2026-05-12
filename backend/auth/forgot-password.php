@@ -28,10 +28,14 @@ if ($user) {
     $stmt = $conn->prepare('UPDATE users SET reset_token = ?, reset_token_expires_at = ? WHERE id = ?');
     $stmt->execute([$token, $expiresAt, $user['id']]);
 
-    $frontendUrl = rtrim(getenv('FRONTEND_URL') ?: 'http://localhost:4321', '/');
-    $resetUrl = $frontendUrl . '/reset-password?token=' . urlencode($token);
+    $resetBaseUrl = getenv('RESET_PASSWORD_URL');
+    if (!$resetBaseUrl) {
+        $frontendUrl = rtrim(getenv('FRONTEND_URL') ?: 'http://localhost:4321', '/');
+        $resetBaseUrl = $frontendUrl . '/reset-password';
+    }
+
+    $resetUrl = rtrim($resetBaseUrl, '/') . '?token=' . urlencode($token);
     sendPasswordResetEmail($user['email'], $user['name'], $resetUrl);
 }
 
 sendSuccess(null, 'Si existe una cuenta con ese email, recibirás un enlace para restablecer la contraseña.');
-
