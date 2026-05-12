@@ -20,6 +20,19 @@ function sendError($message, $statusCode = 400, $details = null) {
     sendJson($response, $statusCode);
 }
 
+set_exception_handler(function (Throwable $error) {
+    $response = [
+        'ok' => false,
+        'message' => 'Error interno del servidor'
+    ];
+
+    if (getenv('APP_ENV') === 'development') {
+        $response['details'] = $error->getMessage();
+    }
+
+    sendJson($response, 500);
+});
+
 function sendSuccess($data = null, $message = 'Success', $statusCode = 200) {
     $response = [
         'ok' => true,
