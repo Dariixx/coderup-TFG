@@ -6,11 +6,13 @@ export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [resetUrl, setResetUrl] = useState("");
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setStatus("loading");
     setMessage("");
+    setResetUrl("");
 
     const result = await apiFetch("/auth/forgot-password.php", {
       method: "POST",
@@ -18,7 +20,10 @@ export function ForgotPasswordForm() {
     });
 
     setStatus(result.ok ? "success" : "error");
-    setMessage(result.ok ? "Revisa tu correo para continuar con el cambio de contraseña." : result.message);
+    setMessage(result.ok ? result.message || "Revisa tu correo para continuar con el cambio de contraseña." : result.message);
+    if (result.ok && typeof result.data === "object" && result.data && "resetUrl" in result.data) {
+      setResetUrl(String(result.data.resetUrl));
+    }
   };
 
   return (
@@ -42,6 +47,14 @@ export function ForgotPasswordForm() {
         {status === "loading" ? "Enviando..." : "Enviar enlace"}
       </button>
       {message && <StatusMessage status={status} message={message} />}
+      {resetUrl && (
+        <a
+          href={resetUrl}
+          className="block rounded-xl border border-[#00FF66]/30 bg-[#00FF66]/10 px-4 py-3 text-sm text-[#9CFFBF] break-all hover:border-[#00FF66]/60"
+        >
+          Abrir enlace de recuperación: {resetUrl}
+        </a>
+      )}
     </form>
   );
 }
@@ -109,4 +122,3 @@ function StatusMessage({ status, message }: { status: "idle" | "loading" | "succ
     </p>
   );
 }
-

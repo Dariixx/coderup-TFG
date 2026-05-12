@@ -94,7 +94,7 @@ function sendPasswordResetEmail($email, $name, $resetUrl) {
     $body .= "El enlace caduca en 1 hora:\n\n{$resetUrl}\n\n";
     $body .= "Si no has solicitado este cambio, puedes ignorar este mensaje.\n\nCoderUp";
 
-    $from = getenv('SMTP_USER') ?: 'no-reply@coderup.local';
+    $from = getenv('SMTP_FROM') ?: getenv('SMTP_USER') ?: 'no-reply@coderup.local';
     $headers = [
         'From: CoderUp <' . $from . '>',
         'Reply-To: ' . $from,
@@ -111,7 +111,8 @@ function sendPasswordResetEmail($email, $name, $resetUrl) {
 function sendSmtpMail($to, $subject, $body, $from) {
     $host = getenv('SMTP_HOST');
     $port = (int)(getenv('SMTP_PORT') ?: 587);
-    $remote = $port === 465 ? "ssl://{$host}" : $host;
+    $secure = strtolower(getenv('SMTP_SECURE') ?: ($port === 465 ? 'ssl' : 'tls'));
+    $remote = $secure === 'ssl' ? "ssl://{$host}" : $host;
     $socket = @fsockopen($remote, $port, $errno, $errstr, 15);
 
     if (!$socket) {
@@ -129,26 +130,65 @@ function sendSmtpMail($to, $subject, $body, $from) {
         return $response;
     };
 
-    $write = function ($command) use ($socket, $read) {
-        fwrite($socket, $command . "\r\n");
-        return $read();
+    $expect = function ($response, $codes) {
+        $code = substr($response, 0, 3);
+        return in_array($code, (array)$codes, true);
     };
 
-    $read();
-    $write('EHLO coderup.local');
+    $write = function ($command, $codes) use ($socket, $read, $expect) {
+        fwrite($socket, $command . "\r\n");
+        return $expect($read(), $codes);
+    };
 
-    if ($port !== 465) {
-        $write('STARTTLS');
-        stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-        $write('EHLO coderup.local');
+    if (!$expect($read(), ['220'])) {
+        fclose($socket);
+        return false;
     }
 
-    $write('AUTH LOGIN');
-    $write(base64_encode(getenv('SMTP_USER')));
-    $write(base64_encode(getenv('SMTP_PASS')));
-    $write('MAIL FROM:<' . $from . '>');
-    $write('RCPT TO:<' . $to . '>');
-    $write('DATA');
+    if (!$write('EHLO coderup.local', ['250'])) {
+        fclose($socket);
+        return false;
+    }
+
+    if ($secure === 'tls') {
+        if (!$write('STARTTLS', ['220'])) {
+            fclose($socket);
+            return false;
+        }
+        if (!stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            fclose($socket);
+            return false;
+        }
+        if (!$write('EHLO coderup.local', ['250'])) {
+            fclose($socket);
+            return false;
+        }
+    }
+
+    if (!$write('AUTH LOGIN', ['334'])) {
+        fclose($socket);
+        return false;
+    }
+    if (!$write(base64_encode(getenv('SMTP_USER')), ['334'])) {
+        fclose($socket);
+        return false;
+    }
+    if (!$write(base64_encode(getenv('SMTP_PASS')), ['235'])) {
+        fclose($socket);
+        return false;
+    }
+    if (!$write('MAIL FROM:<' . $from . '>', ['250'])) {
+        fclose($socket);
+        return false;
+    }
+    if (!$write('RCPT TO:<' . $to . '>', ['250', '251'])) {
+        fclose($socket);
+        return false;
+    }
+    if (!$write('DATA', ['354'])) {
+        fclose($socket);
+        return false;
+    }
 
     $message = "From: CoderUp <{$from}>\r\n";
     $message .= "To: {$to}\r\n";
@@ -156,8 +196,11 @@ function sendSmtpMail($to, $subject, $body, $from) {
     $message .= "MIME-Version: 1.0\r\n";
     $message .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
     $message .= $body . "\r\n.";
-    $write($message);
-    $write('QUIT');
+    if (!$write($message, ['250'])) {
+        fclose($socket);
+        return false;
+    }
+    $write('QUIT', ['221']);
     fclose($socket);
 
     return true;

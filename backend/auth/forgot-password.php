@@ -35,7 +35,25 @@ if ($user) {
     }
 
     $resetUrl = rtrim($resetBaseUrl, '/') . '?token=' . urlencode($token);
-    sendPasswordResetEmail($user['email'], $user['name'], $resetUrl);
+    $sent = sendPasswordResetEmail($user['email'], $user['name'], $resetUrl);
+
+    if (!$sent) {
+        if (getenv('RESET_EMAIL_DEBUG') === 'true') {
+            sendSuccess([
+                'emailSent' => false,
+                'resetUrl' => $resetUrl,
+            ], 'No se ha podido enviar el email. Usa este enlace de recuperación para pruebas.');
+        }
+
+        sendError('No se ha podido enviar el email de recuperación. Revisa la configuración SMTP en Railway.', 500);
+    }
+
+    $payload = ['emailSent' => true];
+    if (getenv('RESET_EMAIL_DEBUG') === 'true') {
+        $payload['resetUrl'] = $resetUrl;
+    }
+
+    sendSuccess($payload, 'Email de recuperación enviado correctamente.');
 }
 
 sendSuccess(null, 'Si existe una cuenta con ese email, recibirás un enlace para restablecer la contraseña.');
