@@ -101,6 +101,10 @@ function sendPasswordResetEmail($email, $name, $resetUrl) {
         'Content-Type: text/plain; charset=UTF-8',
     ];
 
+    if (isResendConfigured()) {
+        return sendResendMail($email, $subject, $body, $from);
+    }
+
     if (getenv('SMTP_HOST') && getenv('SMTP_USER') && getenv('SMTP_PASS')) {
         return sendSmtpMail($email, $subject, $body, $from);
     }
@@ -126,6 +130,66 @@ function parseMailFrom($rawFrom) {
         'email' => $rawFrom,
         'header' => 'CoderUp <' . $rawFrom . '>',
     ];
+}
+
+function isResendConfigured() {
+    $host = strtolower((string)getenv('SMTP_HOST'));
+    $apiKey = getenv('RESEND_API_KEY') ?: getenv('SMTP_PASS');
+
+    return $apiKey && (str_contains($host, 'resend.com') || str_starts_with($apiKey, 're_'));
+}
+
+function sendResendMail($to, $subject, $body, $from) {
+    $apiKey = getenv('RESEND_API_KEY') ?: getenv('SMTP_PASS');
+    $payload = json_encode([
+        'from' => $from['header'],
+        'to' => [$to],
+        'subject' => $subject,
+        'text' => $body,
+    ]);
+
+    if (!$payload) {
+        return false;
+    }
+
+    if (function_exists('curl_init')) {
+        $ch = curl_init('https://api.resend.com/emails');
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Authorization: Bearer ' . $apiKey,
+                'Content-Type: application/json',
+            ],
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_TIMEOUT => 20,
+        ]);
+        curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        return $status >= 200 && $status < 300;
+    }
+
+    $context = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => implode("\r\n", [
+                'Authorization: Bearer ' . $apiKey,
+                'Content-Type: application/json',
+            ]),
+            'content' => $payload,
+            'timeout' => 20,
+            'ignore_errors' => true,
+        ],
+    ]);
+
+    $result = @file_get_contents('https://api.resend.com/emails', false, $context);
+    if ($result === false || empty($http_response_header)) {
+        return false;
+    }
+
+    return preg_match('/^HTTP\/\S+\s+2\d\d/', $http_response_header[0]) === 1;
 }
 
 function sendSmtpMail($to, $subject, $body, $from) {
