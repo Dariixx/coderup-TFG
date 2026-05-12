@@ -1,0 +1,89 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Navbar from "../../components/layout/Navbar.astro";
+import Footer from "../../components/layout/Footer.astro";
+import BackToTop from "../../components/react/BackToTop";
+import { getInstructorBySlug, getInstructors } from "../../lib/strapi";
+import { formatPrice } from "../../lib/utils";
+
+export async function getStaticPaths() {
+  const instructors = await getInstructors();
+  return instructors.filter((instructor) => instructor.slug).map((instructor) => ({ params: { slug: instructor.slug } }));
+}
+
+const slug = Astro.params.slug ?? "";
+const data = await getInstructorBySlug(slug);
+
+if (!data) {
+  Astro.response.status = 404;
+}
+---
+
+<BaseLayout title={data ? `${data.instructor.name} | CoderUp` : "Instructor no encontrado"}>
+  <Navbar />
+  <BackToTop client:load />
+  {data ? (
+    <main class="pt-32 pb-20">
+      <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <a href="/instructors" class="inline-flex items-center gap-2 text-sm text-[#888] hover:text-[#00FF66] mb-8">
+          <Icon name="lucide:arrow-left" class="w-4 h-4" /> Volver a instructores
+        </a>
+        <div class="grid lg:grid-cols-[320px_1fr] gap-10">
+          <aside class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 h-fit">
+            <div class="mb-6 h-40 w-40 rounded-3xl border border-[#2A2A2A] bg-[#111111] overflow-hidden flex items-center justify-center">
+              {data.instructor.avatarUrl ? (
+                <img src={data.instructor.avatarUrl} alt={data.instructor.name} class="h-full w-full object-cover" />
+              ) : (
+                <span class="text-5xl font-bold text-[#00FF66]">{data.instructor.name.charAt(0)}</span>
+              )}
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">{data.instructor.name}</h1>
+            <p class="text-[#00FF66] mb-5">{data.instructor.specialty}</p>
+            <div class="space-y-3 text-sm text-[#888]">
+              <p><span class="text-white font-semibold">{data.instructor.yearsExperience}</span> años de experiencia</p>
+              <p><span class="text-white font-semibold">{data.instructor.totalStudents}</span> estudiantes</p>
+              <p><span class="text-white font-semibold">{data.instructor.rating}</span> valoración media</p>
+            </div>
+            <div class="mt-6 flex gap-3">
+              {data.instructor.linkedinUrl && <a href={data.instructor.linkedinUrl} class="text-[#888] hover:text-[#00FF66]"><Icon name="lucide:linkedin" class="w-5 h-5" /></a>}
+              {data.instructor.githubUrl && <a href={data.instructor.githubUrl} class="text-[#888] hover:text-[#00FF66]"><Icon name="lucide:github" class="w-5 h-5" /></a>}
+              {data.instructor.twitterUrl && <a href={data.instructor.twitterUrl} class="text-[#888] hover:text-[#00FF66]"><Icon name="lucide:twitter" class="w-5 h-5" /></a>}
+            </div>
+          </aside>
+
+          <div class="space-y-10">
+            <section class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8">
+              <h2 class="text-2xl font-bold text-white mb-4">Perfil profesional</h2>
+              <p class="text-[#888] leading-relaxed">{data.instructor.bio}</p>
+            </section>
+
+            <section>
+              <h2 class="text-2xl font-bold text-white mb-6">Cursos que imparte</h2>
+              <div class="grid md:grid-cols-2 gap-6">
+                {data.courses.map((course) => (
+                  <a href={`/cursos/${course.slug}`} class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 transition hover:border-[#00FF66]/50">
+                    <p class="text-xs text-[#00FF66] mb-2">{course.category.name}</p>
+                    <h3 class="text-xl font-bold text-white mb-2">{course.title}</h3>
+                    <p class="text-[#888] text-sm line-clamp-2 mb-4">{course.shortDescription}</p>
+                    <div class="flex items-center justify-between text-sm">
+                      <span class="text-[#00FF66] font-bold">{formatPrice(course.price)}</span>
+                      <span class="text-[#888] flex items-center gap-1"><Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" /> {course.rating}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </main>
+  ) : (
+    <main class="pt-32 pb-20 text-center">
+      <h1 class="text-4xl font-bold text-white mb-4">Instructor no encontrado</h1>
+      <a href="/instructors" class="text-[#00FF66] hover:underline">Ver instructores</a>
+    </main>
+  )}
+  <Footer />
+</BaseLayout>
+

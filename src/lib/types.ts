@@ -25,9 +25,18 @@ export interface SEO {
 export interface Instructor {
   id: number | string;
   name: string;
+  slug?: string;
   role: string;
   bio: string;
   avatar?: StrapiMedia | null;
+  avatarUrl?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  twitterUrl?: string;
+  specialty?: string;
+  yearsExperience?: number;
+  totalStudents?: number;
+  rating?: number;
 }
 
 export type CourseAccessType = "free" | "premium";
@@ -66,6 +75,16 @@ export interface Course {
   students: number;
   duration: string;
   lessons: number;
+  thumbnailUrl?: string;
+  durationHours?: number;
+  totalLessons?: number;
+  requirements?: string[];
+  whatYouLearn?: string[];
+  curriculum?: Array<{
+    title: string;
+    lessons: string[];
+    duration?: string;
+  }>;
   featured?: boolean;
   icon: string;
   iconColor: string;

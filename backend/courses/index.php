@@ -17,7 +17,17 @@ $limit = getOrQuery('limit', 12);
 $offset = ($page - 1) * $limit;
 
 // Construir query base
-$sql = 'SELECT c.*, cat.name as category_name FROM courses c JOIN categories cat ON c.category_id = cat.id WHERE 1=1';
+$sql = 'SELECT c.*, cat.name as category_name, cat.slug as category_slug, cat.description as category_description,
+        u.name AS instructor_name, i.slug AS instructor_slug, i.bio AS instructor_bio,
+        i.avatar_url AS instructor_avatar_url, i.specialty AS instructor_specialty,
+        i.linkedin_url AS instructor_linkedin_url, i.github_url AS instructor_github_url,
+        i.twitter_url AS instructor_twitter_url, i.years_experience AS instructor_years_experience,
+        i.total_students AS instructor_total_students, i.rating AS instructor_rating
+        FROM courses c
+        JOIN categories cat ON c.category_id = cat.id
+        LEFT JOIN instructors i ON c.instructor_id = i.id
+        LEFT JOIN users u ON i.user_id = u.id
+        WHERE 1=1';
 $params = [];
 
 if ($category) {
@@ -37,7 +47,17 @@ if ($search) {
 }
 
 // Contar total
-$countStmt = $conn->prepare(str_replace('SELECT c.*', 'SELECT COUNT(*) as total', $sql));
+$countSql = 'SELECT COUNT(*) as total FROM courses c JOIN categories cat ON c.category_id = cat.id LEFT JOIN instructors i ON c.instructor_id = i.id LEFT JOIN users u ON i.user_id = u.id WHERE 1=1';
+if ($category) {
+    $countSql .= ' AND cat.slug = ?';
+}
+if ($level) {
+    $countSql .= ' AND c.level = ?';
+}
+if ($search) {
+    $countSql .= ' AND (c.title LIKE ? OR c.description LIKE ?)';
+}
+$countStmt = $conn->prepare($countSql);
 $countStmt->execute($params);
 $total = $countStmt->fetch()['total'];
 

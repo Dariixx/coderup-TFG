@@ -58,6 +58,111 @@ function ensureRememberTokenColumn($conn) {
     }
 }
 
+function ensurePasswordResetColumns($conn) {
+    ensureAuthTables($conn);
+
+    try {
+        $conn->query('SELECT reset_token FROM users LIMIT 1');
+    } catch (PDOException $e) {
+        if (stripos($e->getMessage(), 'reset_token') !== false || stripos($e->getMessage(), 'Unknown column') !== false) {
+            $conn->exec('ALTER TABLE users ADD COLUMN reset_token VARCHAR(64) NULL AFTER remember_token');
+            try {
+                $conn->exec('CREATE INDEX idx_reset_token ON users (reset_token)');
+            } catch (PDOException $indexError) {
+                // El índice puede existir si Railway reintenta la migración.
+            }
+        } else {
+            throw $e;
+        }
+    }
+
+    try {
+        $conn->query('SELECT reset_token_expires_at FROM users LIMIT 1');
+    } catch (PDOException $e) {
+        if (stripos($e->getMessage(), 'reset_token_expires_at') !== false || stripos($e->getMessage(), 'Unknown column') !== false) {
+            $conn->exec('ALTER TABLE users ADD COLUMN reset_token_expires_at TIMESTAMP NULL AFTER reset_token');
+            return;
+        }
+        throw $e;
+    }
+}
+
+function sendPasswordResetEmail($email, $name, $resetUrl) {
+    $subject = 'Restablece tu contraseña de CoderUp';
+    $body = "Hola {$name},\n\n";
+    $body .= "Hemos recibido una solicitud para restablecer tu contraseña.\n";
+    $body .= "El enlace caduca en 1 hora:\n\n{$resetUrl}\n\n";
+    $body .= "Si no has solicitado este cambio, puedes ignorar este mensaje.\n\nCoderUp";
+
+    $from = getenv('SMTP_USER') ?: 'no-reply@coderup.local';
+    $headers = [
+        'From: CoderUp <' . $from . '>',
+        'Reply-To: ' . $from,
+        'Content-Type: text/plain; charset=UTF-8',
+    ];
+
+    if (getenv('SMTP_HOST') && getenv('SMTP_USER') && getenv('SMTP_PASS')) {
+        return sendSmtpMail($email, $subject, $body, $from);
+    }
+
+    return @mail($email, $subject, $body, implode("\r\n", $headers));
+}
+
+function sendSmtpMail($to, $subject, $body, $from) {
+    $host = getenv('SMTP_HOST');
+    $port = (int)(getenv('SMTP_PORT') ?: 587);
+    $remote = $port === 465 ? "ssl://{$host}" : $host;
+    $socket = @fsockopen($remote, $port, $errno, $errstr, 15);
+
+    if (!$socket) {
+        return false;
+    }
+
+    $read = function () use ($socket) {
+        $response = '';
+        while ($line = fgets($socket, 515)) {
+            $response .= $line;
+            if (isset($line[3]) && $line[3] === ' ') {
+                break;
+            }
+        }
+        return $response;
+    };
+
+    $write = function ($command) use ($socket, $read) {
+        fwrite($socket, $command . "\r\n");
+        return $read();
+    };
+
+    $read();
+    $write('EHLO coderup.local');
+
+    if ($port !== 465) {
+        $write('STARTTLS');
+        stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+        $write('EHLO coderup.local');
+    }
+
+    $write('AUTH LOGIN');
+    $write(base64_encode(getenv('SMTP_USER')));
+    $write(base64_encode(getenv('SMTP_PASS')));
+    $write('MAIL FROM:<' . $from . '>');
+    $write('RCPT TO:<' . $to . '>');
+    $write('DATA');
+
+    $message = "From: CoderUp <{$from}>\r\n";
+    $message .= "To: {$to}\r\n";
+    $message .= "Subject: {$subject}\r\n";
+    $message .= "MIME-Version: 1.0\r\n";
+    $message .= "Content-Type: text/plain; charset=UTF-8\r\n\r\n";
+    $message .= $body . "\r\n.";
+    $write($message);
+    $write('QUIT');
+    fclose($socket);
+
+    return true;
+}
+
 function publicUser($user) {
     unset($user['password'], $user['remember_token']);
     return [

@@ -21,32 +21,9 @@ const curso = await getCourseBySlug(slug);
 const allCourses = await getCourses();
 const notFound = !curso;
 
-const temario = [
-  { title: "Introducción y configuración del entorno", duration: "45 min" },
-  { title: "Fundamentos y conceptos clave", duration: "1h 20 min" },
-  { title: "Primeros ejercicios prácticos", duration: "55 min" },
-  { title: "Patrones y buenas prácticas", duration: "1h 10 min" },
-  { title: "Proyecto práctico guiado", duration: "2h 30 min" },
-  { title: "Testing y calidad de código", duration: "1h 15 min" },
-  { title: "Despliegue y producción", duration: "50 min" },
-  { title: "Proyecto final y certificado", duration: "3h" },
-];
-
-const requisitos = [
-  "Conocimientos básicos de programación",
-  "Un ordenador con conexión a internet",
-  "Ganas de aprender y practicar",
-  "Editor de código (VS Code recomendado)",
-];
-
-const aprenderás = [
-  "Dominar los fundamentos y conceptos avanzados",
-  "Construir proyectos reales desde cero",
-  "Aplicar buenas prácticas profesionales",
-  "Prepararte para entrevistas técnicas",
-  "Desplegar aplicaciones en producción",
-  "Escribir código limpio y mantenible",
-];
+const temario = curso?.curriculum ?? [];
+const requisitos = curso?.requirements ?? [];
+const aprenderás = curso?.whatYouLearn ?? [];
 
 const relatedCursos = curso ? allCourses.filter((c) => c.slug !== curso.slug).slice(0, 3) : [];
 
@@ -185,13 +162,19 @@ if (notFound) {
             </h2>
             <div class="space-y-3">
               {temario.map((mod, i) => (
-                <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-5 flex items-center justify-between hover:border-[#00FF66]/30 transition group">
-                  <div class="flex items-center gap-4">
+                <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-5 hover:border-[#00FF66]/30 transition group">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-start gap-4">
                     <div class="w-10 h-10 bg-[#00FF66]/10 rounded-lg flex items-center justify-center group-hover:bg-[#00FF66]/20 transition">
                       <span class="text-[#00FF66] font-bold text-sm">{String(i + 1).padStart(2, "0")}</span>
                     </div>
                     <div>
                       <h3 class="text-white font-medium text-sm">{mod.title}</h3>
+                      <ul class="mt-2 space-y-1">
+                        {mod.lessons.map((lesson) => (
+                          <li class="text-[#888] text-xs">• {lesson}</li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
                   <div class="flex items-center gap-3">
@@ -201,6 +184,7 @@ if (notFound) {
                     <Icon name="lucide:lock" class="w-4 h-4 text-[#2A2A2A]" />
                   </div>
                 </div>
+              </div>
               ))}
             </div>
           </div>
@@ -228,6 +212,12 @@ if (notFound) {
 
           <!-- CARD COMPRA -->
           <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8 sticky top-24">
+            <div class="mb-6 rounded-xl border border-[#2A2A2A] bg-[#111111] p-4">
+              <p class="text-xs uppercase tracking-[0.16em] text-[#888] mb-2">Instructor</p>
+              <p class="text-white font-semibold">{curso.instructor.name}</p>
+              <p class="text-[#00FF66] text-sm">{curso.instructor.specialty ?? curso.instructor.role}</p>
+              <p class="text-[#888] text-sm mt-2 line-clamp-3">{curso.instructor.bio}</p>
+            </div>
             <div class="text-center mb-6">
               <p class="text-4xl font-bold text-white mb-1">
                 {formatPrice(curso.price)}

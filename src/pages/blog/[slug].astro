@@ -116,7 +116,7 @@ if (notFound) {
         <article class="lg:col-span-3 prose-custom space-y-8">
           <header class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
             <p class="text-sm text-[#888] mb-3">
-              Este contenido se obtiene de forma asíncrona para poder conectarse con Strapi sin acoplar la presentación.
+              Artículo publicado por CoderUp con contenido técnico completo y actualizado.
             </p>
             <div class="flex flex-wrap gap-2">
               {post.tags.map((tag) => (
@@ -125,84 +125,7 @@ if (notFound) {
             </div>
           </header>
 
-          <h2 id="introduccion" class="text-2xl font-bold text-white">Introducción</h2>
-          <p class="text-[#888] leading-relaxed">
-            {post.excerpt}
-          </p>
-
-          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
-            <div class="flex items-start gap-3">
-              <Icon name="lucide:lightbulb" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" />
-              <div>
-                <p class="text-white font-semibold text-sm mb-1">Tip importante</p>
-                <p class="text-[#888] text-sm">Este artículo asume conocimientos básicos de programación. Si estás empezando, te recomendamos primero nuestro curso introductorio.</p>
-              </div>
-            </div>
-          </div>
-
-          <h2 id="por-que-importa" class="text-2xl font-bold text-white">¿Por qué es importante?</h2>
-          <p class="text-[#888] leading-relaxed">
-            El ecosistema de desarrollo web evoluciona constantemente. Mantenerse actualizado no es solo una ventaja competitiva, 
-            es una necesidad. Los conceptos que cubrimos en este artículo te ayudarán a escribir código más limpio, 
-            más eficiente y más mantenible.
-          </p>
-
-          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
-            <p class="text-[#888] text-sm font-mono">
-              <span class="text-[#00FF66]">// Ejemplo de código</span><br />
-              <span class="text-purple-400">const</span> <span class="text-white">aprender</span> = <span class="text-purple-400">async</span> () =&gt; {"{"}<br />
-              &nbsp;&nbsp;<span class="text-purple-400">const</span> <span class="text-white">conocimiento</span> = <span class="text-purple-400">await</span> <span class="text-cyan-400">estudiar</span>();<br />
-              &nbsp;&nbsp;<span class="text-purple-400">return</span> <span class="text-cyan-400">aplicar</span>(<span class="text-white">conocimiento</span>);<br />
-              {"}"};
-            </p>
-          </div>
-
-          <h2 class="text-2xl font-bold text-white">Conceptos clave</h2>
-          <p class="text-[#888] leading-relaxed">
-            Antes de profundizar, es importante entender los fundamentos. Estos son los conceptos 
-            que necesitas dominar:
-          </p>
-
-          <div class="space-y-3">
-            <div class="flex items-start gap-3">
-              <Icon name="lucide:check-circle" class="w-5 h-5 text-[#00FF66] shrink-0 mt-0.5" />
-              <p class="text-[#888] text-sm"><span class="text-white font-medium">Fundamentos sólidos:</span> Sin una base fuerte, las técnicas avanzadas pierden efectividad.</p>
-            </div>
-            <div class="flex items-start gap-3">
-              <Icon name="lucide:check-circle" class="w-5 h-5 text-[#00FF66] shrink-0 mt-0.5" />
-              <p class="text-[#888] text-sm"><span class="text-white font-medium">Práctica constante:</span> La teoría sin práctica es inútil. Construye proyectos reales.</p>
-            </div>
-            <div class="flex items-start gap-3">
-              <Icon name="lucide:check-circle" class="w-5 h-5 text-[#00FF66] shrink-0 mt-0.5" />
-              <p class="text-[#888] text-sm"><span class="text-white font-medium">Comunidad:</span> Aprende de otros developers. Comparte y recibe feedback.</p>
-            </div>
-          </div>
-
-          <h2 id="aplicacion-real" class="text-2xl font-bold text-white">Aplicación real</h2>
-          <p class="text-[#888] leading-relaxed">
-            Vamos a ver un ejemplo práctico que puedes aplicar directamente en tus proyectos. 
-            Este patrón es utilizado por empresas como Vercel, Netflix y Spotify en sus aplicaciones de producción.
-          </p>
-
-          <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
-            <p class="text-[#888] text-sm font-mono">
-              <span class="text-[#00FF66]">// Patrón recomendado</span><br />
-              <span class="text-purple-400">export function</span> <span class="text-cyan-400">useOptimized</span>() {"{"}<br />
-              &nbsp;&nbsp;<span class="text-purple-400">const</span> [<span class="text-white">state</span>, <span class="text-white">setState</span>] = <span class="text-cyan-400">useState</span>(<span class="text-orange-400">null</span>);<br />
-              &nbsp;&nbsp;<br />
-              &nbsp;&nbsp;<span class="text-cyan-400">useEffect</span>(() =&gt; {"{"}<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-[#00FF66]">// Tu lógica aquí</span><br />
-              &nbsp;&nbsp;{"}"}, []);<br />
-              &nbsp;&nbsp;<br />
-              &nbsp;&nbsp;<span class="text-purple-400">return</span> {"{"} <span class="text-white">state</span>, <span class="text-white">setState</span> {"}"};<br />
-              {"}"}
-            </p>
-          </div>
-
-          <h2 id="conclusion" class="text-2xl font-bold text-white">Conclusión</h2>
-          <p class="text-[#888] leading-relaxed">
-            {post.content.split("\n").slice(-2).join(" ")}
-          </p>
+          <div class="prose prose-invert max-w-none prose-headings:text-white prose-p:text-[#B0B0B0] prose-li:text-[#B0B0B0] prose-a:text-[#00FF66] prose-strong:text-white" set:html={post.content} />
 
           <div class="bg-gradient-to-br from-[#00FF66]/10 to-transparent border border-[#00FF66]/20 rounded-xl p-6">
             <div class="flex items-start gap-3">
