@@ -74,13 +74,20 @@ Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). 
 - POST /auth/reset-password.php
 
 ### Cursos
-- GET /courses/index.php
-- GET /courses/show.php
+- GET /api/courses.php
+- GET /api/courses/show.php?slug=react-avanzado
 
 ### Órdenes
-- POST /orders/create.php
-- GET /orders/user-orders.php
+- POST /api/orders/create.php
+- GET /api/orders.php
 - GET /orders/index.php
+
+### Contenido
+- GET /api/instructors.php
+- GET /api/instructors/show.php?id=1
+- GET /api/posts.php
+- GET /api/posts/show.php?slug=guia-completa-hooks-react
+- POST /api/coupons/validate.php
 
 ## Instalación Local
 

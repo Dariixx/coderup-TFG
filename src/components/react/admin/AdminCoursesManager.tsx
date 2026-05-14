@@ -17,11 +17,11 @@ interface CourseRecord {
 }
 
 const categories = [
-  { id: 1, name: "Desarrollo Web" },
-  { id: 2, name: "JavaScript" },
-  { id: 3, name: "Backend" },
-  { id: 4, name: "Bases de Datos" },
-  { id: 5, name: "Diseño UX/UI" },
+  { id: 1, name: "Frontend" },
+  { id: 2, name: "Backend" },
+  { id: 3, name: "DevOps" },
+  { id: 4, name: "Mobile" },
+  { id: 5, name: "Diseño" },
 ];
 
 const emptyForm = {

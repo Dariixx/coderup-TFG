@@ -1,5 +1,3 @@
-import { cursos as mockCursos } from "../data/cursos";
-import { posts as mockPosts } from "../data/posts";
 import { apiGet } from "./api";
 import type { BlogCategory, BlogPost, Category, Course, Instructor, SEO, Tag } from "./types";
 import { getReadingTime, slugify, truncateText } from "./utils";
@@ -123,6 +121,7 @@ interface ApiPostRecord {
   category: string;
   tags?: string | string[] | null;
   read_time: number | string;
+  read_time_minutes?: number | string;
   is_published?: number | boolean;
   published_at: string;
 }
@@ -143,19 +142,6 @@ function postSeo(title: string, excerpt: string): SEO {
     canonicalURL: `/blog/${slugify(title)}`,
     keywords: ["blog programación", "coderup", title.toLowerCase()],
   };
-}
-
-function toStudentCount(value: string | number) {
-  if (typeof value === "number") {
-    return value;
-  }
-
-  const normalized = value.trim().toUpperCase();
-  if (normalized.endsWith("K")) {
-    return Math.round(Number.parseFloat(normalized.replace("K", "")) * 1000);
-  }
-
-  return Number.parseInt(normalized, 10) || 0;
 }
 
 function createCategory(name: string, count = 0, description?: string | null): Category {
@@ -191,36 +177,6 @@ function createBlogCategory(name: string): BlogCategory {
   };
 }
 
-function createInstructor(category: string, index: number) {
-  const instructors = [
-    {
-      name: "Lucía Romero",
-      role: "Senior Frontend Engineer",
-      bio: "Especialista en interfaces escalables con Astro, React y TypeScript.",
-    },
-    {
-      name: "Javier Ortega",
-      role: "Backend & API Architect",
-      bio: "Diseña servicios backend claros con PHP, MySQL y APIs JSON defendibles.",
-    },
-    {
-      name: "Marta Salas",
-      role: "Product Engineer",
-      bio: "Conecta UX, producto y lógica de negocio en plataformas formativas.",
-    },
-  ];
-
-  const baseInstructor = instructors[index % instructors.length];
-
-  return {
-    id: `${slugify(baseInstructor.name)}-${index}`,
-    name: baseInstructor.name,
-    slug: slugify(baseInstructor.name),
-    role: `${baseInstructor.role} · ${category}`,
-    bio: baseInstructor.bio,
-  };
-}
-
 function parseJsonField<T>(value: unknown, fallback: T): T {
   if (Array.isArray(value) || (value && typeof value === "object")) {
     return value as T;
@@ -235,115 +191,6 @@ function parseJsonField<T>(value: unknown, fallback: T): T {
   } catch {
     return fallback;
   }
-}
-
-function mapMockCourse(curso: (typeof mockCursos)[number], index: number): Course {
-  const isFree = curso.price === 0;
-
-  return {
-    id: index + 1,
-    slug: curso.slug,
-    title: curso.title,
-    description: curso.description,
-    shortDescription: truncateText(curso.description, 110),
-    category: createCategory(curso.category),
-    level: curso.level,
-    price: curso.price,
-    isFree,
-    accessType: isFree ? "free" : "premium",
-    rating: curso.rating,
-    students: toStudentCount(curso.students),
-    duration: "12h de contenido",
-    lessons: 85,
-    featured: index < 6 || curso.rating >= 4.9,
-    icon: curso.icon,
-    iconColor: curso.iconColor,
-    gradientFrom: curso.gradientFrom,
-    gradientTo: curso.gradientTo,
-    instructor: createInstructor(curso.category, index),
-    requirements: [
-      "Conocimientos básicos de programación",
-      "Editor de código instalado",
-      "Ganas de practicar con proyectos reales",
-    ],
-    whatYouLearn: [
-      "Construir interfaces profesionales",
-      "Organizar código mantenible",
-      "Trabajar con datos reales",
-      "Preparar entregas listas para producción",
-      "Depurar errores frecuentes",
-      "Aplicar buenas prácticas",
-      "Documentar decisiones técnicas",
-      "Mejorar tu portfolio",
-    ],
-    curriculum: [
-      { title: "Fundamentos", lessons: ["Entorno", "Sintaxis base", "Primer componente"], duration: "2h" },
-      { title: "Proyecto guiado", lessons: ["Arquitectura", "Estado", "Integración"], duration: "4h" },
-      { title: "Producción", lessons: ["Testing", "Deploy", "Checklist final"], duration: "3h" },
-    ],
-    seo: courseSeo(curso.title, curso.description),
-  };
-}
-
-function generateMockContent(title: string, excerpt: string) {
-  return `
-## Introducción
-${excerpt}
-
-En CoderUp trabajamos con una arquitectura desacoplada para que el contenido evolucione sin rehacer la interfaz. Este artículo profundiza en ${title.toLowerCase()} con un enfoque práctico y orientado a producto.
-
-## Qué aprenderás
-- Fundamentos aplicables a proyectos reales.
-- Buenas prácticas que puedes defender en un TFG.
-- Recomendaciones para escalar la solución con Astro, React y un backend propio en PHP.
-
-## Aplicación real
-La combinación de contenido bien modelado, páginas con render híbrido y componentes interactivos mediante Astro Islands permite mantener rendimiento, claridad y una UX profesional.
-
-## Conclusión
-La clave no es solo conocer la tecnología, sino saber integrarla dentro de una arquitectura clara, mantenible y preparada para crecer.
-`.trim();
-}
-
-function mapMockPost(post: (typeof mockPosts)[number], index: number): BlogPost {
-  const content = generateMockContent(post.title, post.excerpt);
-  const category = createBlogCategory(post.category);
-  const tags: Tag[] = [
-    { id: `${post.slug}-1`, name: post.category, slug: slugify(post.category) },
-    { id: `${post.slug}-2`, name: "Astro", slug: "astro" },
-    { id: `${post.slug}-3`, name: "PHP", slug: "php" },
-  ];
-
-  return {
-    id: index + 1,
-    slug: post.slug,
-    title: post.title,
-    excerpt: post.excerpt,
-    content,
-    publishedAt: new Date(`2026-${String(index % 12 + 1).padStart(2, "0")}-${String(index % 27 + 1).padStart(2, "0")}`).toISOString(),
-    readingTime: getReadingTime(content),
-    author: post.author,
-    category,
-    tags,
-    icon: post.icon,
-    iconColor: post.iconColor,
-    gradientFrom: post.gradientFrom,
-    gradientTo: post.gradientTo,
-    seo: postSeo(post.title, post.excerpt),
-  };
-}
-
-function getMockCoursesData() {
-  return mockCursos.map(mapMockCourse);
-}
-
-function getMockBlogPostsData() {
-  return mockPosts.map(mapMockPost);
-}
-
-function courseVisualFallback(slug: string, index: number) {
-  const mockCourses = getMockCoursesData();
-  return mockCourses.find((course) => course.slug === slug) ?? mockCourses[index % mockCourses.length];
 }
 
 function mapApiInstructor(record: ApiInstructorRecord): Instructor {
@@ -366,7 +213,14 @@ function mapApiInstructor(record: ApiInstructorRecord): Instructor {
 
 function apiInstructorFromCourse(record: ApiCourseRecord, index: number): Instructor {
   if (!record.instructor_id || !record.instructor_name) {
-    return createInstructor(record.category_name, index);
+    return {
+      id: `instructor-${index}`,
+      name: "Equipo CoderUp",
+      slug: "equipo-coderup",
+      role: `Instructor/a de ${record.category_name}`,
+      bio: `Profesional especializado en ${record.category_name}.`,
+      specialty: record.category_name,
+    };
   }
 
   return {
@@ -387,14 +241,13 @@ function apiInstructorFromCourse(record: ApiCourseRecord, index: number): Instru
 }
 
 function mapApiCourse(record: ApiCourseRecord, index: number): Course {
-  const fallback = courseVisualFallback(record.slug, index);
   const price = Number(record.price);
   const isPremium = record.is_premium === undefined || record.is_premium === null ? price > 0 : Boolean(Number(record.is_premium));
   const isFree = price <= 0 || !isPremium;
-  const requirements = parseJsonField<string[]>(record.requirements, fallback?.requirements ?? []);
-  const whatYouLearn = parseJsonField<string[]>(record.what_you_learn, fallback?.whatYouLearn ?? []);
-  const curriculum = parseJsonField<Course["curriculum"]>(record.curriculum, fallback?.curriculum ?? []);
-  const totalLessons = Number(record.total_lessons) || fallback?.lessons || 48;
+  const requirements = parseJsonField<string[]>(record.requirements, []);
+  const whatYouLearn = parseJsonField<string[]>(record.what_you_learn, []);
+  const curriculum = parseJsonField<Course["curriculum"]>(record.curriculum, []);
+  const totalLessons = Number(record.total_lessons) || 0;
   const durationHours = Number(record.duration_hours) || 0;
 
   return {
@@ -408,21 +261,21 @@ function mapApiCourse(record: ApiCourseRecord, index: number): Course {
     price,
     isFree,
     accessType: isFree ? "free" : "premium",
-    rating: Number(record.rating) || fallback?.rating || 4.8,
-    students: Number(record.total_students) || fallback?.students || 1200,
-    duration: record.duration ?? (durationHours ? `${durationHours}h de contenido` : fallback?.duration ?? "12h de contenido"),
+    rating: Number(record.rating) || 0,
+    students: Number(record.total_students) || 0,
+    duration: record.duration ?? (durationHours ? `${durationHours}h de contenido` : "0h de contenido"),
     lessons: totalLessons,
-    thumbnailUrl: record.thumbnail_url ?? fallback?.thumbnailUrl,
+    thumbnailUrl: record.thumbnail_url ?? undefined,
     durationHours,
     totalLessons,
     requirements,
     whatYouLearn,
     curriculum,
     featured: index < 6,
-    icon: fallback?.icon ?? "lucide:code-2",
-    iconColor: fallback?.iconColor ?? "text-[#00FF66]",
-    gradientFrom: fallback?.gradientFrom ?? "from-emerald-500/20",
-    gradientTo: fallback?.gradientTo ?? "to-teal-600/20",
+    icon: "lucide:code-2",
+    iconColor: "text-[#00FF66]",
+    gradientFrom: "from-emerald-500/20",
+    gradientTo: "to-teal-600/20",
     instructor: apiInstructorFromCourse(record, index),
     seo: courseSeo(record.title, record.description),
   };
@@ -435,7 +288,6 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
     name: tag,
     slug: slugify(tag),
   }));
-  const fallback = getMockBlogPostsData().find((post) => post.slug === record.slug) ?? getMockBlogPostsData()[0];
 
   return {
     id: record.id,
@@ -444,14 +296,14 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
     excerpt: record.excerpt,
     content: record.content,
     publishedAt: record.published_at,
-    readingTime: Number(record.read_time) || getReadingTime(record.content),
+    readingTime: Number(record.read_time_minutes ?? record.read_time) || getReadingTime(record.content),
     author: record.author_name ?? "Equipo CoderUp",
     category,
     tags,
-    icon: fallback?.icon ?? "lucide:file-text",
-    iconColor: fallback?.iconColor ?? "text-[#00FF66]",
-    gradientFrom: fallback?.gradientFrom ?? "from-emerald-500/20",
-    gradientTo: fallback?.gradientTo ?? "to-purple-500/20",
+    icon: "lucide:file-text",
+    iconColor: "text-[#00FF66]",
+    gradientFrom: "from-emerald-500/20",
+    gradientTo: "to-purple-500/20",
     cover: record.cover_image_url ? { url: record.cover_image_url } : null,
     seo: postSeo(record.title, record.excerpt),
   };
@@ -459,34 +311,29 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
 
 async function fetchApiCourses(): Promise<Course[] | null> {
   try {
-    const response = await apiGet<{ courses: ApiCourseRecord[] }>("/courses/index.php");
+    const response = await apiGet<{ courses: ApiCourseRecord[] }>("/api/courses.php");
     const courses = response.data?.courses ?? [];
     return courses.map(mapApiCourse);
-  } catch (error) {
-    if (!import.meta.env.SSR) {
-      console.warn("[CoderUp] Fallback a datos locales para cursos:", error);
-    }
+  } catch {
     return null;
   }
 }
 
 export async function getCourses(): Promise<Course[]> {
   const apiCourses = await fetchApiCourses();
-  return apiCourses && apiCourses.length > 0 ? apiCourses : getMockCoursesData();
+  return apiCourses ?? [];
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
   try {
-    const response = await apiGet<{ course: ApiCourseRecord }>(`/courses/show.php?slug=${encodeURIComponent(slug)}`);
+    const response = await apiGet<{ course: ApiCourseRecord }>(`/api/courses/${encodeURIComponent(slug)}.php`);
     const course = response.data?.course;
 
     if (course) {
       return mapApiCourse(course, 0);
     }
-  } catch (error) {
-    if (!import.meta.env.SSR) {
-      console.warn("[CoderUp] Fallback a detalle local de curso:", error);
-    }
+  } catch {
+    return null;
   }
 
   const courses = await getCourses();
@@ -518,22 +365,22 @@ export async function getFeaturedCourses(limit = 3): Promise<Course[]> {
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const response = await apiGet<{ posts: ApiPostRecord[] }>("/posts/index.php");
+    const response = await apiGet<{ posts: ApiPostRecord[] }>("/api/posts.php");
     const posts = response.data?.posts ?? [];
-    return posts.length > 0 ? posts.map(mapApiPost) : getMockBlogPostsData();
+    return posts.map(mapApiPost);
   } catch {
-    return getMockBlogPostsData();
+    return [];
   }
 }
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
-    const response = await apiGet<{ post: ApiPostRecord }>(`/posts/show.php?slug=${encodeURIComponent(slug)}`);
+    const response = await apiGet<{ post: ApiPostRecord }>(`/api/posts/${encodeURIComponent(slug)}.php`);
     if (response.data?.post) {
       return mapApiPost(response.data.post);
     }
   } catch {
-    // Fallback below.
+    return null;
   }
 
   const posts = await getBlogPosts();
@@ -542,25 +389,22 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
 export async function getInstructors(): Promise<Instructor[]> {
   try {
-    const response = await apiGet<{ instructors: ApiInstructorRecord[] }>("/instructors/index.php");
+    const response = await apiGet<{ instructors: ApiInstructorRecord[] }>("/api/instructors.php");
     const instructors = response.data?.instructors ?? [];
     if (instructors.length > 0) {
       return instructors.map(mapApiInstructor);
     }
   } catch {
-    // Fallback below.
+    return [];
   }
 
-  const courses = await getCourses();
-  const unique = new Map<string, Instructor>();
-  courses.forEach((course) => unique.set(course.instructor.slug ?? String(course.instructor.id), course.instructor));
-  return Array.from(unique.values());
+  return [];
 }
 
 export async function getInstructorBySlug(slug: string): Promise<{ instructor: Instructor; courses: Course[] } | null> {
   try {
     const response = await apiGet<{ instructor: ApiInstructorRecord; courses: ApiCourseRecord[] }>(
-      `/instructors/show.php?slug=${encodeURIComponent(slug)}`,
+      `/api/instructors/show.php?slug=${encodeURIComponent(slug)}`,
     );
     if (response.data?.instructor) {
       return {
@@ -569,7 +413,7 @@ export async function getInstructorBySlug(slug: string): Promise<{ instructor: I
       };
     }
   } catch {
-    // Fallback below.
+    return null;
   }
 
   const courses = await getCourses();

@@ -3,6 +3,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../helpers/cors.php';
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/../helpers/catalog.php';
 
 requireMethod('GET');
 
@@ -14,13 +15,7 @@ if (!$slug && !$id) {
 }
 
 $where = $slug ? 'p.slug = ?' : 'p.id = ?';
-$stmt = $conn->prepare("
-    SELECT p.*, u.name AS author_name
-    FROM posts p
-    LEFT JOIN users u ON p.author_id = u.id
-    WHERE {$where} AND p.is_published = 1
-    LIMIT 1
-");
+$stmt = $conn->prepare(postSelectSql() . " WHERE {$where} AND p.is_published = 1 LIMIT 1");
 $stmt->execute([$slug ?: $id]);
 $post = $stmt->fetch();
 
@@ -28,5 +23,4 @@ if (!$post) {
     sendError('Post no encontrado', 404);
 }
 
-sendSuccess(['post' => $post], 'Post retrieved');
-
+sendSuccess(['post' => formatPost($post)], 'Post retrieved');

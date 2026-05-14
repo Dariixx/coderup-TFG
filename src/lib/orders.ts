@@ -1,7 +1,3 @@
-/**
- * orders.ts — Gestión de pedidos con backend PHP real + fallback localStorage.
- */
-
 import {
   clearAppliedCoupon,
   clearCartStore,
@@ -12,12 +8,8 @@ import {
   getCartTotal,
 } from "./cart";
 import { updateCurrentUser } from "./auth";
-import { initEnrollments, seedEnrollments } from "./enrollments";
-import { loadFromStorage, saveToStorage } from "./storage";
 import type { Course, Order, OrderItem, User } from "./types";
 import { apiFetch } from "./api";
-
-const ORDERS_KEY = "coderup-orders";
 
 type OrderListener = () => void;
 
@@ -29,11 +21,10 @@ function notify() {
 }
 
 function persist() {
-  saveToStorage(ORDERS_KEY, orders);
 }
 
 export function initOrders() {
-  orders = loadFromStorage<Order[]>(ORDERS_KEY, []);
+  orders = [];
 }
 
 export function subscribeOrders(listener: OrderListener) {
@@ -59,7 +50,6 @@ function getNextOrderNumber() {
 
 export async function createSimulatedOrder(user: User, courses: Course[]) {
   initOrders();
-  initEnrollments();
   const cart = getCartItems();
 
   if (!cart.length) {
@@ -79,55 +69,36 @@ export async function createSimulatedOrder(user: User, courses: Course[]) {
   const couponCode = getAppliedCoupon()?.code;
 
   // ── Intento backend real ──
-  const result = await apiFetch<any>("/orders/create.php", {
+  const result = await apiFetch<any>("/api/orders/create.php", {
     method: "POST",
-    body: JSON.stringify({
-      items: items.map((i) => ({ course_id: i.courseId, price: i.priceAtPurchase })),
-      subtotal,
-      discount,
-      total,
+    body: {
+      cart: items.map((i) => ({ course_id: i.courseId, price: i.priceAtPurchase })),
       coupon_code: couponCode ?? null,
-    }),
+    },
   });
 
-  let newOrder: Order;
-
-  if (result.ok) {
-    newOrder = {
-      id: String(result.data.id ?? crypto.randomUUID()),
-      orderNumber: result.data.order_number ?? getNextOrderNumber(),
-      userId: user.id,
-      items,
-      subtotal,
-      discount,
-      total,
-      status: "completed",
-      couponCode,
-      createdAt: result.data.created_at ?? new Date().toISOString(),
-    };
-  } else {
-    // ── Fallback localStorage ──
-    await new Promise((resolve) => setTimeout(resolve, 1400));
-    newOrder = {
-      id: crypto.randomUUID(),
-      orderNumber: getNextOrderNumber(),
-      userId: user.id,
-      items,
-      subtotal,
-      discount,
-      total,
-      status: "completed",
-      couponCode,
-      createdAt: new Date().toISOString(),
-    };
+  if (!result.ok) {
+    return { ok: false as const, message: result.message };
   }
+
+  const newOrder: Order = {
+    id: String(result.data.id ?? crypto.randomUUID()),
+    orderNumber: result.data.order_number ?? getNextOrderNumber(),
+    userId: user.id,
+    items,
+    subtotal,
+    discount: Number(result.data.discount_amount ?? discount),
+    total: Number(result.data.total ?? total),
+    status: "completed",
+    couponCode: result.data.coupon_code ?? couponCode,
+    createdAt: result.data.created_at ?? new Date().toISOString(),
+  };
 
   orders = [...orders, newOrder];
   persist();
   notify();
 
-  const purchasedCourses = courses.filter((c) => cart.some((i) => i.slug === c.slug));
-  seedEnrollments(user.id, purchasedCourses);
+  void courses;
 
   if (couponCode === "WELCOME20") {
     updateCurrentUser({ isNewUser: false, usedWelcomeCoupon: true });
@@ -144,16 +115,18 @@ export async function createSimulatedOrder(user: User, courses: Course[]) {
 /* ─── FETCH USER ORDERS FROM BACKEND ───────────────────────────────────── */
 
 export async function fetchUserOrdersFromBackend(): Promise<Order[] | null> {
-  const result = await apiFetch<any[]>("/orders/user-orders.php");
+  const result = await apiFetch<any>("/api/orders.php");
   if (!result.ok) return null;
 
-  return result.data.map((o: any) => ({
+  const orders = Array.isArray(result.data) ? result.data : result.data.orders ?? [];
+
+  return orders.map((o: any) => ({
     id: String(o.id),
     orderNumber: o.order_number ?? `ORD-${o.id}`,
     userId: String(o.user_id),
     items: o.items ?? [],
     subtotal: Number(o.subtotal),
-    discount: Number(o.discount ?? 0),
+    discount: Number(o.discount_amount ?? o.discount ?? 0),
     total: Number(o.total),
     status: "completed" as const,
     couponCode: o.coupon_code ?? undefined,

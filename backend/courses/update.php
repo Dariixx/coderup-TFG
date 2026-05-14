@@ -53,7 +53,6 @@ if (isset($input['level'])) {
 }
 
 if (isset($input['category_id'])) {
-    // Verificar categoría
     $stmt = $conn->prepare('SELECT id FROM categories WHERE id = ?');
     $stmt->execute([$input['category_id']]);
     if (!$stmt->fetch()) {
@@ -61,6 +60,21 @@ if (isset($input['category_id'])) {
     }
     $updates[] = 'category_id = ?';
     $params[] = (int) $input['category_id'];
+}
+
+if (isset($input['instructor_id'])) {
+    $stmt = $conn->prepare('SELECT id FROM instructors WHERE id = ?');
+    $stmt->execute([$input['instructor_id']]);
+    if (!$stmt->fetch()) {
+        sendError('Instructor no encontrado', 404);
+    }
+    $updates[] = 'instructor_id = ?';
+    $params[] = (int) $input['instructor_id'];
+}
+
+if (isset($input['thumbnail_url']) || isset($input['image'])) {
+    $updates[] = 'thumbnail_url = ?';
+    $params[] = sanitizeString($input['thumbnail_url'] ?? $input['image']);
 }
 
 if (empty($updates)) {

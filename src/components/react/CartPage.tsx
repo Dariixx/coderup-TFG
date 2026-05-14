@@ -42,8 +42,8 @@ export default function CartPage() {
     );
   }
 
-  const handleApplyCoupon = () => {
-    const result = applyCoupon(couponCode);
+  const handleApplyCoupon = async () => {
+    const result = await applyCoupon(couponCode);
     setCouponStatus(result.ok ? "success" : "error");
     setCouponMessage(result.message);
   };

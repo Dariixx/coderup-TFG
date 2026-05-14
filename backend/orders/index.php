@@ -20,7 +20,7 @@ $total = $stmt->fetch()['total'];
 
 // Obtener órdenes
 $stmt = $conn->prepare('
-    SELECT o.*, u.email, u.name
+    SELECT o.*, u.email AS user_email, u.name AS user_name, o.coupon_code AS discount_code
     FROM orders o
     JOIN users u ON o.user_id = u.id
     ORDER BY o.created_at DESC
@@ -32,7 +32,7 @@ $orders = $stmt->fetchAll();
 // Obtener items para cada orden
 foreach ($orders as &$order) {
     $stmt = $conn->prepare('
-        SELECT oi.*, c.title as course_title
+        SELECT oi.id, oi.course_id, c.title, c.slug, oi.price_at_purchase AS price
         FROM order_items oi
         JOIN courses c ON oi.course_id = c.id
         WHERE oi.order_id = ?

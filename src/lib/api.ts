@@ -153,3 +153,40 @@ export function getApiHelpMessage(error: unknown) {
 
   return "No se ha podido completar la operación con el backend.";
 }
+
+export async function getCourses(filters?: { category?: string; level?: string }) {
+  const params = new URLSearchParams();
+  if (filters?.category) params.set("category", filters.category);
+  if (filters?.level) params.set("level", filters.level);
+
+  const query = params.toString();
+  return apiGet(query ? `/api/courses.php?${query}` : "/api/courses.php");
+}
+
+export async function getCourseDetail(slug: string) {
+  return apiGet(`/api/courses/${encodeURIComponent(slug)}.php`);
+}
+
+export async function getInstructors() {
+  return apiGet("/api/instructors.php");
+}
+
+export async function getInstructorDetail(id: number | string) {
+  return apiGet(`/api/instructors/${encodeURIComponent(String(id))}.php`);
+}
+
+export async function getBlogPosts(page = 1) {
+  return apiGet(`/api/posts.php?page=${page}`);
+}
+
+export async function getBlogPost(slug: string) {
+  return apiGet(`/api/posts/${encodeURIComponent(slug)}.php`);
+}
+
+export async function validateCoupon(code: string, itemsCount: number) {
+  return apiPost("/api/coupons/validate.php", { code, items_count: itemsCount });
+}
+
+export async function createOrder(cart: unknown[], couponCode?: string) {
+  return apiPost("/api/orders/create.php", { cart, coupon_code: couponCode });
+}

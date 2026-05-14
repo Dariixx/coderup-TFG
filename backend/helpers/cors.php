@@ -14,7 +14,6 @@ $isAllowed =
 if ($isAllowed) {
     header("Access-Control-Allow-Origin: $origin");
 } else {
-    // Fallback al dominio de producción configurado por variable de entorno
     $frontendUrl = getenv('FRONTEND_URL') ?: 'http://localhost:4321';
     header("Access-Control-Allow-Origin: $frontendUrl");
 }

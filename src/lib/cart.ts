@@ -1,7 +1,7 @@
 import { getCurrentUser } from "./auth";
-import { loadFromStorage, removeFromStorage, saveToStorage } from "./storage";
 import type { AppliedCoupon, CartItem, Coupon } from "./types";
 import { COUPON_REGEX } from "./utils";
+import { validateCoupon } from "./api";
 
 const CART_KEY = "coderup-cart";
 const COUPON_KEY = "coderup-cart-coupon";
@@ -26,17 +26,13 @@ function notify() {
 }
 
 function persist() {
-  saveToStorage(CART_KEY, cart);
-  if (appliedCoupon) {
-    saveToStorage(COUPON_KEY, appliedCoupon);
-  } else {
-    removeFromStorage(COUPON_KEY);
-  }
+  void CART_KEY;
+  void COUPON_KEY;
 }
 
 export function initCartStore() {
-  cart = loadFromStorage<CartItem[]>(CART_KEY, []);
-  appliedCoupon = loadFromStorage<AppliedCoupon | null>(COUPON_KEY, null);
+  cart = [];
+  appliedCoupon = null;
 }
 
 export function subscribeCart(listener: CartListener) {
@@ -122,7 +118,7 @@ export function clearAppliedCoupon() {
   notify();
 }
 
-export function applyWelcomeCoupon(code: string) {
+export async function applyWelcomeCoupon(code: string) {
   const normalizedCode = code.trim().toUpperCase();
   const user = getCurrentUser();
 
@@ -138,19 +134,34 @@ export function applyWelcomeCoupon(code: string) {
     return { ok: false as const, message: "El formato del cupón no es válido." };
   }
 
-  if (!WELCOME_COUPON.active || normalizedCode !== WELCOME_COUPON.code) {
-    return { ok: false as const, message: "El cupón no es válido." };
+  if (normalizedCode === WELCOME_COUPON.code) {
+    if (WELCOME_COUPON.onlyNewUsers && !user.isNewUser) {
+      return { ok: false as const, message: "El cupón WELCOME20 solo está disponible para nuevos usuarios." };
+    }
+
+    if (user.usedWelcomeCoupon) {
+      return { ok: false as const, message: "Ya has usado el cupón de bienvenida." };
+    }
   }
 
-  if (WELCOME_COUPON.onlyNewUsers && !user.isNewUser) {
-    return { ok: false as const, message: "El cupón WELCOME20 solo está disponible para nuevos usuarios." };
+  const response = await validateCoupon(normalizedCode, cart.length);
+  const coupon = response.data as {
+    valid?: boolean;
+    discount_type?: string;
+    discount_value?: number;
+    message?: string;
+  };
+
+  if (!response.ok || !coupon.valid) {
+    return { ok: false as const, message: coupon.message ?? "El cupón no es válido." };
   }
 
-  if (user.usedWelcomeCoupon) {
-    return { ok: false as const, message: "Ya has usado el cupón de bienvenida." };
-  }
+  const discountValue = Number(coupon.discount_value ?? 0);
+  const discountAmount =
+    coupon.discount_type === "fixed"
+      ? Math.min(getCartSubtotal(), discountValue)
+      : Number((getCartSubtotal() * (discountValue / 100)).toFixed(2));
 
-  const discountAmount = Number((getCartSubtotal() * (WELCOME_COUPON.discountValue / 100)).toFixed(2));
   appliedCoupon = {
     code: normalizedCode,
     discountAmount,

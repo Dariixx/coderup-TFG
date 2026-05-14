@@ -3,35 +3,44 @@ header('Content-Type: application/json; charset=utf-8');
 require_once __DIR__ . '/../helpers/cors.php';
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/response.php';
+require_once __DIR__ . '/../helpers/catalog.php';
 
 requireMethod('GET');
 
 $category = getOrQuery('category');
 $search = getOrQuery('search');
+$page = max(1, (int) getOrQuery('page', 1));
+$limit = min(50, max(1, (int) getOrQuery('limit', 10)));
+$offset = ($page - 1) * $limit;
 
-$sql = '
-    SELECT p.*, u.name AS author_name
-    FROM posts p
-    LEFT JOIN users u ON p.author_id = u.id
-    WHERE p.is_published = 1
-';
+$where = ['p.is_published = 1'];
 $params = [];
 
 if ($category) {
-    $sql .= ' AND p.category = ?';
+    $where[] = 'p.category = ?';
     $params[] = $category;
 }
 
 if ($search) {
-    $sql .= ' AND (p.title LIKE ? OR p.excerpt LIKE ? OR p.content LIKE ?)';
+    $where[] = '(p.title LIKE ? OR p.excerpt LIKE ? OR p.content LIKE ?)';
     $params[] = "%{$search}%";
     $params[] = "%{$search}%";
     $params[] = "%{$search}%";
 }
 
-$sql .= ' ORDER BY p.published_at DESC';
-$stmt = $conn->prepare($sql);
+$whereSql = implode(' AND ', $where);
+$countStmt = $conn->prepare(postSelectSql() . " WHERE {$whereSql}");
+$countStmt->execute($params);
+$total = count($countStmt->fetchAll());
+
+$stmt = $conn->prepare(postSelectSql() . " WHERE {$whereSql} ORDER BY p.published_at DESC LIMIT {$limit} OFFSET {$offset}");
 $stmt->execute($params);
 
-sendSuccess(['posts' => $stmt->fetchAll()], 'Posts retrieved');
-
+sendSuccess([
+    'posts' => array_map('formatPost', $stmt->fetchAll()),
+    'pagination' => [
+        'page' => $page,
+        'total' => $total,
+        'pages' => (int) ceil($total / $limit),
+    ],
+], 'Posts retrieved');

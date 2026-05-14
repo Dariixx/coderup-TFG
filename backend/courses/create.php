@@ -30,7 +30,8 @@ $description = sanitizeString($input['description']);
 $price = (float) $input['price'];
 $level = sanitizeString($input['level']);
 $category_id = (int) $input['category_id'];
-$slug = generateSlug($title);
+$instructor_id = isset($input['instructor_id']) ? (int) $input['instructor_id'] : 1;
+$slug = !empty($input['slug']) ? generateSlug($input['slug']) : generateSlug($title);
 
 if ($price < 0) {
     sendError('El precio no puede ser negativo', 400);
@@ -43,12 +44,29 @@ if (!$stmt->fetch()) {
     sendError('Categoría no encontrada', 404);
 }
 
+$stmt = $conn->prepare('SELECT id FROM instructors WHERE id = ?');
+$stmt->execute([$instructor_id]);
+if (!$stmt->fetch()) {
+    sendError('Instructor no encontrado', 404);
+}
+
 try {
     $stmt = $conn->prepare('
-        INSERT INTO courses (title, description, price, level, category_id, slug, created_by, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+        INSERT INTO courses (title, slug, description, price, level, category_id, instructor_id, thumbnail_url, duration_hours, total_lessons, is_published)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
     ');
-    $stmt->execute([$title, $description, $price, $level, $category_id, $slug, $user['id']]);
+    $stmt->execute([
+        $title,
+        $slug,
+        $description,
+        $price,
+        $level,
+        $category_id,
+        $instructor_id,
+        $input['thumbnail_url'] ?? $input['image'] ?? null,
+        (int) ($input['duration_hours'] ?? 10),
+        (int) ($input['total_lessons'] ?? 20),
+    ]);
 
     $courseId = $conn->lastInsertId();
 
