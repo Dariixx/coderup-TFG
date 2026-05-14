@@ -31,6 +31,64 @@ CREATE TABLE IF NOT EXISTS users (
   INDEX idx_role (role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Migración segura para bases de datos ya existentes.
+-- Si la tabla users ya estaba creada sin recuperación de contraseña, añade las columnas necesarias.
+SELECT COUNT(*) INTO @has_remember_token
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'users'
+  AND COLUMN_NAME = 'remember_token';
+SET @sql = IF(
+  @has_remember_token = 0,
+  'ALTER TABLE users ADD COLUMN remember_token VARCHAR(128) NULL UNIQUE AFTER password',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SELECT COUNT(*) INTO @has_reset_token
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'users'
+  AND COLUMN_NAME = 'reset_token';
+SET @sql = IF(
+  @has_reset_token = 0,
+  'ALTER TABLE users ADD COLUMN reset_token VARCHAR(64) NULL AFTER remember_token',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SELECT COUNT(*) INTO @has_reset_token_expires_at
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'users'
+  AND COLUMN_NAME = 'reset_token_expires_at';
+SET @sql = IF(
+  @has_reset_token_expires_at = 0,
+  'ALTER TABLE users ADD COLUMN reset_token_expires_at TIMESTAMP NULL AFTER reset_token',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SELECT COUNT(*) INTO @has_idx_reset_token
+FROM information_schema.STATISTICS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'users'
+  AND INDEX_NAME = 'idx_reset_token';
+SET @sql = IF(
+  @has_idx_reset_token = 0,
+  'CREATE INDEX idx_reset_token ON users (reset_token)',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 -- Categories table
 CREATE TABLE IF NOT EXISTS categories (
   id INT PRIMARY KEY AUTO_INCREMENT,

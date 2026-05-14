@@ -6,7 +6,19 @@ ALTER TABLE users
   ADD COLUMN IF NOT EXISTS reset_token VARCHAR(64) NULL,
   ADD COLUMN IF NOT EXISTS reset_token_expires_at TIMESTAMP NULL;
 
-CREATE INDEX idx_reset_token ON users (reset_token);
+SELECT COUNT(*) INTO @has_idx_reset_token
+FROM information_schema.STATISTICS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'users'
+  AND INDEX_NAME = 'idx_reset_token';
+SET @sql = IF(
+  @has_idx_reset_token = 0,
+  'CREATE INDEX idx_reset_token ON users (reset_token)',
+  'SELECT 1'
+);
+PREPARE stmt FROM @sql;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
 
 CREATE TABLE IF NOT EXISTS instructors (
   id INT PRIMARY KEY AUTO_INCREMENT,
@@ -59,4 +71,3 @@ CREATE TABLE IF NOT EXISTS posts (
   INDEX idx_category (category),
   INDEX idx_published (is_published, published_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-

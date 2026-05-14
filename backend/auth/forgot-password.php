@@ -31,16 +31,21 @@ if ($user) {
 
     $resetUrl = buildResetPasswordUrl($token);
     $safeResetUrl = htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8');
-    $sent = sendEmail(
+    $mailResult = sendEmail(
         $user['email'],
         'Recuperar contraseña',
-        '<p>Haz clic para restablecer tu contraseña:</p>'
+        '<p>Has solicitado restablecer tu contraseña en CoderUp.</p>'
             . '<p><a href="' . $safeResetUrl . '">Restablecer contraseña</a></p>'
-            . '<p>Si el botón no funciona, copia este enlace en tu navegador:<br>'
-            . '<a href="' . $safeResetUrl . '">' . $safeResetUrl . '</a></p>'
+            . '<p>Este enlace caduca en 1 hora.</p>'
+            . '<p>Si el botón no funciona, copia esta URL:<br>'
+            . $safeResetUrl . '</p>'
     );
 
-    if (!$sent['ok'] && getenv('RESET_EMAIL_DEBUG') === 'true') {
+    if (!$mailResult['ok']) {
+        error_log('CoderUp reset password: Brevo no pudo enviar el email.');
+    }
+
+    if (!$mailResult['ok'] && getenv('RESET_EMAIL_DEBUG') === 'true') {
         error_log('CoderUp reset email debug URL: ' . $resetUrl);
     }
 }
