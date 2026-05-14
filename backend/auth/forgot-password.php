@@ -30,10 +30,14 @@ if ($user) {
     $stmt->execute([$token, $expiresAt, $user['id']]);
 
     $resetUrl = buildResetPasswordUrl($token);
+    $safeResetUrl = htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8');
     $sent = sendEmail(
         $user['email'],
         'Recuperar contraseña',
-        '<a href="' . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '">Restablecer contraseña</a>'
+        '<p>Haz clic para restablecer tu contraseña:</p>'
+            . '<p><a href="' . $safeResetUrl . '">Restablecer contraseña</a></p>'
+            . '<p>Si el botón no funciona, copia este enlace en tu navegador:<br>'
+            . '<a href="' . $safeResetUrl . '">' . $safeResetUrl . '</a></p>'
     );
 
     if (!$sent['ok'] && getenv('RESET_EMAIL_DEBUG') === 'true') {

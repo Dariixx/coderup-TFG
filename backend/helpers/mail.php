@@ -13,7 +13,10 @@ function buildResetPasswordUrl($token) {
         $baseUrl = $frontendUrl . '/reset-password';
     }
 
-    return rtrim($baseUrl, '/') . '?token=' . urlencode($token);
+    $baseUrl = rtrim($baseUrl, '/');
+    $separator = strpos($baseUrl, '?') !== false ? '&' : '?';
+
+    return $baseUrl . $separator . 'token=' . urlencode($token);
 }
 
 function sendEmail($to, $subject, $html) {
