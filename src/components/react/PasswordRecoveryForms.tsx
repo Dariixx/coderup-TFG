@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../lib/api";
 import { PASSWORD_REGEX } from "../../lib/utils";
 
@@ -59,11 +59,29 @@ export function ForgotPasswordForm() {
   );
 }
 
-export function ResetPasswordForm({ token }: { token: string }) {
+export function ResetPasswordForm({ token: initialToken = "" }: { token?: string }) {
+  const [token, setToken] = useState(initialToken);
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const isValid = useMemo(() => PASSWORD_REGEX.test(password), [password]);
+
+  useEffect(() => {
+    if (initialToken || typeof window === "undefined") {
+      return;
+    }
+
+    const urlToken = new URLSearchParams(window.location.search).get("token") ?? "";
+    setToken(urlToken);
+  }, [initialToken]);
+
+  if (!token) {
+    return (
+      <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        El enlace no contiene token. Solicita un nuevo enlace de recuperación.
+      </p>
+    );
+  }
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
