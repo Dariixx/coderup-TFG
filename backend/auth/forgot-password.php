@@ -30,9 +30,13 @@ if ($user) {
     $stmt->execute([$token, $expiresAt, $user['id']]);
 
     $resetUrl = buildResetPasswordUrl($token);
-    $sent = sendPasswordResetEmail($user['email'], $user['name'], $resetUrl);
+    $sent = sendEmail(
+        $user['email'],
+        'Recuperar contraseña',
+        '<a href="' . htmlspecialchars($resetUrl, ENT_QUOTES, 'UTF-8') . '">Restablecer contraseña</a>'
+    );
 
-    if (!$sent && getenv('RESET_EMAIL_DEBUG') === 'true') {
+    if (!$sent['ok'] && getenv('RESET_EMAIL_DEBUG') === 'true') {
         error_log('CoderUp reset email debug URL: ' . $resetUrl);
     }
 }
