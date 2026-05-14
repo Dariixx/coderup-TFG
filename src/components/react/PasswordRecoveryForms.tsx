@@ -85,6 +85,12 @@ export function ResetPasswordForm({ token: initialToken = "" }: { token?: string
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!isValid) {
+      setStatus("error");
+      setMessage("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+
     setStatus("loading");
     setMessage("");
 
@@ -117,12 +123,20 @@ export function ResetPasswordForm({ token: initialToken = "" }: { token?: string
       </div>
       <button
         type="submit"
-        disabled={status === "loading" || !token}
+        disabled={status === "loading" || status === "success" || !token || !isValid}
         className="w-full rounded-xl bg-[#00FF66] px-5 py-4 font-bold text-[#0A0A0A] transition hover:bg-[#00CC52] disabled:cursor-not-allowed disabled:opacity-70"
       >
         {status === "loading" ? "Actualizando..." : "Actualizar contraseña"}
       </button>
       {message && <StatusMessage status={status} message={message} />}
+      {status === "success" && (
+        <a
+          href="/login"
+          className="block rounded-xl border border-[#00FF66]/30 bg-[#00FF66]/10 px-4 py-3 text-center text-sm font-semibold text-[#9CFFBF] hover:border-[#00FF66]/60"
+        >
+          Ir al login
+        </a>
+      )}
     </form>
   );
 }

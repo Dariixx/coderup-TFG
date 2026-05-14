@@ -43,5 +43,12 @@ $stmt = $conn->prepare('
 ');
 $stmt->execute([hashPassword($password), $user['id']]);
 
-sendSuccess(null, 'Contraseña actualizada correctamente.');
+$stmt = $conn->prepare('SELECT password FROM users WHERE id = ? LIMIT 1');
+$stmt->execute([$user['id']]);
+$updatedUser = $stmt->fetch();
 
+if (!$updatedUser || !verifyPassword($password, $updatedUser['password'])) {
+    sendError('No se ha podido actualizar la contraseña', 500);
+}
+
+sendSuccess(null, 'Contraseña actualizada correctamente.');
