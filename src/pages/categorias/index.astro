@@ -4,7 +4,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import { Icon } from "astro-icon/components";
-import { getCategories } from "../../lib/strapi";
+import { getCategories } from "../../lib/content";
 
 const categorias = await getCategories();
 ---
