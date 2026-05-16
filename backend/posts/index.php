@@ -29,18 +29,27 @@ if ($search) {
 }
 
 $whereSql = implode(' AND ', $where);
-$countStmt = $conn->prepare(postSelectSql() . " WHERE {$whereSql}");
+$countSql = '
+    SELECT COUNT(*) AS total
+    FROM posts p
+    JOIN instructors i ON p.author_id = i.id
+    WHERE ' . $whereSql;
+$countStmt = $conn->prepare($countSql);
 $countStmt->execute($params);
-$total = count($countStmt->fetchAll());
+$total = (int) $countStmt->fetch()['total'];
 
 $stmt = $conn->prepare(postSelectSql() . " WHERE {$whereSql} ORDER BY p.published_at DESC LIMIT {$limit} OFFSET {$offset}");
 $stmt->execute($params);
 
-sendSuccess([
-    'posts' => array_map('formatPost', $stmt->fetchAll()),
+sendJson([
+    'ok' => true,
+    'data' => array_map('formatPost', $stmt->fetchAll()),
+    'message' => 'Posts retrieved',
+    'error' => null,
     'pagination' => [
         'page' => $page,
         'total' => $total,
         'pages' => (int) ceil($total / $limit),
+        'limit' => $limit,
     ],
-], 'Posts retrieved');
+]);

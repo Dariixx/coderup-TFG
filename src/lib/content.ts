@@ -311,8 +311,8 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
 
 async function fetchApiCourses(): Promise<Course[] | null> {
   try {
-    const response = await apiGet<{ courses: ApiCourseRecord[] }>("/api/courses.php");
-    const courses = response.data?.courses ?? [];
+    const response = await apiGet<ApiCourseRecord[] | { courses: ApiCourseRecord[] }>("/api/courses.php");
+    const courses = Array.isArray(response.data) ? response.data : response.data?.courses ?? [];
     return courses.map(mapApiCourse);
   } catch {
     return null;
@@ -326,8 +326,8 @@ export async function getCourses(): Promise<Course[]> {
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
   try {
-    const response = await apiGet<{ course: ApiCourseRecord }>(`/api/courses/${encodeURIComponent(slug)}.php`);
-    const course = response.data?.course;
+    const response = await apiGet<ApiCourseRecord | { course: ApiCourseRecord }>(`/api/courses/${encodeURIComponent(slug)}.php`);
+    const course = "course" in response.data ? response.data.course : response.data;
 
     if (course) {
       return mapApiCourse(course, 0);
@@ -365,8 +365,8 @@ export async function getFeaturedCourses(limit = 3): Promise<Course[]> {
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const response = await apiGet<{ posts: ApiPostRecord[] }>("/api/posts.php");
-    const posts = response.data?.posts ?? [];
+    const response = await apiGet<ApiPostRecord[] | { posts: ApiPostRecord[] }>("/api/posts.php");
+    const posts = Array.isArray(response.data) ? response.data : response.data?.posts ?? [];
     return posts.map(mapApiPost);
   } catch {
     return [];
@@ -375,9 +375,10 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
-    const response = await apiGet<{ post: ApiPostRecord }>(`/api/posts/${encodeURIComponent(slug)}.php`);
-    if (response.data?.post) {
-      return mapApiPost(response.data.post);
+    const response = await apiGet<ApiPostRecord | { post: ApiPostRecord }>(`/api/posts/${encodeURIComponent(slug)}.php`);
+    const post = "post" in response.data ? response.data.post : response.data;
+    if (post) {
+      return mapApiPost(post);
     }
   } catch {
     return null;
@@ -389,8 +390,8 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
 export async function getInstructors(): Promise<Instructor[]> {
   try {
-    const response = await apiGet<{ instructors: ApiInstructorRecord[] }>("/api/instructors.php");
-    const instructors = response.data?.instructors ?? [];
+    const response = await apiGet<ApiInstructorRecord[] | { instructors: ApiInstructorRecord[] }>("/api/instructors.php");
+    const instructors = Array.isArray(response.data) ? response.data : response.data?.instructors ?? [];
     if (instructors.length > 0) {
       return instructors.map(mapApiInstructor);
     }

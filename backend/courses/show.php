@@ -23,4 +23,4 @@ if (!$course) {
     sendError('Curso no encontrado', 404);
 }
 
-sendSuccess(['course' => formatCourse($course)], 'Course retrieved');
+sendSuccess(formatCourse($course), 'Course retrieved');

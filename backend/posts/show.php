@@ -23,4 +23,4 @@ if (!$post) {
     sendError('Post no encontrado', 404);
 }
 
-sendSuccess(['post' => formatPost($post)], 'Post retrieved');
+sendSuccess(formatPost($post), 'Post retrieved');

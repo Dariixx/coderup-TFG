@@ -24,6 +24,11 @@ const cursos = await getCourses();
         </p>
       </div>
 
+      {cursos.length === 0 && (
+        <div class="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-center text-red-200">
+          Cargando cursos desde MySQL. Si no aparecen, revisa <code>/api/courses.php</code> y <code>PUBLIC_API_URL</code>.
+        </div>
+      )}
       <CoursePagination client:load cursos={cursos} cursosPerPage={6} />
 
     </div>

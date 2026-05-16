@@ -3,14 +3,28 @@
 function sendJson($data, $statusCode = 200) {
     http_response_code($statusCode);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($data, JSON_UNESCAPED_UNICODE);
+
+    $json = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    if ($json === false) {
+        http_response_code(500);
+        $json = json_encode([
+            'ok' => false,
+            'data' => null,
+            'message' => 'Error al codificar la respuesta JSON',
+            'error' => json_last_error_msg(),
+        ], JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+    }
+
+    echo $json;
     exit;
 }
 
 function sendError($message, $statusCode = 400, $details = null) {
     $response = [
         'ok' => false,
-        'message' => $message
+        'data' => null,
+        'message' => $message,
+        'error' => $details ?: $message,
     ];
 
     if ($details && getenv('APP_ENV') === 'development') {
@@ -23,7 +37,9 @@ function sendError($message, $statusCode = 400, $details = null) {
 set_exception_handler(function (Throwable $error) {
     $response = [
         'ok' => false,
-        'message' => 'Error interno del servidor'
+        'data' => null,
+        'message' => 'Error interno del servidor',
+        'error' => 'internal_server_error',
     ];
 
     if (getenv('APP_ENV') === 'development') {
@@ -36,12 +52,10 @@ set_exception_handler(function (Throwable $error) {
 function sendSuccess($data = null, $message = 'Success', $statusCode = 200) {
     $response = [
         'ok' => true,
-        'message' => $message
+        'data' => $data,
+        'message' => $message,
+        'error' => null,
     ];
-
-    if ($data !== null) {
-        $response['data'] = $data;
-    }
 
     sendJson($response, $statusCode);
 }

@@ -1,7 +1,8 @@
-import { startTransition, useDeferredValue, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { Course } from "../../lib/types";
 import AddToCartButton from "./AddToCartButton";
 import { formatPrice } from "../../lib/utils";
+import { getCourses } from "../../lib/content";
 
 interface Props {
   cursos: Course[];
@@ -9,17 +10,27 @@ interface Props {
 }
 
 export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
+  const [loadedCursos, setLoadedCursos] = useState(cursos);
+  const [loadError, setLoadError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [selectedLevel, setSelectedLevel] = useState("Todos");
   const [searchQuery, setSearchQuery] = useState("");
   const deferredSearch = useDeferredValue(searchQuery);
 
-  const categories = ["Todos", ...new Set(cursos.map((c) => c.category.name))];
-  const levels = ["Todos", ...new Set(cursos.map((c) => c.level))];
+  useEffect(() => {
+    if (loadedCursos.length > 0) return;
+
+    getCourses()
+      .then((items) => setLoadedCursos(items))
+      .catch(() => setLoadError("No se han podido cargar los cursos desde MySQL."));
+  }, [loadedCursos.length]);
+
+  const categories = ["Todos", ...new Set(loadedCursos.map((c) => c.category.name))];
+  const levels = ["Todos", ...new Set(loadedCursos.map((c) => c.level))];
 
   const filtered = useMemo(() => {
-    return cursos.filter((c) => {
+    return loadedCursos.filter((c) => {
       const matchCategory = selectedCategory === "Todos" || c.category.name === selectedCategory;
       const matchLevel = selectedLevel === "Todos" || c.level === selectedLevel;
       const matchSearch =
@@ -28,7 +39,7 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
         c.description.toLowerCase().includes(deferredSearch.toLowerCase());
       return matchCategory && matchLevel && matchSearch;
     });
-  }, [cursos, deferredSearch, selectedCategory, selectedLevel]);
+  }, [loadedCursos, deferredSearch, selectedCategory, selectedLevel]);
 
   const totalPages = Math.ceil(filtered.length / cursosPerPage);
   const startIndex = (currentPage - 1) * cursosPerPage;
@@ -71,6 +82,12 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
   return (
     <div>
       {/* FILTROS */}
+      {loadError && (
+        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {loadError}
+        </div>
+      )}
+
       <div className="mb-10 space-y-6">
         {/* Buscador */}
         <div className="relative max-w-md mx-auto">

@@ -1,5 +1,6 @@
-import { startTransition, useDeferredValue, useMemo, useState } from "react";
+import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { BlogPost } from "../../lib/types";
+import { getBlogPosts } from "../../lib/content";
 
 interface Props {
   posts: BlogPost[];
@@ -7,15 +8,25 @@ interface Props {
 }
 
 export default function BlogPagination({ posts, postsPerPage = 6 }: Props) {
+  const [loadedPosts, setLoadedPosts] = useState(posts);
+  const [loadError, setLoadError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategory, setSelectedCategory] = useState("Todos");
   const [searchQuery, setSearchQuery] = useState("");
   const deferredSearch = useDeferredValue(searchQuery);
 
-  const categories = ["Todos", ...new Set(posts.map((p) => p.category.name))];
+  useEffect(() => {
+    if (loadedPosts.length > 0) return;
+
+    getBlogPosts()
+      .then((items) => setLoadedPosts(items))
+      .catch(() => setLoadError("No se han podido cargar los posts desde MySQL."));
+  }, [loadedPosts.length]);
+
+  const categories = ["Todos", ...new Set(loadedPosts.map((p) => p.category.name))];
 
   const filtered = useMemo(() => {
-    return posts.filter((p) => {
+    return loadedPosts.filter((p) => {
       const matchCategory = selectedCategory === "Todos" || p.category.name === selectedCategory;
       const matchSearch =
         deferredSearch === "" ||
@@ -23,7 +34,7 @@ export default function BlogPagination({ posts, postsPerPage = 6 }: Props) {
         p.excerpt.toLowerCase().includes(deferredSearch.toLowerCase());
       return matchCategory && matchSearch;
     });
-  }, [deferredSearch, posts, selectedCategory]);
+  }, [deferredSearch, loadedPosts, selectedCategory]);
 
   const totalPages = Math.ceil(filtered.length / postsPerPage);
   const startIndex = (currentPage - 1) * postsPerPage;
@@ -57,6 +68,12 @@ export default function BlogPagination({ posts, postsPerPage = 6 }: Props) {
   return (
     <div>
       {/* FILTROS */}
+      {loadError && (
+        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          {loadError}
+        </div>
+      )}
+
       <div className="mb-10 space-y-6">
         {/* Buscador */}
         <div className="relative max-w-md mx-auto">

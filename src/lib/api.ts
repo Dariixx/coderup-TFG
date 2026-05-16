@@ -6,7 +6,7 @@
 export const API_BASE =
   import.meta.env.PUBLIC_API_URL ??
   import.meta.env.PUBLIC_API_BASE_URL ??
-  "http://localhost:8000";
+  "https://coderup-tfg-production.up.railway.app";
 
 export const API_BASE_URL = API_BASE;
 const AUTH_TOKEN_KEY = "coderup-auth-token";

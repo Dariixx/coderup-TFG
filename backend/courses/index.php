@@ -35,18 +35,29 @@ if ($search) {
 
 $whereSql = implode(' AND ', $where);
 
-$countStmt = $conn->prepare(courseSelectSql() . " WHERE {$whereSql}");
+$countSql = '
+    SELECT COUNT(*) AS total
+    FROM courses c
+    JOIN categories cat ON c.category_id = cat.id
+    JOIN instructors i ON c.instructor_id = i.id
+    WHERE ' . $whereSql;
+$countStmt = $conn->prepare($countSql);
 $countStmt->execute($params);
-$total = count($countStmt->fetchAll());
+$total = (int) $countStmt->fetch()['total'];
 
 $stmt = $conn->prepare(courseSelectSql() . " WHERE {$whereSql} ORDER BY c.created_at DESC LIMIT {$limit} OFFSET {$offset}");
 $stmt->execute($params);
 $courses = array_map('formatCourse', $stmt->fetchAll());
 
-sendSuccess([
-    'courses' => $courses,
-    'total' => $total,
-    'page' => $page,
-    'limit' => $limit,
-    'pages' => (int) ceil($total / $limit),
-], 'Courses retrieved');
+sendJson([
+    'ok' => true,
+    'data' => $courses,
+    'message' => 'Courses retrieved',
+    'error' => null,
+    'pagination' => [
+        'page' => $page,
+        'total' => $total,
+        'pages' => (int) ceil($total / $limit),
+        'limit' => $limit,
+    ],
+]);

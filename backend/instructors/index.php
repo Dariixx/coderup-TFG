@@ -16,4 +16,4 @@ $stmt = $conn->query('
     ORDER BY rating DESC, name ASC
 ');
 
-sendSuccess(['instructors' => array_map('formatInstructor', $stmt->fetchAll())], 'Instructors retrieved');
+sendSuccess(array_map('formatInstructor', $stmt->fetchAll()), 'Instructors retrieved');
