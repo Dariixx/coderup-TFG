@@ -80,6 +80,7 @@ function formatCourse($row) {
         'total_lessons' => (int) $row['total_lessons'],
         'total_students' => (int) $row['total_students'],
         'rating' => (float) $row['rating'],
+        'is_featured' => isset($row['is_featured']) ? (bool) $row['is_featured'] : (float) $row['rating'] >= 4.8,
         'requirements' => decodeJsonColumn($requirements),
         'requires' => decodeJsonColumn($requirements),
         'what_you_learn' => decodeJsonColumn($row['what_you_learn']),

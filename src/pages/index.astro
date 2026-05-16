@@ -7,10 +7,40 @@ import AnimatedCounter from "../components/react/AnimatedCounter.tsx";
 import TestimonialCarousel from "../components/react/TestimonialCarousel.tsx";
 import FAQAccordion from "../components/react/FAQAccordion.tsx";
 import BackToTop from "../components/react/BackToTop.tsx";
-import { getFeaturedCourses } from "../lib/content";
+import { getCourses } from "../lib/api";
 import { formatPrice } from "../lib/utils";
 
-const featuredCourses = await getFeaturedCourses(3);
+type HomeCourse = {
+  id: number | string;
+  title: string;
+  slug: string;
+  price: number | string;
+  thumbnail_url?: string | null;
+  short_description?: string | null;
+  description?: string | null;
+  category?: { name?: string };
+  category_name?: string;
+  level?: string;
+  rating?: number | string;
+  total_students?: number | string;
+  students?: number | string;
+  is_featured?: boolean | number | string | null;
+};
+
+type CoursesPayload = HomeCourse[] | { courses?: HomeCourse[] };
+
+let coursesPayload: CoursesPayload = [];
+
+try {
+  const response = await getCourses() as { data: CoursesPayload };
+  coursesPayload = response.data;
+} catch {
+  coursesPayload = [];
+}
+
+const courses = Array.isArray(coursesPayload) ? coursesPayload : coursesPayload?.courses ?? [];
+const markedFeatured = courses.filter((course) => course.is_featured === true || course.is_featured === 1 || course.is_featured === "1");
+const featuredCourses = (markedFeatured.length > 0 ? markedFeatured : courses).slice(0, 3);
 
 const faqs = [
   { question: "¿Los cursos son para principiantes?", answer: "Sí, tenemos cursos para todos los niveles. Desde cero absoluto hasta nivel avanzado. Cada curso indica claramente el nivel requerido." },
@@ -120,21 +150,25 @@ const faqs = [
       <div class="grid md:grid-cols-3 gap-8">
         {featuredCourses.map((course) => (
           <a href={`/cursos/${course.slug}`} class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1">
-            <div class={`h-48 bg-gradient-to-br ${course.gradientFrom} ${course.gradientTo} flex items-center justify-center`}>
-              <Icon name={course.icon} class={`w-16 h-16 ${course.iconColor}`} />
-            </div>
+            {course.thumbnail_url ? (
+              <img src={course.thumbnail_url} alt={course.title} class="h-48 w-full object-cover bg-[#111111]" loading="lazy" />
+            ) : (
+              <div class="h-48 bg-gradient-to-br from-[#00FF66]/20 to-[#111111] flex items-center justify-center">
+                <Icon name="lucide:code-2" class="w-16 h-16 text-[#00FF66]" />
+              </div>
+            )}
             <div class="p-6">
               <div class="flex gap-2 mb-3">
-                <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.category.name}</span>
+                <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.category?.name ?? course.category_name ?? "Curso"}</span>
                 <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.level}</span>
               </div>
               <h3 class="text-xl font-bold text-white mb-2 group-hover:text-[#00FF66] transition">{course.title}</h3>
-              <p class="text-[#888] text-sm mb-4">{course.shortDescription}</p>
+              <p class="text-[#888] text-sm mb-4">{course.short_description ?? course.description}</p>
               <div class="flex justify-between items-center">
                 <span class="text-[#00FF66] font-bold text-lg">{formatPrice(course.price)}</span>
                 <div class="flex items-center gap-1 text-sm text-[#888]">
                   <Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" />
-                  <span>{course.rating} · {course.students}</span>
+                  <span>{course.rating} · {course.total_students ?? course.students}</span>
                 </div>
               </div>
             </div>
