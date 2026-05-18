@@ -8,9 +8,9 @@ interface Props {
 
 export default function MyCoursesPage({ courses }: Props) {
   const { user, initialized } = useAuth();
-  const { enrollments, updateEnrollmentProgress } = useEnrollments();
+  const { enrollments, initialized: enrollmentsReady, updateEnrollmentProgress } = useEnrollments();
 
-  if (!initialized) {
+  if (!initialized || (user && !enrollmentsReady)) {
     return <div className="h-48 rounded-2xl border border-[#2A2A2A] bg-[#111111] animate-pulse" />;
   }
 
@@ -68,7 +68,7 @@ export default function MyCoursesPage({ courses }: Props) {
               type="button"
               onClick={() => {
                 const nextProgress = Math.min(100, enrollment.progress + 20);
-                updateEnrollmentProgress(enrollment.id, {
+                void updateEnrollmentProgress(enrollment.id, {
                   progress: nextProgress,
                   lastLesson: nextProgress >= 100 ? "Curso completado" : `Lección ${Math.floor(nextProgress / 10)}`,
                   status: nextProgress >= 100 ? "completed" : "active",

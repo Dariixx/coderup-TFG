@@ -1,12 +1,16 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { getEnrollments, initEnrollments, subscribeEnrollments, updateEnrollmentProgress } from "../../lib/enrollments";
+import { areEnrollmentsInitialized, getEnrollments, initEnrollments, subscribeEnrollments, updateEnrollmentProgress } from "../../lib/enrollments";
 
 export function useEnrollments() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    initEnrollments();
-    setInitialized(true);
+    if (areEnrollmentsInitialized()) {
+      setInitialized(true);
+      return;
+    }
+
+    initEnrollments().finally(() => setInitialized(true));
   }, []);
 
   const enrollments = useSyncExternalStore(subscribeEnrollments, () => getEnrollments(), () => []);

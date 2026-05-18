@@ -49,7 +49,7 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
     }
   };
 
-  const handleFreeEnrollment = () => {
+  const handleFreeEnrollment = async () => {
     if (!course) {
       return;
     }
@@ -64,7 +64,7 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
       return;
     }
 
-    createEnrollment(user.id, course);
+    await createEnrollment(user.id, course);
     setFeedback("Inscripción completada");
     window.setTimeout(() => setFeedback(""), 2200);
   };

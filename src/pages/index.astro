@@ -7,6 +7,7 @@ import AnimatedCounter from "../components/react/AnimatedCounter.tsx";
 import TestimonialCarousel from "../components/react/TestimonialCarousel.tsx";
 import FAQAccordion from "../components/react/FAQAccordion.tsx";
 import BackToTop from "../components/react/BackToTop.tsx";
+import GitHubProjects from "../components/react/GitHubProjects.tsx";
 import { getCourses } from "../lib/api";
 import { formatPrice } from "../lib/utils";
 
@@ -41,6 +42,13 @@ try {
 const courses = Array.isArray(coursesPayload) ? coursesPayload : coursesPayload?.courses ?? [];
 const markedFeatured = courses.filter((course) => course.is_featured === true || course.is_featured === 1 || course.is_featured === "1");
 const featuredCourses = (markedFeatured.length > 0 ? markedFeatured : courses).slice(0, 3);
+const courseCount = courses.length;
+const studentsTotal = courses.reduce((sum, course) => sum + Number(course.total_students ?? course.students ?? 0), 0);
+const studentsK = Math.max(1, Math.round(studentsTotal / 1000));
+const ratingAverage = courses.length
+  ? courses.reduce((sum, course) => sum + Number(course.rating ?? 0), 0) / courses.length
+  : 4.9;
+const ratingDecimal = Math.round((ratingAverage - Math.floor(ratingAverage)) * 10);
 
 const faqs = [
   { question: "¿Los cursos son para principiantes?", answer: "Sí, tenemos cursos para todos los niveles. Desde cero absoluto hasta nivel avanzado. Cada curso indica claramente el nivel requerido." },
@@ -88,15 +96,15 @@ const faqs = [
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         <div>
-          <AnimatedCounter client:visible end={50} prefix="+" />
+          <AnimatedCounter client:visible end={courseCount || 12} prefix="+" />
           <p class="text-[#888] mt-2">Cursos</p>
         </div>
         <div>
-          <AnimatedCounter client:visible end={10} suffix="K+" prefix="" />
+          <AnimatedCounter client:visible end={studentsK} suffix="K+" prefix="" />
           <p class="text-[#888] mt-2">Estudiantes</p>
         </div>
         <div>
-          <AnimatedCounter client:visible end={9} suffix="/5" prefix="4." />
+          <AnimatedCounter client:visible end={ratingDecimal} suffix="/5" prefix={`${Math.floor(ratingAverage)}.`} />
           <p class="text-[#888] mt-2">Valoración</p>
         </div>
         <div>
@@ -104,6 +112,20 @@ const faqs = [
           <p class="text-[#888] mt-2">Práctico</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- API PÚBLICA: GITHUB -->
+  <section class="py-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">API pública externa</span>
+        <h2 class="text-3xl md:text-4xl font-bold text-white mt-3 mb-4">Proyectos open source para practicar</h2>
+        <p class="text-[#888] text-lg max-w-2xl mx-auto">
+          Datos en tiempo real consumidos desde la API pública de GitHub a través del backend de CoderUp.
+        </p>
+      </div>
+      <GitHubProjects client:visible />
     </div>
   </section>
 

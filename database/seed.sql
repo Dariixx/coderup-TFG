@@ -23,7 +23,8 @@ INSERT INTO roles (name, description) VALUES
 INSERT INTO users (id, name, email, password, role) VALUES
 (1, 'Admin CoderUp', 'admin@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'admin'),
 (2, 'Editor CoderUp', 'editor@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'editor'),
-(3, 'Cliente CoderUp', 'cliente@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'client');
+(3, 'Cliente CoderUp', 'cliente@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'client'),
+(4, 'Invitado CoderUp', 'guest@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'guest');
 
 INSERT INTO instructors (id, name, email, bio, avatar_url, specialty, years_experience, total_students, rating) VALUES
 (1, 'Juan García López', 'juan@coderup.com', 'Experto en React y JavaScript moderno. 5 años en desarrollo frontend. Ha mentorizado a más de 2400 estudiantes. Apasionado por la arquitectura de componentes escalable, accesibilidad y rendimiento web.', 'https://i.pravatar.cc/150?img=1', 'React / Frontend', 5, 2400, 4.80),

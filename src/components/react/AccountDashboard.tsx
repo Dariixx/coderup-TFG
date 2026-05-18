@@ -6,10 +6,10 @@ import { useOrders } from "./useOrders";
 
 export default function AccountDashboard() {
   const { user, initialized, logoutUser } = useAuth();
-  const { enrollments } = useEnrollments();
-  const { orders } = useOrders();
+  const { enrollments, initialized: enrollmentsReady } = useEnrollments();
+  const { orders, initialized: ordersReady } = useOrders();
 
-  if (!initialized) {
+  if (!initialized || (user && (!enrollmentsReady || !ordersReady))) {
     return <div className="h-40 rounded-2xl border border-[#2A2A2A] bg-[#111111] animate-pulse" />;
   }
 

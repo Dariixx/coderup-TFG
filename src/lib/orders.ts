@@ -15,6 +15,7 @@ type OrderListener = () => void;
 
 let orders: Order[] = [];
 let listeners: OrderListener[] = [];
+let initialized = false;
 
 function notify() {
   listeners.forEach((listener) => listener());
@@ -23,8 +24,35 @@ function notify() {
 function persist() {
 }
 
-export function initOrders() {
-  orders = [];
+function mapBackendOrder(record: any): Order {
+  return {
+    id: String(record.id),
+    orderNumber: record.order_number,
+    userId: String(record.user_id),
+    items: (record.items ?? []).map((item: any) => ({
+      courseId: String(item.course_id),
+      title: item.course_title ?? item.title,
+      priceAtPurchase: Number(item.price_at_purchase ?? item.price ?? 0),
+      slug: item.course_slug ?? item.slug,
+    })),
+    subtotal: Number(record.subtotal) || 0,
+    discount: Number(record.discount_amount ?? record.discount ?? 0),
+    total: Number(record.total) || 0,
+    status: "completed",
+    couponCode: record.coupon_code ?? undefined,
+    createdAt: record.created_at,
+  };
+}
+
+export async function initOrders() {
+  const backendOrders = await fetchUserOrdersFromBackend();
+  orders = backendOrders ?? [];
+  initialized = true;
+  notify();
+}
+
+export function areOrdersInitialized() {
+  return initialized;
 }
 
 export function subscribeOrders(listener: OrderListener) {
@@ -113,16 +141,5 @@ export async function fetchUserOrdersFromBackend(): Promise<Order[] | null> {
 
   const orders = Array.isArray(result.data) ? result.data : result.data.orders ?? [];
 
-  return orders.map((o: any) => ({
-    id: String(o.id),
-    orderNumber: o.order_number ?? `ORD-${o.id}`,
-    userId: String(o.user_id),
-    items: o.items ?? [],
-    subtotal: Number(o.subtotal),
-    discount: Number(o.discount_amount ?? o.discount ?? 0),
-    total: Number(o.total),
-    status: "completed" as const,
-    couponCode: o.coupon_code ?? undefined,
-    createdAt: o.created_at,
-  }));
+  return orders.map(mapBackendOrder);
 }

@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function AnimatedCounter({ end, suffix = "", prefix = "", duration = 2000 }: Props) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(end);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -31,6 +31,7 @@ export default function AnimatedCounter({ end, suffix = "", prefix = "", duratio
     if (!isVisible) return;
 
     let start = 0;
+    setCount(0);
     const step = end / (duration / 16);
     const timer = setInterval(() => {
       start += step;

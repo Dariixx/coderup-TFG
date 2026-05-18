@@ -289,3 +289,19 @@ export async function getOrders(page = 1) {
     method: "GET",
   });
 }
+
+export async function getEnrollments() {
+  return apiGet<any>("/api/enrollments.php");
+}
+
+export async function createEnrollment(courseId: number | string) {
+  return apiPost<any>("/api/enrollments.php", { course_id: Number(courseId) });
+}
+
+export async function updateEnrollment(enrollmentId: number | string, progress: number) {
+  return apiPut<any>("/api/enrollments.php", { enrollment_id: Number(enrollmentId), progress });
+}
+
+export async function getGithubProjects() {
+  return apiGet<any>("/api/github-projects.php");
+}
