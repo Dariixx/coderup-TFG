@@ -146,6 +146,8 @@ export interface CartItem {
   slug: string;
   title: string;
   price: number;
+  thumbnailUrl?: string;
+  instructorName?: string;
   isFree: boolean;
   accessType: CourseAccessType;
   icon: string;

@@ -128,11 +128,15 @@ export default function BlogPagination({ posts, postsPerPage = 6 }: Props) {
               href={`/blog/${post.slug}`}
               className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1 block"
             >
-              <div className={`h-40 bg-gradient-to-br ${post.gradientFrom} ${post.gradientTo} flex items-center justify-center`}>
-                <svg className={`w-14 h-14 ${post.iconColor} opacity-80`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                  <circle cx="12" cy="12" r="10" />
-                </svg>
-              </div>
+              {post.cover?.url ? (
+                <img src={post.cover.url} alt={post.title} className="h-48 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+              ) : (
+                <div className={`h-48 bg-gradient-to-br ${post.gradientFrom} ${post.gradientTo} flex items-center justify-center`}>
+                  <svg className={`w-14 h-14 ${post.iconColor} opacity-80`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
+                    <circle cx="12" cy="12" r="10" />
+                  </svg>
+                </div>
+              )}
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{post.category.name}</span>

@@ -4,6 +4,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
+import BlogContent from "../../components/react/BlogContent.tsx";
 import { getBlogPostBySlug, getBlogPosts } from "../../lib/content";
 import { formatDate } from "../../lib/utils";
 
@@ -24,15 +25,6 @@ const fallbackRelated = post
   ? relatedPosts.length > 0
     ? relatedPosts
     : posts.filter((p) => p.slug !== post.slug).slice(0, 3)
-  : [];
-
-const sections = post
-  ? [
-      { id: "introduccion", title: "Introducción" },
-      { id: "por-que-importa", title: "¿Por qué importa?" },
-      { id: "aplicacion-real", title: "Aplicación real" },
-      { id: "conclusion", title: "Conclusión" },
-    ]
   : [];
 
 if (notFound) {
@@ -64,135 +56,17 @@ if (notFound) {
     </main>
   ) : (
     <>
-  <section class="pt-32 pb-12 relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-b from-[#00FF66]/5 to-transparent"></div>
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-      <div class="mb-8">
-        <a href="/blog" class="text-[#888] text-sm hover:text-[#00FF66] transition flex items-center gap-1 inline-flex">
-          <Icon name="lucide:arrow-left" class="w-4 h-4" /> Volver al blog
-        </a>
-      </div>
-
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-3 py-1 rounded-full font-medium">{post.category.name}</span>
-        <span class="text-[#888] text-sm flex items-center gap-1">
-          <Icon name="lucide:clock" class="w-3 h-3" /> {post.readingTime} min lectura
-        </span>
-      </div>
-
-      <h1 class="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">{post.title}</h1>
-
-      <p class="text-[#888] text-lg mb-8">{post.excerpt}</p>
-
-      <div class="flex items-center gap-4 pb-8 border-b border-[#2A2A2A]">
-        <div class="w-12 h-12 bg-[#00FF66]/20 rounded-full flex items-center justify-center">
-          <span class="text-[#00FF66] font-bold text-lg">{post.author.charAt(0)}</span>
-        </div>
-        <div>
-          <p class="text-white font-semibold text-sm">{post.author}</p>
-          <p class="text-[#888] text-xs">{formatDate(post.publishedAt)}</p>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- IMAGEN DESTACADA -->
-  <section class="pb-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class={`bg-gradient-to-br ${post.gradientFrom} ${post.gradientTo} rounded-2xl h-64 md:h-80 flex items-center justify-center border border-[#2A2A2A]`}>
-        <Icon name={post.icon} class={`w-24 h-24 ${post.iconColor} opacity-50`} />
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTENIDO DEL ARTÍCULO -->
-  <section class="pb-16">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid lg:grid-cols-4 gap-12">
-
-        <!-- ARTÍCULO -->
-        <article class="lg:col-span-3 prose-custom space-y-8">
-          <header class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-xl p-6">
-            <p class="text-sm text-[#888] mb-3">
-              Artículo publicado por CoderUp con contenido técnico completo y actualizado.
-            </p>
-            <div class="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-3 py-1 rounded-full">{tag.name}</span>
-              ))}
-            </div>
-          </header>
-
-          <div class="prose prose-invert max-w-none prose-headings:text-white prose-p:text-[#B0B0B0] prose-li:text-[#B0B0B0] prose-a:text-[#00FF66] prose-strong:text-white" set:html={post.content} />
-
-          <div class="bg-gradient-to-br from-[#00FF66]/10 to-transparent border border-[#00FF66]/20 rounded-xl p-6">
-            <div class="flex items-start gap-3">
-              <Icon name="lucide:rocket" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" />
-              <div>
-                <p class="text-white font-semibold text-sm mb-1">¿Quieres profundizar más?</p>
-                <p class="text-[#888] text-sm mb-3">Tenemos un curso completo donde cubrimos todo esto en detalle con proyectos prácticos.</p>
-                <a href="/cursos" class="text-[#00FF66] text-sm font-semibold hover:underline flex items-center gap-1">
-                  Ver cursos relacionados <Icon name="lucide:arrow-right" class="w-4 h-4" />
-                </a>
-              </div>
-            </div>
-          </div>
-
-        </article>
-
-        <!-- SIDEBAR -->
-        <aside class="hidden lg:block">
-          <div class="sticky top-24 space-y-6">
-
-            <!-- COMPARTIR -->
-            <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-6">
-              <h3 class="text-white font-semibold text-sm mb-4">Compartir</h3>
-              <div class="flex gap-3">
-                <button class="w-10 h-10 bg-[#00FF66]/10 rounded-lg flex items-center justify-center hover:bg-[#00FF66]/20 transition">
-                  <Icon name="lucide:twitter" class="w-4 h-4 text-[#00FF66]" />
-                </button>
-                <button class="w-10 h-10 bg-[#00FF66]/10 rounded-lg flex items-center justify-center hover:bg-[#00FF66]/20 transition">
-                  <Icon name="lucide:linkedin" class="w-4 h-4 text-[#00FF66]" />
-                </button>
-                <button class="w-10 h-10 bg-[#00FF66]/10 rounded-lg flex items-center justify-center hover:bg-[#00FF66]/20 transition">
-                  <Icon name="lucide:link" class="w-4 h-4 text-[#00FF66]" />
-                </button>
-              </div>
-            </div>
-
-            <!-- TABLA DE CONTENIDOS -->
-            <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-6">
-              <h3 class="text-white font-semibold text-sm mb-4">En este artículo</h3>
-              <nav class="space-y-3">
-                {sections.map((section) => (
-                  <a href={`#${section.id}`} class="text-[#888] text-xs hover:text-[#00FF66] transition block">{section.title}</a>
-                ))}
-              </nav>
-            </div>
-
-            <!-- NEWSLETTER -->
-            <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-6">
-              <Icon name="lucide:mail" class="w-8 h-8 text-[#00FF66] mb-3" />
-              <h3 class="text-white font-semibold text-sm mb-2">Newsletter</h3>
-              <p class="text-[#888] text-xs mb-4">Recibe artículos como este directamente en tu email.</p>
-              <input
-                type="email"
-                placeholder="tu@email.com"
-                class="w-full px-3 py-2 bg-[#0A0A0A] border border-[#2A2A2A] rounded-lg text-white text-sm placeholder-[#888] focus:border-[#00FF66]/50 focus:outline-none mb-3"
-              />
-              <button class="w-full bg-[#00FF66] text-[#0A0A0A] py-2 rounded-lg font-semibold text-sm hover:bg-[#00CC52] transition">
-                Suscribirme
-              </button>
-            </div>
-
-          </div>
-        </aside>
-
-      </div>
-    </div>
-  </section>
+  <BlogContent
+    client:load
+    content={post.content}
+    title={post.title}
+    excerpt={post.excerpt}
+    author={post.author}
+    readTime={post.readingTime}
+    publishedDate={formatDate(post.publishedAt)}
+    category={post.category.name}
+    coverUrl={post.cover?.url}
+  />
 
   <!-- ARTÍCULOS RELACIONADOS -->
   <section class="py-16 border-t border-[#2A2A2A]">

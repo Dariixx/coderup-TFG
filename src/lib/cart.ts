@@ -20,19 +20,64 @@ type CartListener = () => void;
 let cart: CartItem[] = [];
 let appliedCoupon: AppliedCoupon | null = null;
 let listeners: CartListener[] = [];
+let initialized = false;
 
 function notify() {
   listeners.forEach((listener) => listener());
 }
 
 function persist() {
-  void CART_KEY;
-  void COUPON_KEY;
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+  if (appliedCoupon) {
+    window.localStorage.setItem(COUPON_KEY, JSON.stringify(appliedCoupon));
+  } else {
+    window.localStorage.removeItem(COUPON_KEY);
+  }
+}
+
+function readStoredCart() {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const storedCart = window.localStorage.getItem(CART_KEY);
+    const parsed = storedCart ? JSON.parse(storedCart) : [];
+    return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
+  } catch {
+    window.localStorage.removeItem(CART_KEY);
+    return [];
+  }
+}
+
+function readStoredCoupon() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const storedCoupon = window.localStorage.getItem(COUPON_KEY);
+    return storedCoupon ? (JSON.parse(storedCoupon) as AppliedCoupon) : null;
+  } catch {
+    window.localStorage.removeItem(COUPON_KEY);
+    return null;
+  }
 }
 
 export function initCartStore() {
-  cart = [];
-  appliedCoupon = null;
+  cart = readStoredCart();
+  appliedCoupon = readStoredCoupon();
+  initialized = true;
+  notify();
+}
+
+export function isCartInitialized() {
+  return initialized;
 }
 
 export function subscribeCart(listener: CartListener) {

@@ -192,6 +192,8 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
                     slug: curso.slug,
                     title: curso.title,
                     price: curso.price,
+                    thumbnailUrl: curso.thumbnailUrl,
+                    instructorName: curso.instructor.name,
                     isFree: curso.isFree,
                     accessType: curso.accessType,
                     icon: curso.icon,
