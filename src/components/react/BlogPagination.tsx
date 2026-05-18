@@ -1,7 +1,7 @@
 import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { BlogPost } from "../../lib/types";
 import { getBlogPosts } from "../../lib/content";
-import { getBlogImage, IMAGE_FALLBACK } from "../../lib/images";
+import { IMAGE_FALLBACK } from "../../lib/images";
 
 interface Props {
   posts: BlogPost[];
@@ -130,9 +130,9 @@ export default function BlogPagination({ posts, postsPerPage = 6 }: Props) {
               className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1 block"
             >
               <img
-                src={post.cover?.url ?? getBlogImage(post.category.slug, post.id, post.title)}
+                src={post.cover?.url ?? IMAGE_FALLBACK}
                 alt={post.title}
-                className="h-48 w-full object-cover transition duration-500 group-hover:scale-105"
+                className="h-48 w-full bg-[#111111] object-contain p-8 transition duration-500 group-hover:scale-105"
                 loading="lazy"
                 onError={(event) => {
                   event.currentTarget.src = IMAGE_FALLBACK;

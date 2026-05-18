@@ -28,19 +28,6 @@ export function getCourseImage(category?: string | null, id?: number | string | 
   return `https://source.unsplash.com/800x450/?${theme}&sig=${encodeURIComponent(String(id ?? (key || "course")))}`;
 }
 
-export function getBlogImage(category?: string | null, id?: number | string | null, title?: string | null) {
-  const key = slugify(`${category ?? ""} ${title ?? ""}`);
-  const theme = key.includes("react") || key.includes("javascript")
-    ? "programming,tutorial"
-    : key.includes("css") || key.includes("ux")
-      ? "webdesign,technology"
-      : key.includes("mysql") || key.includes("sql")
-        ? "database,technology"
-        : "technology,blog";
-
-  return `https://source.unsplash.com/800x400/?${theme}&sig=${encodeURIComponent(String(id ?? (key || "post")))}`;
-}
-
 export function getInstructorAvatar(id?: number | string | null) {
   return `https://source.unsplash.com/200x200/?person,professional&sig=${encodeURIComponent(String(id ?? "instructor"))}`;
 }

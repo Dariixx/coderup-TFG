@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { getBlogImage, IMAGE_FALLBACK } from "../../lib/images";
+import { IMAGE_FALLBACK } from "../../lib/images";
 
 interface Heading {
   id: string;
@@ -89,9 +89,9 @@ export default function BlogContent({ content, title, excerpt, author, readTime,
       <section className="pb-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <img
-            src={coverUrl ?? getBlogImage(category, title, title)}
+            src={coverUrl ?? IMAGE_FALLBACK}
             alt={title}
-            className="h-72 md:h-96 w-full rounded-2xl border border-[#2A2A2A] object-cover"
+            className="h-72 md:h-96 w-full rounded-2xl border border-[#2A2A2A] bg-[#111111] object-contain p-10"
             loading="lazy"
             onError={(event) => {
               event.currentTarget.src = IMAGE_FALLBACK;

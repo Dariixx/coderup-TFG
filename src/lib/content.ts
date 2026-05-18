@@ -1,5 +1,5 @@
 import { apiGet } from "./api";
-import { getBlogImage, getCourseImage, getInstructorAvatar } from "./images";
+import { getCourseImage, getInstructorAvatar, IMAGE_FALLBACK } from "./images";
 import type { BlogCategory, BlogPost, Category, Course, Instructor, SEO, Tag } from "./types";
 import { getReadingTime, slugify, truncateText } from "./utils";
 
@@ -317,7 +317,7 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
     iconColor: "text-[#00FF66]",
     gradientFrom: "from-emerald-500/20",
     gradientTo: "to-purple-500/20",
-    cover: { url: record.cover_image_url ?? getBlogImage(record.category, record.id, record.title) },
+    cover: { url: record.cover_image_url ?? IMAGE_FALLBACK },
     seo: postSeo(record.title, record.excerpt),
   };
 }
