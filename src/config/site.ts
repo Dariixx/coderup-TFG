@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "CoderUp",
   description: "Aprende. Practica. Evoluciona.",
-  url: "https://coderup.dev",
+  url: "https://coderup-tfg.vercel.app",
   author: "CoderUp Team",
   defaultLanguage: "es",
   navigation: [
