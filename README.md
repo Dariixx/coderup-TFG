@@ -30,7 +30,7 @@ Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). 
 - Integridad referencial con FKs
 
 ## URLs en Producción
-- **Frontend**: https://coderup.vercel.app
+- **Frontend**: https://coderup-tfg.vercel.app
 - **Backend API**: https://coderup-tfg-production.up.railway.app
 - **GitHub**: https://github.com/Dariixx/coderup-TFG
 
@@ -174,8 +174,7 @@ Contraseña: Test123456
 ```
 
 ### Usuarios de prueba (seed)
-- admin@coderup.com / Coderup123!
-- cliente@coderup.com / Coderup123!
+
 
 ### Flujo completo
 1. /register -> crear usuario -> aparece en MySQL
@@ -267,9 +266,9 @@ coderup-TFG/
 - Rate limiting recomendado en producción
 
 ## Autores
-- Desarrollado por: [Tu nombre]
+- Desarrollado por: Dario Martos
 - Proyecto Final: DAW (Desarrollo de Aplicaciones Web)
-- Centro: [Tu centro educativo]
+- Centro: Digitech FP
 
 ## Licencia
 Proyecto académico - 2026
