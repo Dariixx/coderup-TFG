@@ -1,5 +1,6 @@
 import { formatPrice } from "../../lib/utils";
 import type { CartItem as CartItemType } from "../../lib/types";
+import { getCourseImage, IMAGE_FALLBACK } from "../../lib/images";
 
 interface Props {
   item: CartItemType;
@@ -13,13 +14,15 @@ export default function CartItem({ item, onRemove }: Props) {
         href={`/cursos/${item.slug}`}
         className={`w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br ${item.gradientFrom} ${item.gradientTo} rounded-xl flex items-center justify-center shrink-0 overflow-hidden`}
       >
-        {item.thumbnailUrl ? (
-          <img src={item.thumbnailUrl} alt={item.title} className="h-full w-full object-cover" />
-        ) : (
-          <svg className={`w-10 h-10 ${item.iconColor} opacity-70`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-            <circle cx="12" cy="12" r="10" />
-          </svg>
-        )}
+        <img
+          src={item.thumbnailUrl ?? getCourseImage(item.category, item.courseId, item.title)}
+          alt={item.title}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          onError={(event) => {
+            event.currentTarget.src = IMAGE_FALLBACK;
+          }}
+        />
       </a>
 
       <div className="flex-1 min-w-0">

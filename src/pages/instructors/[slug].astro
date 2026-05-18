@@ -5,6 +5,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop";
 import { getInstructorBySlug, getInstructors } from "../../lib/content";
+import { getCourseImage, getInstructorAvatar, IMAGE_FALLBACK } from "../../lib/images";
 import { formatPrice } from "../../lib/utils";
 
 export async function getStaticPaths() {
@@ -32,11 +33,13 @@ if (!data) {
         <div class="grid lg:grid-cols-[320px_1fr] gap-10">
           <aside class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 h-fit">
             <div class="mb-6 h-40 w-40 rounded-3xl border border-[#2A2A2A] bg-[#111111] overflow-hidden flex items-center justify-center">
-              {data.instructor.avatarUrl ? (
-                <img src={data.instructor.avatarUrl} alt={data.instructor.name} class="h-full w-full object-cover" />
-              ) : (
-                <span class="text-5xl font-bold text-[#00FF66]">{data.instructor.name.charAt(0)}</span>
-              )}
+              <img
+                src={data.instructor.avatarUrl ?? getInstructorAvatar(data.instructor.id)}
+                alt={data.instructor.name}
+                class="h-full w-full object-cover"
+                loading="lazy"
+                onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+              />
             </div>
             <h1 class="text-3xl font-bold text-white mb-2">{data.instructor.name}</h1>
             <p class="text-[#00FF66] mb-5">{data.instructor.specialty}</p>
@@ -62,13 +65,22 @@ if (!data) {
               <h2 class="text-2xl font-bold text-white mb-6">Cursos que imparte</h2>
               <div class="grid md:grid-cols-2 gap-6">
                 {data.courses.map((course) => (
-                  <a href={`/cursos/${course.slug}`} class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 transition hover:border-[#00FF66]/50">
-                    <p class="text-xs text-[#00FF66] mb-2">{course.category.name}</p>
-                    <h3 class="text-xl font-bold text-white mb-2">{course.title}</h3>
-                    <p class="text-[#888] text-sm line-clamp-2 mb-4">{course.shortDescription}</p>
-                    <div class="flex items-center justify-between text-sm">
-                      <span class="text-[#00FF66] font-bold">{formatPrice(course.price)}</span>
-                      <span class="text-[#888] flex items-center gap-1"><Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" /> {course.rating}</span>
+                  <a href={`/cursos/${course.slug}`} class="overflow-hidden rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] transition hover:border-[#00FF66]/50">
+                    <img
+                      src={course.thumbnailUrl ?? getCourseImage(course.category.slug, course.id, course.title)}
+                      alt={course.title}
+                      class="h-36 w-full object-cover"
+                      loading="lazy"
+                      onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+                    />
+                    <div class="p-6">
+                      <p class="text-xs text-[#00FF66] mb-2">{course.category.name}</p>
+                      <h3 class="text-xl font-bold text-white mb-2">{course.title}</h3>
+                      <p class="text-[#888] text-sm line-clamp-2 mb-4">{course.shortDescription}</p>
+                      <div class="flex items-center justify-between text-sm">
+                        <span class="text-[#00FF66] font-bold">{formatPrice(course.price)}</span>
+                        <span class="text-[#888] flex items-center gap-1"><Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" /> {course.rating}</span>
+                      </div>
                     </div>
                   </a>
                 ))}
@@ -86,4 +98,3 @@ if (!data) {
   )}
   <Footer />
 </BaseLayout>
-

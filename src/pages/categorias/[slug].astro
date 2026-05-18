@@ -5,6 +5,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import { getCategories, getCoursesByCategory } from "../../lib/content";
+import { getCourseImage, IMAGE_FALLBACK } from "../../lib/images";
 import { formatPrice } from "../../lib/utils";
 
 export async function getStaticPaths() {
@@ -75,9 +76,13 @@ if (notFound) {
               {courses.map((course) => (
                 <article class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group">
                   <a href={`/cursos/${course.slug}`} class="block">
-                    <div class={`h-44 bg-gradient-to-br ${course.gradientFrom} ${course.gradientTo} flex items-center justify-center`}>
-                      <Icon name={course.icon} class={`w-16 h-16 ${course.iconColor} opacity-80`} />
-                    </div>
+                    <img
+                      src={course.thumbnailUrl ?? getCourseImage(course.category.slug, course.id, course.title)}
+                      alt={course.title}
+                      class="h-44 w-full bg-[#111111] object-cover transition duration-500 group-hover:scale-105"
+                      loading="lazy"
+                      onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+                    />
                     <div class="p-6">
                       <div class="flex gap-2 mb-3">
                         <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.level}</span>

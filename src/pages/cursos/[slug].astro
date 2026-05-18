@@ -6,6 +6,7 @@ import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import AddToCartButton from "../../components/react/AddToCartButton.tsx";
 import { getCourseBySlug, getCourses } from "../../lib/content";
+import { getCourseImage, IMAGE_FALLBACK } from "../../lib/images";
 import { formatPrice } from "../../lib/utils";
 
 export async function getStaticPaths() {
@@ -26,6 +27,7 @@ const requisitos = curso?.requirements ?? [];
 const aprenderás = curso?.whatYouLearn ?? [];
 
 const relatedCursos = curso ? allCourses.filter((c) => c.slug !== curso.slug).slice(0, 3) : [];
+const courseImage = curso ? curso.thumbnailUrl ?? getCourseImage(curso.category.slug, curso.id, curso.title) : "";
 
 const cartItem = curso
   ? {
@@ -125,9 +127,13 @@ if (notFound) {
 
         <!-- CARD VISUAL -->
         <div class="hidden lg:block">
-          <div class={`bg-gradient-to-br ${curso.gradientFrom} ${curso.gradientTo} rounded-2xl h-80 flex items-center justify-center border border-[#2A2A2A]`}>
-            <Icon name={curso.icon} class={`w-32 h-32 ${curso.iconColor} opacity-60`} />
-          </div>
+          <img
+            src={courseImage}
+            alt={curso.title}
+            class="h-80 w-full rounded-2xl border border-[#2A2A2A] object-cover shadow-2xl shadow-black/30"
+            loading="lazy"
+            onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+          />
         </div>
 
       </div>
@@ -275,9 +281,13 @@ if (notFound) {
       <div class="grid md:grid-cols-3 gap-8">
         {relatedCursos.map((rel) => (
           <a href={`/cursos/${rel.slug}`} class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1 block">
-            <div class={`h-36 bg-gradient-to-br ${rel.gradientFrom} ${rel.gradientTo} flex items-center justify-center`}>
-              <Icon name={rel.icon} class={`w-12 h-12 ${rel.iconColor} opacity-70`} />
-            </div>
+            <img
+              src={rel.thumbnailUrl ?? getCourseImage(rel.category.slug, rel.id, rel.title)}
+              alt={rel.title}
+              class="h-36 w-full object-cover bg-[#111111] transition duration-500 group-hover:scale-105"
+              loading="lazy"
+              onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+            />
             <div class="p-5">
               <div class="flex gap-2 mb-2">
                 <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{rel.category.name}</span>

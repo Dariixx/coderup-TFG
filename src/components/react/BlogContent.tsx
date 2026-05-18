@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { getBlogImage, IMAGE_FALLBACK } from "../../lib/images";
 
 interface Heading {
   id: string;
@@ -51,6 +52,13 @@ export default function BlogContent({ content, title, excerpt, author, readTime,
       firstSection.before(cta);
     }
 
+    article.querySelectorAll("img").forEach((image) => {
+      image.setAttribute("loading", "lazy");
+      image.addEventListener("error", () => {
+        image.setAttribute("src", IMAGE_FALLBACK);
+      });
+    });
+
     setHeadings(nextHeadings);
   }, [content]);
 
@@ -80,11 +88,15 @@ export default function BlogContent({ content, title, excerpt, author, readTime,
 
       <section className="pb-12">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {coverUrl ? (
-            <img src={coverUrl} alt={title} className="h-72 md:h-96 w-full rounded-2xl border border-[#2A2A2A] object-cover" />
-          ) : (
-            <div className="h-72 md:h-96 rounded-2xl border border-[#2A2A2A] bg-[linear-gradient(135deg,rgba(0,255,102,0.16),rgba(59,130,246,0.14)),radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.12),transparent_30%)]" />
-          )}
+          <img
+            src={coverUrl ?? getBlogImage(category, title, title)}
+            alt={title}
+            className="h-72 md:h-96 w-full rounded-2xl border border-[#2A2A2A] object-cover"
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.src = IMAGE_FALLBACK;
+            }}
+          />
         </div>
       </section>
 

@@ -4,6 +4,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import BlogPagination from "../../components/react/BlogPagination.tsx";
+import DevToArticles from "../../components/react/DevToArticles.tsx";
 import { getBlogPosts } from "../../lib/content";
 
 const posts = await getBlogPosts();
@@ -28,6 +29,10 @@ const posts = await getBlogPosts();
           Cargando posts desde MySQL. Si no aparecen, revisa <code>/api/posts.php</code> y <code>PUBLIC_API_URL</code>.
         </div>
       )}
+      <section class="mb-16">
+        <DevToArticles client:load fallbackPosts={posts} />
+      </section>
+
       <BlogPagination client:load posts={posts} postsPerPage={6} />
 
     </div>

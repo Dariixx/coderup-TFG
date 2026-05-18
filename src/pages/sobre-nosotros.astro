@@ -4,6 +4,7 @@ import Navbar from "../components/layout/Navbar.astro";
 import Footer from "../components/layout/Footer.astro";
 import BackToTop from "../components/react/BackToTop.tsx";
 import { Icon } from "astro-icon/components";
+import { getAboutImage, IMAGE_FALLBACK } from "../lib/images";
 
 const values = [
   { icon: "lucide:target", title: "Práctica sobre teoría", description: "Creemos que se aprende haciendo. Todos nuestros cursos están basados en proyectos reales." },
@@ -18,6 +19,8 @@ const stats = [
   { icon: "lucide:star", value: "4.9", label: "Valoración media" },
   { icon: "lucide:award", value: "+5K", label: "Certificados" },
 ];
+
+const aboutImage = getAboutImage();
 ---
 
 <BaseLayout title="Sobre Nosotros | CoderUp">
@@ -41,6 +44,18 @@ const stats = [
   </section>
 
   <!-- STATS -->
+  <section class="pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <img
+        src={aboutImage}
+        alt="Equipo trabajando en tecnología"
+        class="h-72 md:h-[420px] w-full rounded-2xl border border-[#2A2A2A] object-cover"
+        loading="lazy"
+        onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+      />
+    </div>
+  </section>
+
   <section class="py-16 border-y border-[#2A2A2A]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8">

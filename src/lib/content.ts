@@ -1,4 +1,5 @@
 import { apiGet } from "./api";
+import { getBlogImage, getCourseImage, getInstructorAvatar } from "./images";
 import type { BlogCategory, BlogPost, Category, Course, Instructor, SEO, Tag } from "./types";
 import { getReadingTime, slugify, truncateText } from "./utils";
 
@@ -211,7 +212,7 @@ function mapApiInstructor(record: ApiInstructorRecord): Instructor {
     slug: record.slug,
     role: record.specialty,
     bio: record.bio,
-    avatarUrl: record.avatar_url ?? undefined,
+    avatarUrl: record.avatar_url ?? getInstructorAvatar(record.id),
     linkedinUrl: record.linkedin_url ?? undefined,
     githubUrl: record.github_url ?? undefined,
     twitterUrl: record.twitter_url ?? undefined,
@@ -230,6 +231,7 @@ function apiInstructorFromCourse(record: ApiCourseRecord, index: number): Instru
       slug: "equipo-coderup",
       role: `Instructor/a de ${record.category_name}`,
       bio: `Profesional especializado en ${record.category_name}.`,
+      avatarUrl: getInstructorAvatar(index + 1),
       specialty: record.category_name,
     };
   }
@@ -240,7 +242,7 @@ function apiInstructorFromCourse(record: ApiCourseRecord, index: number): Instru
     slug: record.instructor_slug ?? slugify(record.instructor_name),
     role: record.instructor_specialty ?? `Instructor/a de ${record.category_name}`,
     bio: record.instructor_bio ?? `Profesional especializado en ${record.category_name}.`,
-    avatarUrl: record.instructor_avatar_url ?? undefined,
+    avatarUrl: record.instructor_avatar_url ?? getInstructorAvatar(record.instructor_id),
     linkedinUrl: record.instructor_linkedin_url ?? undefined,
     githubUrl: record.instructor_github_url ?? undefined,
     twitterUrl: record.instructor_twitter_url ?? undefined,
@@ -276,7 +278,7 @@ function mapApiCourse(record: ApiCourseRecord, index: number): Course {
     students: Number(record.total_students) || 0,
     duration: record.duration ?? (durationHours ? `${durationHours}h de contenido` : "0h de contenido"),
     lessons: totalLessons,
-    thumbnailUrl: record.thumbnail_url ?? undefined,
+    thumbnailUrl: getCourseImage(record.category_slug ?? record.category_name, record.id, record.title),
     durationHours,
     totalLessons,
     requirements,
@@ -315,7 +317,7 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
     iconColor: "text-[#00FF66]",
     gradientFrom: "from-emerald-500/20",
     gradientTo: "to-purple-500/20",
-    cover: record.cover_image_url ? { url: record.cover_image_url } : null,
+    cover: { url: record.cover_image_url ?? getBlogImage(record.category, record.id, record.title) },
     seo: postSeo(record.title, record.excerpt),
   };
 }

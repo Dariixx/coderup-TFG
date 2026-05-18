@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiGet, apiPost, getApiHelpMessage } from "../../../lib/api";
+import { getCourseImage } from "../../../lib/images";
 import { useAuth } from "../useAuth";
 
 interface CourseRecord {
@@ -31,7 +32,7 @@ const emptyForm = {
   slug: "",
   description: "",
   short_description: "",
-  image: "/logo.webp",
+  image: getCourseImage("frontend", "admin-new", "Nuevo curso"),
   level: "Inicial",
   duration: "10 horas",
   price: "19.99",
@@ -186,7 +187,7 @@ export default function AdminCoursesManager() {
                         slug: course.slug,
                         description: course.description,
                         short_description: course.short_description,
-                        image: "/logo.webp",
+                        image: getCourseImage(course.category_name, course.id, course.title),
                         level: course.level,
                         duration: course.duration,
                         price: String(course.price),

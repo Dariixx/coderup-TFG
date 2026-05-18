@@ -5,6 +5,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop";
 import { getInstructors } from "../../lib/content";
+import { getInstructorAvatar, IMAGE_FALLBACK } from "../../lib/images";
 
 const instructors = await getInstructors();
 ---
@@ -24,11 +25,13 @@ const instructors = await getInstructors();
         {instructors.map((instructor) => (
           <a href={`/instructors/${instructor.slug}`} class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 transition hover:-translate-y-1 hover:border-[#00FF66]/50">
             <div class="mb-5 h-24 w-24 rounded-2xl border border-[#2A2A2A] bg-[#111111] overflow-hidden flex items-center justify-center">
-              {instructor.avatarUrl ? (
-                <img src={instructor.avatarUrl} alt={instructor.name} class="h-full w-full object-cover" />
-              ) : (
-                <span class="text-3xl font-bold text-[#00FF66]">{instructor.name.charAt(0)}</span>
-              )}
+              <img
+                src={instructor.avatarUrl ?? getInstructorAvatar(instructor.id)}
+                alt={instructor.name}
+                class="h-full w-full object-cover"
+                loading="lazy"
+                onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+              />
             </div>
             <h2 class="text-xl font-bold text-white mb-1">{instructor.name}</h2>
             <p class="text-[#00FF66] text-sm mb-3">{instructor.specialty ?? instructor.role}</p>
@@ -44,4 +47,3 @@ const instructors = await getInstructors();
   </main>
   <Footer />
 </BaseLayout>
-

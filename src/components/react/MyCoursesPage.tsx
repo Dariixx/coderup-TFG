@@ -1,6 +1,7 @@
 import type { Course } from "../../lib/types";
 import { useAuth } from "./useAuth";
 import { useEnrollments } from "./useEnrollments";
+import { getCourseImage, IMAGE_FALLBACK } from "../../lib/images";
 
 interface Props {
   courses: Course[];
@@ -49,12 +50,15 @@ export default function MyCoursesPage({ courses }: Props) {
     <div className="grid lg:grid-cols-2 gap-6">
       {myCourses.map(({ enrollment, course }) => (
         <article key={enrollment.id} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] overflow-hidden">
-          <div className={`h-40 bg-gradient-to-br ${course!.gradientFrom} ${course!.gradientTo} flex items-center justify-center`}>
-            <div className="text-center">
-              <p className="text-white font-semibold">{course!.title}</p>
-              <p className="text-sm text-[#D7FFE8] mt-1">{course!.instructor.name}</p>
-            </div>
-          </div>
+          <img
+            src={course!.thumbnailUrl ?? getCourseImage(course!.category.slug, course!.id, course!.title)}
+            alt={course!.title}
+            className="h-40 w-full bg-[#111111] object-cover"
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.src = IMAGE_FALLBACK;
+            }}
+          />
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <span className="rounded-full bg-[#00FF66]/10 px-3 py-1 text-xs text-[#00FF66]">{course!.category.name}</span>

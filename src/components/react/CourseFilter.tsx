@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getCourseImage, IMAGE_FALLBACK } from "../../lib/images";
 
 const categories = ["Todos", "Frontend", "Backend", "Full Stack", "DevOps", "Mobile"];
 const levels = ["Todos", "Principiante", "Intermedio", "Avanzado"];
@@ -85,11 +86,15 @@ export default function CourseFilter() {
             key={i}
             className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group"
           >
-            <div className={`h-48 bg-gradient-to-br ${course.gradient} flex items-center justify-center`}>
-              <svg className="w-16 h-16 text-[#00FF66]/80" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 9.75 17.25 12l-3 2.25m-4.5-4.5L6.75 12l3 2.25M12 3l-1.664 5.822a2.25 2.25 0 01-1.555 1.555L3 12l5.781 1.623a2.25 2.25 0 011.555 1.555L12 21l1.664-5.822a2.25 2.25 0 011.555-1.555L21 12l-5.781-1.623a2.25 2.25 0 01-1.555-1.555L12 3z" />
-              </svg>
-            </div>
+            <img
+              src={getCourseImage(course.category, i + 1, course.title)}
+              alt={course.title}
+              className="h-48 w-full bg-[#111111] object-cover transition duration-500 group-hover:scale-105"
+              loading="lazy"
+              onError={(event) => {
+                event.currentTarget.src = IMAGE_FALLBACK;
+              }}
+            />
             <div className="p-6">
               <div className="flex gap-2 mb-3">
                 <span className="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.category}</span>

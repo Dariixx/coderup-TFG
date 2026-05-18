@@ -9,6 +9,7 @@ import FAQAccordion from "../components/react/FAQAccordion.tsx";
 import BackToTop from "../components/react/BackToTop.tsx";
 import GitHubProjects from "../components/react/GitHubProjects.tsx";
 import { getCourses } from "../lib/api";
+import { getCourseImage, getHeroImage, IMAGE_FALLBACK } from "../lib/images";
 import { formatPrice } from "../lib/utils";
 
 type HomeCourse = {
@@ -21,6 +22,7 @@ type HomeCourse = {
   description?: string | null;
   category?: { name?: string };
   category_name?: string;
+  category_slug?: string;
   level?: string;
   rating?: number | string;
   total_students?: number | string;
@@ -57,6 +59,8 @@ const faqs = [
   { question: "¿Puedo pedir un reembolso?", answer: "Ofrecemos garantía de 30 días. Si no estás satisfecho, te devolvemos el 100% del dinero sin preguntas." },
   { question: "¿Cómo se imparten los cursos?", answer: "Vídeos grabados en alta calidad, ejercicios prácticos, proyectos reales y acceso a la comunidad de estudiantes y mentores." },
 ];
+
+const heroImage = getHeroImage();
 ---
 
 <BaseLayout title="Inicio">
@@ -65,9 +69,14 @@ const faqs = [
 
   <!-- HERO -->
   <section class="pt-32 pb-20 relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-b from-[#00FF66]/5 to-transparent"></div>
-    <div class="absolute top-20 left-1/4 w-96 h-96 bg-[#00FF66]/5 rounded-full blur-3xl"></div>
-    <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-[#00FF66]/3 rounded-full blur-3xl"></div>
+    <img
+      src={heroImage}
+      alt="Programación y tecnología"
+      class="absolute inset-0 h-full w-full object-cover opacity-35"
+      loading="lazy"
+      onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+    />
+    <div class="absolute inset-0 bg-[#0A0A0A]/75"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
       <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Plataforma de cursos para developers</span>
@@ -172,13 +181,13 @@ const faqs = [
       <div class="grid md:grid-cols-3 gap-8">
         {featuredCourses.map((course) => (
           <a href={`/cursos/${course.slug}`} class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1">
-            {course.thumbnail_url ? (
-              <img src={course.thumbnail_url} alt={course.title} class="h-48 w-full object-cover bg-[#111111]" loading="lazy" />
-            ) : (
-              <div class="h-48 bg-gradient-to-br from-[#00FF66]/20 to-[#111111] flex items-center justify-center">
-                <Icon name="lucide:code-2" class="w-16 h-16 text-[#00FF66]" />
-              </div>
-            )}
+            <img
+              src={getCourseImage(course.category_slug ?? course.category_name ?? course.category?.name, course.id, course.title)}
+              alt={course.title}
+              class="h-48 w-full object-cover bg-[#111111] transition duration-500 group-hover:scale-105"
+              loading="lazy"
+              onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+            />
             <div class="p-6">
               <div class="flex gap-2 mb-3">
                 <span class="bg-[#00FF66]/10 text-[#00FF66] text-xs px-2 py-1 rounded-full">{course.category?.name ?? course.category_name ?? "Curso"}</span>
