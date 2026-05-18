@@ -193,6 +193,17 @@ function parseJsonField<T>(value: unknown, fallback: T): T {
   }
 }
 
+function normalizeCurriculum(value: unknown): Course["curriculum"] {
+  const parsed = parseJsonField<any>(value, []);
+  const modules = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.modulos) ? parsed.modulos : [];
+
+  return modules.map((module: any, index: number) => ({
+    title: module.title ?? module.nombre ?? `Módulo ${index + 1}`,
+    lessons: Array.isArray(module.lessons) ? module.lessons : Array.isArray(module.lecciones) ? module.lecciones : [],
+    duration: module.duration ?? module.duracion ?? "Contenido guiado",
+  }));
+}
+
 function mapApiInstructor(record: ApiInstructorRecord): Instructor {
   return {
     id: record.id,
@@ -246,7 +257,7 @@ function mapApiCourse(record: ApiCourseRecord, index: number): Course {
   const isFree = price <= 0 || !isPremium;
   const requirements = parseJsonField<string[]>(record.requirements, []);
   const whatYouLearn = parseJsonField<string[]>(record.what_you_learn, []);
-  const curriculum = parseJsonField<Course["curriculum"]>(record.curriculum, []);
+  const curriculum = normalizeCurriculum(record.curriculum);
   const totalLessons = Number(record.total_lessons) || 0;
   const durationHours = Number(record.duration_hours) || 0;
 

@@ -15,6 +15,7 @@ $sessionId = getCartSessionId();
 $couponCode = isset($input['coupon_code']) && $input['coupon_code'] !== '' ? strtoupper(trim($input['coupon_code'])) : null;
 
 ensureCartTable($conn);
+ensureDefaultCoupons($conn);
 
 try {
     $stmt = $conn->prepare('

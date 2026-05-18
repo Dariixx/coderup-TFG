@@ -48,7 +48,8 @@ export default function AdminUsersManager() {
 
   const updateRole = async (userId: number, role: string) => {
     try {
-      await apiPost("/users/update-role.php", { user_id: userId, role });
+      const selectedRole = roles.find((item) => item.name === role);
+      await apiPost("/users/update-role.php", { user_id: userId, role, role_id: selectedRole?.id });
       setStatus("success");
       setMessage("Rol actualizado correctamente.");
       await loadUsers();

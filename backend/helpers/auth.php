@@ -36,7 +36,27 @@ function ensureAuthTables($conn) {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
     ");
 
+    ensureUserRoleColumn($conn);
+
     $checked = true;
+}
+
+function ensureUserRoleColumn($conn) {
+    try {
+        $conn->query('SELECT role FROM users LIMIT 1');
+    } catch (PDOException $e) {
+        if (stripos($e->getMessage(), 'role') !== false || stripos($e->getMessage(), 'Unknown column') !== false) {
+            $conn->exec("ALTER TABLE users ADD COLUMN role ENUM('admin', 'editor', 'client', 'guest') DEFAULT 'client' AFTER remember_token");
+            return;
+        }
+        throw $e;
+    }
+
+    try {
+        $conn->exec("ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'editor', 'client', 'guest') DEFAULT 'client'");
+    } catch (PDOException $e) {
+        // Si la columna ya permite estos valores o es VARCHAR, no bloqueamos el login.
+    }
 }
 
 function ensureRolesTable($conn) {
