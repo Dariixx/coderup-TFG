@@ -48,7 +48,3 @@ export function getInstructorAvatar(id?: number | string | null) {
 export function getAboutImage() {
   return "https://source.unsplash.com/1200x600/?team,office,technology";
 }
-
-export function getHeroImage() {
-  return "https://source.unsplash.com/1920x1080/?programming,technology";
-}

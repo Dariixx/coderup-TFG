@@ -9,7 +9,7 @@ import FAQAccordion from "../components/react/FAQAccordion.tsx";
 import BackToTop from "../components/react/BackToTop.tsx";
 import GitHubProjects from "../components/react/GitHubProjects.tsx";
 import { getCourses } from "../lib/api";
-import { getCourseImage, getHeroImage, IMAGE_FALLBACK } from "../lib/images";
+import { getCourseImage, IMAGE_FALLBACK } from "../lib/images";
 import { formatPrice } from "../lib/utils";
 
 type HomeCourse = {
@@ -60,7 +60,6 @@ const faqs = [
   { question: "¿Cómo se imparten los cursos?", answer: "Vídeos grabados en alta calidad, ejercicios prácticos, proyectos reales y acceso a la comunidad de estudiantes y mentores." },
 ];
 
-const heroImage = getHeroImage();
 ---
 
 <BaseLayout title="Inicio">
@@ -69,14 +68,9 @@ const heroImage = getHeroImage();
 
   <!-- HERO -->
   <section class="pt-32 pb-20 relative overflow-hidden">
-    <img
-      src={heroImage}
-      alt="Programación y tecnología"
-      class="absolute inset-0 h-full w-full object-cover opacity-35"
-      loading="lazy"
-      onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
-    />
-    <div class="absolute inset-0 bg-[#0A0A0A]/75"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-[#00FF66]/5 to-transparent"></div>
+    <div class="absolute top-20 left-1/4 w-96 h-96 bg-[#00FF66]/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 w-64 h-64 bg-[#00FF66]/3 rounded-full blur-3xl"></div>
     
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
       <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Plataforma de cursos para developers</span>
