@@ -21,7 +21,7 @@ INSERT INTO roles (name, description) VALUES
 ('guest', 'Visitante sin compras');
 
 INSERT INTO users (id, name, email, password, role) VALUES
-(1, 'Admin CoderUp', 'admin@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'admin'),
+(1, 'Admin CoderUp', 'admin@coderup.com', '$2y$12$AwkZO5rK4mfp0gc0XndV8uZR/IJpwYkfzdXrHIMqJqhC2.3jvz9N6', 'admin'),
 (2, 'Editor CoderUp', 'editor@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'editor'),
 (3, 'Cliente CoderUp', 'cliente@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'client'),
 (4, 'Invitado CoderUp', 'guest@coderup.com', '$2y$12$zMRs.qxa2jt7TTcCmaxtKOfNpkzVp8.s57go83ef/zPkLr9ceB2uq', 'guest');
