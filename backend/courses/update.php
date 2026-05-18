@@ -33,6 +33,11 @@ if (isset($input['title'])) {
     $params[] = sanitizeString($input['title']);
 }
 
+if (isset($input['slug'])) {
+    $updates[] = 'slug = ?';
+    $params[] = generateSlug($input['slug']);
+}
+
 if (isset($input['description'])) {
     $updates[] = 'description = ?';
     $params[] = sanitizeString($input['description']);
@@ -75,6 +80,21 @@ if (isset($input['instructor_id'])) {
 if (isset($input['thumbnail_url']) || isset($input['image'])) {
     $updates[] = 'thumbnail_url = ?';
     $params[] = sanitizeString($input['thumbnail_url'] ?? $input['image']);
+}
+
+if (isset($input['duration_hours'])) {
+    $updates[] = 'duration_hours = ?';
+    $params[] = max(0, (int) $input['duration_hours']);
+}
+
+if (isset($input['total_lessons'])) {
+    $updates[] = 'total_lessons = ?';
+    $params[] = max(0, (int) $input['total_lessons']);
+}
+
+if (isset($input['is_published'])) {
+    $updates[] = 'is_published = ?';
+    $params[] = (int) (bool) $input['is_published'];
 }
 
 if (empty($updates)) {
