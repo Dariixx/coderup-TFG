@@ -12,6 +12,7 @@ import {
   removeFromCart,
   clearCart,
   isInCart,
+  isInitialized,
   subscribe,
   type CartItem,
 } from "../../stores/cartStore";
@@ -20,8 +21,12 @@ export function useCart() {
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    initCart();
-    setInitialized(true);
+    if (isInitialized()) {
+      setInitialized(true);
+      return;
+    }
+
+    initCart().finally(() => setInitialized(true));
   }, []);
 
   const cart = useSyncExternalStore(

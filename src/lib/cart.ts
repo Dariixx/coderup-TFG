@@ -1,10 +1,7 @@
 import { getCurrentUser } from "./auth";
+import { addToCart as apiAddToCart, getCart as apiGetCart, removeFromCart as apiRemoveFromCart, validateCoupon } from "./api";
 import type { AppliedCoupon, CartItem, Coupon } from "./types";
 import { COUPON_REGEX } from "./utils";
-import { validateCoupon } from "./api";
-
-const CART_KEY = "coderup-cart";
-const COUPON_KEY = "coderup-cart-coupon";
 
 export const WELCOME_COUPON: Coupon = {
   code: "WELCOME20",
@@ -18,66 +15,80 @@ export const WELCOME_COUPON: Coupon = {
 type CartListener = () => void;
 
 let cart: CartItem[] = [];
+let subtotal = 0;
+let total = 0;
 let appliedCoupon: AppliedCoupon | null = null;
 let listeners: CartListener[] = [];
 let initialized = false;
+let loadingPromise: Promise<void> | null = null;
 
 function notify() {
   listeners.forEach((listener) => listener());
 }
 
-function persist() {
-  if (typeof window === "undefined") {
-    return;
-  }
+function mapApiCartItem(item: any): CartItem {
+  return {
+    id: Number(item.id),
+    courseId: String(item.course_id),
+    slug: item.slug,
+    title: item.title,
+    price: Number(item.price) || 0,
+    thumbnailUrl: item.thumbnail_url ?? undefined,
+    instructorName: item.instructor_name ?? undefined,
+    isFree: Number(item.price) <= 0,
+    accessType: Number(item.price) <= 0 ? "free" : "premium",
+    icon: "lucide:code-2",
+    iconColor: "text-[#00FF66]",
+    gradientFrom: "from-emerald-500/20",
+    gradientTo: "to-teal-600/20",
+    category: item.category_name ?? "Curso",
+  };
+}
 
-  window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
+function hydrateFromApi(payload: any) {
+  const items = payload?.items ?? [];
+  cart = Array.isArray(items) ? items.map(mapApiCartItem) : [];
+  subtotal = Number(payload?.subtotal) || cart.reduce((sum, item) => sum + item.price, 0);
+  const apiDiscount = Number(payload?.discount) || 0;
+  total = Number(payload?.total) || Math.max(0, subtotal - apiDiscount);
 
-  if (appliedCoupon) {
-    window.localStorage.setItem(COUPON_KEY, JSON.stringify(appliedCoupon));
-  } else {
-    window.localStorage.removeItem(COUPON_KEY);
+  if (payload?.coupon_code && apiDiscount > 0) {
+    appliedCoupon = {
+      code: payload.coupon_code,
+      discountAmount: apiDiscount,
+    };
+  } else if (appliedCoupon) {
+    appliedCoupon = {
+      ...appliedCoupon,
+      discountAmount: Number((subtotal - total).toFixed(2)),
+    };
   }
 }
 
-function readStoredCart() {
-  if (typeof window === "undefined") {
-    return [];
+export async function initCartStore() {
+  if (loadingPromise) {
+    return loadingPromise;
   }
 
-  try {
-    const storedCart = window.localStorage.getItem(CART_KEY);
-    const parsed = storedCart ? JSON.parse(storedCart) : [];
-    return Array.isArray(parsed) ? (parsed as CartItem[]) : [];
-  } catch {
-    window.localStorage.removeItem(CART_KEY);
-    return [];
-  }
-}
+  loadingPromise = refreshCartStore().finally(() => {
+    initialized = true;
+    loadingPromise = null;
+    notify();
+  });
 
-function readStoredCoupon() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    const storedCoupon = window.localStorage.getItem(COUPON_KEY);
-    return storedCoupon ? (JSON.parse(storedCoupon) as AppliedCoupon) : null;
-  } catch {
-    window.localStorage.removeItem(COUPON_KEY);
-    return null;
-  }
-}
-
-export function initCartStore() {
-  cart = readStoredCart();
-  appliedCoupon = readStoredCoupon();
-  initialized = true;
-  notify();
+  return loadingPromise;
 }
 
 export function isCartInitialized() {
   return initialized;
+}
+
+export async function refreshCartStore() {
+  const response = await apiGetCart();
+  if (response.ok) {
+    hydrateFromApi(response.data);
+    notify();
+  }
 }
 
 export function subscribeCart(listener: CartListener) {
@@ -96,7 +107,7 @@ export function getCartCount() {
 }
 
 export function getCartSubtotal() {
-  return cart.reduce((sum, item) => sum + item.price, 0);
+  return subtotal;
 }
 
 export function getAppliedCoupon() {
@@ -104,62 +115,60 @@ export function getAppliedCoupon() {
 }
 
 export function getCartDiscount() {
-  return appliedCoupon?.discountAmount ?? 0;
+  return appliedCoupon?.discountAmount ?? Math.max(0, subtotal - total);
 }
 
 export function getCartTotal() {
-  return Math.max(0, getCartSubtotal() - getCartDiscount());
+  return Math.max(0, total || subtotal - getCartDiscount());
 }
 
 export function isCourseInCart(slug: string) {
   return cart.some((item) => item.slug === slug);
 }
 
-export function addCourseToCart(item: CartItem) {
+export async function addCourseToCart(item: CartItem) {
   if (item.isFree || cart.some((course) => course.slug === item.slug)) {
     return false;
   }
 
-  cart = [...cart, item];
-
-  if (appliedCoupon) {
-    appliedCoupon = {
-      ...appliedCoupon,
-      discountAmount: Number((getCartSubtotal() * (WELCOME_COUPON.discountValue / 100)).toFixed(2)),
-    };
+  const response = await apiAddToCart(item.courseId);
+  if (!response.ok) {
+    return false;
   }
 
-  persist();
+  hydrateFromApi(response.data);
   notify();
   return true;
 }
 
-export function removeCourseFromCart(slug: string) {
-  cart = cart.filter((item) => item.slug !== slug);
+export async function removeCourseFromCart(slugOrId: string | number) {
+  const item =
+    typeof slugOrId === "number"
+      ? cart.find((cartItem) => cartItem.id === slugOrId)
+      : cart.find((cartItem) => cartItem.slug === slugOrId || String(cartItem.id) === slugOrId);
 
-  if (appliedCoupon) {
-    appliedCoupon = cart.length
-      ? {
-          ...appliedCoupon,
-          discountAmount: Number((getCartSubtotal() * (WELCOME_COUPON.discountValue / 100)).toFixed(2)),
-        }
-      : null;
+  if (!item?.id) {
+    return;
   }
 
-  persist();
-  notify();
+  const response = await apiRemoveFromCart(item.id);
+  if (response.ok) {
+    hydrateFromApi(response.data);
+    notify();
+  }
 }
 
-export function clearCartStore() {
+export async function clearCartStore() {
+  await Promise.all(cart.map((item) => (item.id ? apiRemoveFromCart(item.id) : Promise.resolve())));
   cart = [];
+  subtotal = 0;
+  total = 0;
   appliedCoupon = null;
-  persist();
   notify();
 }
 
 export function clearAppliedCoupon() {
   appliedCoupon = null;
-  persist();
   notify();
 }
 
@@ -179,22 +188,13 @@ export async function applyWelcomeCoupon(code: string) {
     return { ok: false as const, message: "El formato del cupón no es válido." };
   }
 
-  if (normalizedCode === WELCOME_COUPON.code) {
-    if (WELCOME_COUPON.onlyNewUsers && !user.isNewUser) {
-      return { ok: false as const, message: "El cupón WELCOME20 solo está disponible para nuevos usuarios." };
-    }
-
-    if (user.usedWelcomeCoupon) {
-      return { ok: false as const, message: "Ya has usado el cupón de bienvenida." };
-    }
-  }
-
   const response = await validateCoupon(normalizedCode, cart.length);
   const coupon = response.data as {
     valid?: boolean;
     discount_type?: string;
     discount_value?: number;
     message?: string;
+    code?: string;
   };
 
   if (!response.ok || !coupon.valid) {
@@ -208,11 +208,11 @@ export async function applyWelcomeCoupon(code: string) {
       : Number((getCartSubtotal() * (discountValue / 100)).toFixed(2));
 
   appliedCoupon = {
-    code: normalizedCode,
+    code: coupon.code ?? normalizedCode,
     discountAmount,
   };
-  persist();
+  total = Math.max(0, subtotal - discountAmount);
   notify();
 
-  return { ok: true as const, message: "Cupón aplicado correctamente." };
+  return { ok: true as const, message: coupon.message ?? "Cupón aplicado correctamente." };
 }

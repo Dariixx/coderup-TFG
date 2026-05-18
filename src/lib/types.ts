@@ -142,6 +142,7 @@ export interface StoredUser extends User {
 }
 
 export interface CartItem {
+  id?: number;
   courseId: string;
   slug: string;
   title: string;

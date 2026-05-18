@@ -10,6 +10,7 @@ export const API_BASE =
 
 export const API_BASE_URL = API_BASE;
 const AUTH_TOKEN_KEY = "coderup-auth-token";
+const CART_SESSION_KEY = "coderup-cart-session";
 
 export interface ApiResponse<T = unknown> {
   ok: boolean;
@@ -52,6 +53,29 @@ export function setApiAuthToken(token: string | null) {
   } else {
     window.localStorage.removeItem(AUTH_TOKEN_KEY);
   }
+}
+
+function getCartSessionId() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const stored = window.localStorage.getItem(CART_SESSION_KEY);
+  if (stored) {
+    return stored;
+  }
+
+  const generated = `cart_${crypto.randomUUID().replace(/-/g, "")}`;
+  window.localStorage.setItem(CART_SESSION_KEY, generated);
+  return generated;
+}
+
+function setCartSessionId(sessionId: string | null) {
+  if (typeof window === "undefined" || !sessionId) {
+    return;
+  }
+
+  window.localStorage.setItem(CART_SESSION_KEY, sessionId);
 }
 
 async function requestApi<T>(path: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
@@ -189,4 +213,79 @@ export async function validateCoupon(code: string, itemsCount: number) {
 
 export async function createOrder(cart: unknown[], couponCode?: string) {
   return apiPost("/api/orders/create.php", { cart, coupon_code: couponCode });
+}
+
+async function cartApiRequest<T>(path: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
+  const headers = new Headers(options.headers);
+  const token = getApiAuthToken();
+  const cartSessionId = getCartSessionId();
+  const isFormData = options.body instanceof FormData;
+
+  if (!isFormData) {
+    headers.set("Content-Type", "application/json");
+  }
+
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  if (cartSessionId) {
+    headers.set("X-CoderUp-Cart-Session", cartSessionId);
+  }
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers,
+    credentials: "include",
+    body:
+      options.body === undefined
+        ? undefined
+        : isFormData
+          ? options.body
+          : typeof options.body === "string"
+            ? options.body
+            : JSON.stringify(options.body),
+  });
+
+  setCartSessionId(response.headers.get("X-CoderUp-Cart-Session"));
+
+  const payload = await response.json();
+  const success = payload?.success ?? payload?.ok ?? response.ok;
+
+  return {
+    ok: Boolean(success),
+    success: Boolean(success),
+    message: payload?.message ?? (response.ok ? "Success" : `Error ${response.status}`),
+    data: payload?.data ?? payload,
+  };
+}
+
+export async function getCart() {
+  return cartApiRequest<any>("/api/cart.php", { method: "GET" });
+}
+
+export async function addToCart(courseId: number | string) {
+  return cartApiRequest<any>("/api/cart.php", {
+    method: "POST",
+    body: { course_id: Number(courseId) },
+  });
+}
+
+export async function removeFromCart(itemId: number | string) {
+  return cartApiRequest<any>(`/api/cart.php?item_id=${encodeURIComponent(String(itemId))}`, {
+    method: "DELETE",
+  });
+}
+
+export async function checkout(couponCode?: string | null) {
+  return cartApiRequest<any>("/api/cart/checkout.php", {
+    method: "POST",
+    body: { coupon_code: couponCode || null },
+  });
+}
+
+export async function getOrders(page = 1) {
+  return cartApiRequest<any>(`/api/orders.php?page=${encodeURIComponent(String(page))}`, {
+    method: "GET",
+  });
 }

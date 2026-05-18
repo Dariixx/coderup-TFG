@@ -1,15 +1,15 @@
 import {
   clearAppliedCoupon,
-  clearCartStore,
   getAppliedCoupon,
   getCartDiscount,
   getCartItems,
   getCartSubtotal,
   getCartTotal,
+  refreshCartStore,
 } from "./cart";
 import { updateCurrentUser } from "./auth";
 import type { Course, Order, OrderItem, User } from "./types";
-import { apiFetch } from "./api";
+import { apiFetch, checkout } from "./api";
 
 type OrderListener = () => void;
 
@@ -68,21 +68,14 @@ export async function createSimulatedOrder(user: User, courses: Course[]) {
   const total = Number(getCartTotal().toFixed(2));
   const couponCode = getAppliedCoupon()?.code;
 
-  // ── Intento backend real ──
-  const result = await apiFetch<any>("/api/orders/create.php", {
-    method: "POST",
-    body: {
-      cart: items.map((i) => ({ course_id: i.courseId, price: i.priceAtPurchase })),
-      coupon_code: couponCode ?? null,
-    },
-  });
+  const result = await checkout(couponCode);
 
   if (!result.ok) {
     return { ok: false as const, message: result.message };
   }
 
   const newOrder: Order = {
-    id: String(result.data.id ?? crypto.randomUUID()),
+    id: String(result.data.id ?? result.data.order_id ?? crypto.randomUUID()),
     orderNumber: result.data.order_number ?? getNextOrderNumber(),
     userId: user.id,
     items,
@@ -107,7 +100,7 @@ export async function createSimulatedOrder(user: User, courses: Course[]) {
   }
 
   clearAppliedCoupon();
-  clearCartStore();
+  await refreshCartStore();
 
   return { ok: true as const, order: newOrder };
 }

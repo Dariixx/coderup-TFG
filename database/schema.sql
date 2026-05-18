@@ -4,6 +4,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS enrollments;
 DROP TABLE IF EXISTS order_items;
 DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS cart_items;
 DROP TABLE IF EXISTS coupons;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS courses;
@@ -129,6 +130,17 @@ CREATE TABLE coupons (
   expires_at TIMESTAMP NULL,
   INDEX idx_code (code),
   INDEX idx_active (active)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE cart_items (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  session_id VARCHAR(100) NOT NULL,
+  course_id INT NOT NULL,
+  added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (course_id) REFERENCES courses(id) ON DELETE CASCADE,
+  UNIQUE KEY unique_cart_course (session_id, course_id),
+  INDEX idx_session (session_id),
+  INDEX idx_course (course_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE orders (

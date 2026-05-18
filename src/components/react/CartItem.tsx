@@ -3,7 +3,7 @@ import type { CartItem as CartItemType } from "../../lib/types";
 
 interface Props {
   item: CartItemType;
-  onRemove: (slug: string) => void;
+  onRemove: (id: number | string) => void;
 }
 
 export default function CartItem({ item, onRemove }: Props) {
@@ -35,11 +35,10 @@ export default function CartItem({ item, onRemove }: Props) {
 
       <div className="flex flex-col items-end gap-2 shrink-0">
         <span className="text-[#00FF66] font-bold text-lg">{formatPrice(item.price)}</span>
-        <button type="button" onClick={() => onRemove(item.slug)} className="text-[#888] hover:text-red-400 transition p-1">
+        <button type="button" onClick={() => onRemove(item.id ?? item.slug)} className="text-[#888] hover:text-red-400 transition p-1">
           Eliminar
         </button>
       </div>
     </div>
   );
 }
-

@@ -56,7 +56,7 @@ export default function CartPage() {
           <h2 className="text-xl font-bold text-white">
             {count} curso{count !== 1 ? "s" : ""} en tu carrito
           </h2>
-          <button onClick={clearCart} className="text-[#888] text-sm hover:text-red-400 transition">
+          <button onClick={() => void clearCart()} className="text-[#888] text-sm hover:text-red-400 transition">
             Vaciar carrito
           </button>
         </div>

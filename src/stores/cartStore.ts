@@ -10,8 +10,10 @@ import {
   getCartSubtotal as getCartSubtotalFromStore,
   getCartTotal as getCartTotalFromStore,
   initCartStore,
+  isCartInitialized,
   isCourseInCart,
   removeCourseFromCart,
+  refreshCartStore,
   subscribeCart,
 } from "../lib/cart";
 import type { CartItem } from "../lib/types";
@@ -19,7 +21,15 @@ import type { CartItem } from "../lib/types";
 export type { CartItem };
 
 export function initCart() {
-  initCartStore();
+  return initCartStore();
+}
+
+export function refreshCart() {
+  return refreshCartStore();
+}
+
+export function isInitialized() {
+  return isCartInitialized();
 }
 
 export function getCart(): CartItem[] {
@@ -30,12 +40,12 @@ export function addToCart(item: CartItem) {
   return addCourseToCart(item);
 }
 
-export function removeFromCart(slug: string) {
-  removeCourseFromCart(slug);
+export function removeFromCart(slugOrId: string | number) {
+  return removeCourseFromCart(slugOrId);
 }
 
 export function clearCart() {
-  clearCartStore();
+  return clearCartStore();
 }
 
 export function isInCart(slug: string): boolean {

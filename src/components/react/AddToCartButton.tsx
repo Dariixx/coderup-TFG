@@ -39,10 +39,10 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
 
   const handleClick = () => {
     if (inCart) {
-      removeFromCart(item.slug);
+      void removeFromCart(item.slug);
       setInCart(false);
     } else {
-      addToCart(item);
+      void addToCart(item);
       setInCart(true);
       setAnimating(true);
       setTimeout(() => setAnimating(false), 600);

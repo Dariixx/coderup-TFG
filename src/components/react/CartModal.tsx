@@ -104,7 +104,7 @@ export default function CartModal({ isOpen, onClose }: Props) {
               <a href={user ? "/checkout" : "/login"} className="flex-1 rounded-xl bg-[#00FF66] px-6 py-3 text-center font-bold text-[#0A0A0A] hover:bg-[#00CC52] transition">
                 {user ? "Finalizar compra" : "Iniciar sesión para comprar"}
               </a>
-              <button type="button" onClick={clearCart} className="rounded-xl border border-[#2A2A2A] px-6 py-3 text-sm text-[#888] hover:text-red-300 transition">
+              <button type="button" onClick={() => void clearCart()} className="rounded-xl border border-[#2A2A2A] px-6 py-3 text-sm text-[#888] hover:text-red-300 transition">
                 Vaciar
               </button>
             </div>
