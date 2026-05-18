@@ -165,7 +165,7 @@ export default function AdminCoursesManager() {
         <h2 className="text-xl font-bold text-white mb-4">Listado de cursos</h2>
         {courses.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#2A2A2A] bg-[#111111] p-5 text-[#888]">
-            No hay cursos en la base de datos. Importa `seed.sql` o crea el primero desde este formulario para poder enseñarlo.
+            No hay cursos en la base de datos. Crea el primero desde este formulario.
           </div>
         ) : (
           <div className="space-y-3">

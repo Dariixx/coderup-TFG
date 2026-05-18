@@ -51,7 +51,7 @@ export default function AdminOrdersManager() {
     <div className="space-y-4">
       {orders.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[#2A2A2A] bg-[#1A1A1A] p-6 text-[#888]">
-          Aún no hay pedidos globales. Usa `cliente@coderup.com` o crea una compra desde el checkout para generar datos reales.
+          Aun no hay pedidos globales.
         </div>
       ) : orders.map((order) => (
         <article key={order.id} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">

@@ -65,7 +65,7 @@ export default function AdminStats() {
         <h2 className="text-xl font-bold text-white mb-4">Últimos pedidos</h2>
         {stats.latest_orders.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#2A2A2A] bg-[#111111] p-5 text-[#888]">
-            Todavía no hay pedidos registrados. Importa `seed.sql` o crea un pedido desde el checkout para enseñar esta evidencia en la demo.
+            Todavia no hay pedidos registrados.
           </div>
         ) : (
           <div className="space-y-3">
