@@ -8,6 +8,7 @@ require_once __DIR__ . '/../helpers/auth.php';
 
 requireMethod('GET');
 $user = requireRole('admin');
+ensureRolesTable($conn);
 
 $page = getOrQuery('page', 1);
 $limit = getOrQuery('limit', 20);
@@ -20,9 +21,22 @@ $total = $stmt->fetch()['total'];
 
 // Obtener usuarios
 $stmt = $conn->prepare('
-    SELECT id, name, email, role, created_at
-    FROM users
-    ORDER BY created_at DESC
+    SELECT
+        u.id,
+        u.name,
+        u.email,
+        u.role,
+        COALESCE(r.id, CASE u.role
+            WHEN "admin" THEN 1
+            WHEN "editor" THEN 2
+            WHEN "client" THEN 3
+            WHEN "guest" THEN 4
+            ELSE 3
+        END) AS role_id,
+        u.created_at
+    FROM users u
+    LEFT JOIN roles r ON r.name = u.role
+    ORDER BY u.created_at DESC
     LIMIT ? OFFSET ?
 ');
 $stmt->execute([$limit, $offset]);

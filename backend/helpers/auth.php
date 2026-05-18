@@ -18,6 +18,8 @@ function ensureAuthTables($conn) {
         return;
     }
 
+    ensureRolesTable($conn);
+
     $conn->exec("
         CREATE TABLE IF NOT EXISTS users (
             id INT PRIMARY KEY AUTO_INCREMENT,
@@ -35,6 +37,51 @@ function ensureAuthTables($conn) {
     ");
 
     $checked = true;
+}
+
+function ensureRolesTable($conn) {
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    $conn->exec("
+        CREATE TABLE IF NOT EXISTS roles (
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            name VARCHAR(50) NOT NULL UNIQUE,
+            description TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+    ");
+
+    $roles = [
+        ['admin', 'Administrador del sistema'],
+        ['editor', 'Editor de cursos y contenidos'],
+        ['client', 'Cliente que puede comprar cursos'],
+        ['guest', 'Visitante sin compras'],
+    ];
+
+    $stmt = $conn->prepare('INSERT IGNORE INTO roles (name, description) VALUES (?, ?)');
+    foreach ($roles as $role) {
+        $stmt->execute($role);
+    }
+
+    $checked = true;
+}
+
+function validRoleNames() {
+    return ['admin', 'editor', 'client', 'guest'];
+}
+
+function roleIdToName($roleId) {
+    $map = [
+        1 => 'admin',
+        2 => 'editor',
+        3 => 'client',
+        4 => 'guest',
+    ];
+
+    return $map[(int) $roleId] ?? null;
 }
 
 function ensureRememberTokenColumn($conn) {

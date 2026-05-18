@@ -13,14 +13,13 @@ $user = requireRole('admin');
 $input = getJsonInput();
 
 $userId = $input['user_id'] ?? null;
-$role = $input['role'] ?? null;
+$role = $input['role'] ?? roleIdToName($input['role_id'] ?? null);
 
 if (!$userId || !$role) {
     sendError('user_id y role son requeridos', 400);
 }
 
-$validRoles = ['admin', 'editor', 'client', 'guest'];
-if (!in_array($role, $validRoles)) {
+if (!in_array($role, validRoleNames())) {
     sendError('Rol inválido', 400);
 }
 
