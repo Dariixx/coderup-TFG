@@ -9,6 +9,7 @@ require_once __DIR__ . '/../helpers/auth.php';
 
 requireMethod('POST');
 ensureAuthTables($conn);
+ensureRequiredRoleAccounts($conn);
 
 $input = getJsonInput();
 

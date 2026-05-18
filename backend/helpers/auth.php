@@ -41,6 +41,60 @@ function ensureAuthTables($conn) {
     $checked = true;
 }
 
+function ensureRequiredRoleAccounts($conn) {
+    static $checked = false;
+    if ($checked) {
+        return;
+    }
+
+    ensureAuthTables($conn);
+
+    $accounts = [
+        [
+            'Admin CoderUp',
+            'admin@coderup.com',
+            '$2y$12$5SSktEND/8hWA8xZbEelueOlbtTvnqSVGabsGoV7Y8DKY9PGxgCU.',
+            'admin',
+        ],
+        [
+            'Editor CoderUp',
+            'editor@coderup.com',
+            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            'editor',
+        ],
+        [
+            'Cliente CoderUp',
+            'cliente@coderup.com',
+            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            'client',
+        ],
+        [
+            'Guest CoderUp',
+            'guest@coderup.com',
+            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            'guest',
+        ],
+    ];
+
+    $stmt = $conn->prepare('
+        INSERT INTO users (name, email, password, role, created_at)
+        VALUES (?, ?, ?, ?, NOW())
+        ON DUPLICATE KEY UPDATE
+            name = VALUES(name),
+            password = VALUES(password),
+            role = VALUES(role)
+    ');
+
+    foreach ($accounts as $account) {
+        $stmt->execute($account);
+    }
+
+    $stmt = $conn->prepare("UPDATE users SET role = 'client' WHERE email = ?");
+    $stmt->execute(['dleonardomartos@gmail.com']);
+
+    $checked = true;
+}
+
 function ensureUserRoleColumn($conn) {
     try {
         $conn->query('SELECT role FROM users LIMIT 1');
