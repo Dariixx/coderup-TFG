@@ -6,6 +6,7 @@ import { useAuth } from "../useAuth";
 interface CourseRecord {
   id: number;
   category_id: number;
+  instructor_id?: number;
   category_name: string;
   title: string;
   slug: string;
@@ -22,6 +23,9 @@ interface CourseRecord {
   is_premium?: number | boolean;
   is_published?: number | boolean;
   instructor_name?: string;
+  requirements?: string[] | string | null;
+  what_you_learn?: string[] | string | null;
+  curriculum?: Array<{ title?: string; nombre?: string; lessons?: string[]; lecciones?: string[]; duration?: string; duracion?: string }> | { modulos?: any[] } | string | null;
 }
 
 const categories = [
@@ -35,6 +39,7 @@ const categories = [
 const emptyForm = {
   id: "",
   category_id: "1",
+  instructor_id: "1",
   title: "",
   slug: "",
   description: "",
@@ -45,16 +50,76 @@ const emptyForm = {
   price: "19.99",
   is_premium: true,
   is_published: true,
+  requirements: "Ninguno",
+  what_you_learn: "Objetivos claros del curso\nProyecto práctico guiado\nBuenas prácticas profesionales",
+  curriculum: "Módulo 1: Introducción | Bienvenida; Preparación del entorno; Primer ejercicio\nMódulo 2: Proyecto guiado | Desarrollo paso a paso; Revisión; Entrega final",
 };
 
 function courseImage(course: CourseRecord) {
   return course.thumbnail_url || getCourseImage(course.category_name, course.id, course.title);
 }
 
+function listToText(value: CourseRecord["requirements"] | CourseRecord["what_you_learn"]) {
+  if (Array.isArray(value)) return value.join("\n");
+  if (typeof value === "string") {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed.join("\n") : value;
+    } catch {
+      return value;
+    }
+  }
+  return "";
+}
+
+function curriculumToText(value: CourseRecord["curriculum"]) {
+  const rawModules = typeof value === "string" ? (() => {
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : parsed?.modulos;
+    } catch {
+      return [];
+    }
+  })() : Array.isArray(value) ? value : value?.modulos;
+
+  return (rawModules ?? [])
+    .map((module: any) => {
+      const title = module.title ?? module.nombre ?? "Módulo";
+      const lessons = Array.isArray(module.lessons) ? module.lessons : Array.isArray(module.lecciones) ? module.lecciones : [];
+      const duration = module.duration ?? module.duracion;
+      return `${title}${duration ? ` (${duration})` : ""} | ${lessons.join("; ")}`;
+    })
+    .join("\n");
+}
+
+function textToList(value: string) {
+  return value.split(/\n|,/).map((item) => item.trim()).filter(Boolean);
+}
+
+function textToCurriculum(value: string) {
+  const modulos = value
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line, index) => {
+      const [titlePart, lessonsPart = ""] = line.split("|");
+      const durationMatch = titlePart.match(/\(([^)]+)\)\s*$/);
+      const title = titlePart.replace(/\s*\([^)]+\)\s*$/, "").trim() || `Módulo ${index + 1}`;
+      return {
+        nombre: title,
+        duracion: durationMatch?.[1] ?? "Contenido guiado",
+        lecciones: lessonsPart.split(";").map((lesson) => lesson.trim()).filter(Boolean),
+      };
+    });
+
+  return { modulos };
+}
+
 function courseToForm(course: CourseRecord) {
   return {
     id: String(course.id),
     category_id: String(course.category_id),
+    instructor_id: String(course.instructor_id ?? 1),
     title: course.title,
     slug: course.slug,
     description: course.description,
@@ -65,6 +130,9 @@ function courseToForm(course: CourseRecord) {
     price: String(course.price),
     is_premium: course.is_premium === undefined ? Number(course.price) > 0 : Boolean(Number(course.is_premium)),
     is_published: course.is_published === undefined ? true : Boolean(Number(course.is_published)),
+    requirements: listToText(course.requirements),
+    what_you_learn: listToText(course.what_you_learn),
+    curriculum: curriculumToText(course.curriculum),
   };
 }
 
@@ -79,8 +147,8 @@ export default function AdminCoursesManager() {
 
   const loadCourses = async () => {
     setListStatus("loading");
-    const response = await apiGet<{ courses: CourseRecord[] }>("/courses/index.php");
-    const nextCourses = response.data?.courses ?? [];
+    const response = await apiGet<CourseRecord[] | { courses: CourseRecord[] }>("/courses/index.php?all=1&limit=50");
+    const nextCourses = Array.isArray(response.data) ? response.data : response.data?.courses ?? [];
     setCourses(nextCourses);
     setSelectedCourse((current) => {
       if (!current) return nextCourses[0] ?? null;
@@ -138,10 +206,14 @@ export default function AdminCoursesManager() {
         description: form.description,
         thumbnail_url: form.image,
         category_id: Number(form.category_id),
+        instructor_id: Number(form.instructor_id),
         price: Number(form.price),
         level: form.level,
         duration_hours: Number(form.duration_hours),
         total_lessons: Number(form.total_lessons),
+        requirements: textToList(form.requirements),
+        what_you_learn: textToList(form.what_you_learn),
+        curriculum: textToCurriculum(form.curriculum),
         is_published: form.is_published ? 1 : 0,
         is_premium: form.is_premium ? 1 : 0,
       };
@@ -194,7 +266,7 @@ export default function AdminCoursesManager() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-xl font-bold text-white">Cursos en la base de datos</h2>
-            <p className="text-sm text-[#888]">El panel llama al backend PHP, carga el listado y permite ver o editar cada curso uno a uno.</p>
+            <p className="text-sm text-[#888]">Carga todos los cursos, publicados u ocultos, para revisarlos, editarlos o eliminarlos desde el panel.</p>
           </div>
           <button
             type="button"
@@ -358,6 +430,10 @@ export default function AdminCoursesManager() {
             </select>
           </label>
           <label className="space-y-2 text-sm text-[#888]">
+            <span>ID instructor</span>
+            <input type="number" min="1" value={form.instructor_id} onChange={(event) => setForm((prev) => ({ ...prev, instructor_id: event.target.value }))} required className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white" />
+          </label>
+          <label className="space-y-2 text-sm text-[#888]">
             <span>Nivel</span>
             <input value={form.level} onChange={(event) => setForm((prev) => ({ ...prev, level: event.target.value }))} required className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white" />
           </label>
@@ -380,6 +456,18 @@ export default function AdminCoursesManager() {
           <label className="space-y-2 text-sm text-[#888] md:col-span-2">
             <span>Descripcion completa</span>
             <textarea value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} required className="min-h-36 w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white" />
+          </label>
+          <label className="space-y-2 text-sm text-[#888]">
+            <span>Requisitos, uno por linea</span>
+            <textarea value={form.requirements} onChange={(event) => setForm((prev) => ({ ...prev, requirements: event.target.value }))} className="min-h-32 w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white" />
+          </label>
+          <label className="space-y-2 text-sm text-[#888]">
+            <span>Lo que aprendera, uno por linea</span>
+            <textarea value={form.what_you_learn} onChange={(event) => setForm((prev) => ({ ...prev, what_you_learn: event.target.value }))} className="min-h-32 w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white" />
+          </label>
+          <label className="space-y-2 text-sm text-[#888] md:col-span-2">
+            <span>Temario: Modulo (duracion) | Leccion; Leccion; Leccion</span>
+            <textarea value={form.curriculum} onChange={(event) => setForm((prev) => ({ ...prev, curriculum: event.target.value }))} className="min-h-40 w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white" />
           </label>
         </div>
 

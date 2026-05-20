@@ -22,6 +22,11 @@ export default function BlogContent({ content, title, excerpt, author, readTime,
   const [headings, setHeadings] = useState<Heading[]>([]);
 
   const authorInitial = useMemo(() => author.trim().charAt(0).toUpperCase() || "C", [author]);
+  const keyPoints = useMemo(() => {
+    const plainText = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const sentences = plainText.split(/(?<=[.!?])\s+/).filter((sentence) => sentence.length > 80);
+    return sentences.slice(0, 3);
+  }, [content]);
 
   useEffect(() => {
     const article = document.getElementById("blog-article");
@@ -65,7 +70,6 @@ export default function BlogContent({ content, title, excerpt, author, readTime,
   return (
     <main className="bg-[#0A0A0A] text-[#E0E0E0]">
       <section className="pt-32 pb-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(0,255,102,0.08),transparent_38%)]" />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <a href="/blog" className="mb-8 inline-flex text-sm text-[#888] transition hover:text-[#00FF66]">
             Volver al blog
@@ -91,7 +95,7 @@ export default function BlogContent({ content, title, excerpt, author, readTime,
           <img
             src={coverUrl ?? IMAGE_FALLBACK}
             alt={title}
-            className="h-72 md:h-96 w-full rounded-2xl border border-[#2A2A2A] bg-[#111111] object-contain p-10"
+            className="h-72 md:h-96 w-full rounded-2xl border border-[#2A2A2A] bg-[#111111] object-cover"
             loading="lazy"
             onError={(event) => {
               event.currentTarget.src = IMAGE_FALLBACK;
@@ -102,7 +106,22 @@ export default function BlogContent({ content, title, excerpt, author, readTime,
 
       <section className="pb-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[1fr_280px] gap-12">
-          <article id="blog-article" className="blog-article" dangerouslySetInnerHTML={{ __html: content }} />
+          <div>
+            {keyPoints.length > 0 && (
+              <section className="mb-8 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+                <p className="mb-4 text-sm font-bold uppercase tracking-widest text-white">Ideas clave</p>
+                <div className="grid gap-3">
+                  {keyPoints.map((point, index) => (
+                    <div key={point} className="flex gap-3 rounded-xl bg-[#111111] p-4">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#00FF66]/10 text-sm font-bold text-[#00FF66]">{index + 1}</span>
+                      <p className="text-sm leading-6 text-[#B0B0B0]">{point}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+            <article id="blog-article" className="blog-article" dangerouslySetInnerHTML={{ __html: content }} />
+          </div>
 
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-6">

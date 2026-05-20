@@ -1,4 +1,5 @@
 import type { Course } from "../../lib/types";
+import { useMemo, useState } from "react";
 import { useAuth } from "./useAuth";
 import { useEnrollments } from "./useEnrollments";
 import { getCourseImage, IMAGE_FALLBACK } from "../../lib/images";
@@ -10,6 +11,21 @@ interface Props {
 export default function MyCoursesPage({ courses }: Props) {
   const { user, initialized } = useAuth();
   const { enrollments, initialized: enrollmentsReady, updateEnrollmentProgress } = useEnrollments();
+  const [activeLesson, setActiveLesson] = useState<{ courseSlug: string; moduleTitle: string; lesson: string; index: number } | null>(null);
+  const currentCourse = activeLesson ? courses.find((course) => course.slug === activeLesson.courseSlug) : null;
+  const lessonBody = useMemo(() => {
+    if (!activeLesson || !currentCourse) return null;
+
+    return {
+      title: activeLesson.lesson,
+      intro: `En esta lección trabajarás ${activeLesson.lesson.toLowerCase()} dentro de ${currentCourse.title}. El objetivo es entender el concepto, verlo aplicado y cerrar con una pequeña práctica.`,
+      steps: [
+        `Revisar el contexto del módulo "${activeLesson.moduleTitle}" y preparar el entorno de trabajo.`,
+        `Seguir una explicación guiada con ejemplos reales de ${currentCourse.category.name}.`,
+        "Aplicar lo aprendido en una tarea corta y marcar el progreso al terminar.",
+      ],
+    };
+  }, [activeLesson, currentCourse]);
 
   if (!initialized || (user && !enrollmentsReady)) {
     return <div className="h-48 rounded-2xl border border-[#2A2A2A] bg-[#111111] animate-pulse" />;
@@ -47,8 +63,9 @@ export default function MyCoursesPage({ courses }: Props) {
   }
 
   return (
-    <div className="grid lg:grid-cols-2 gap-6">
-      {myCourses.map(({ enrollment, course }) => (
+    <div className="grid xl:grid-cols-[minmax(0,1fr)_420px] gap-6">
+      <div className="grid lg:grid-cols-2 gap-6">
+        {myCourses.map(({ enrollment, course }) => (
         <article key={enrollment.id} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] overflow-hidden">
           <img
             src={course!.thumbnailUrl ?? getCourseImage(course!.category.slug, course!.id, course!.title)}
@@ -94,10 +111,16 @@ export default function MyCoursesPage({ courses }: Props) {
                                 lastLesson: lesson,
                                 status: nextProgress >= 100 ? "completed" : "active",
                               });
+                              setActiveLesson({
+                                courseSlug: course!.slug,
+                                moduleTitle: module.title,
+                                lesson,
+                                index: completed,
+                              });
                             }}
                             className="shrink-0 rounded-lg border border-[#2A2A2A] px-3 py-1 text-xs text-[#00FF66] hover:border-[#00FF66]/50 transition"
                           >
-                            Ver lección
+                            Abrir
                           </button>
                         </li>
                       ))}
@@ -110,20 +133,66 @@ export default function MyCoursesPage({ courses }: Props) {
             <button
               type="button"
               onClick={() => {
-                const nextProgress = Math.min(100, enrollment.progress + 20);
+                const firstModule = course!.curriculum?.[0];
+                const firstLesson = firstModule?.lessons[0] ?? enrollment.lastLesson;
+                const nextProgress = Math.max(enrollment.progress, firstLesson ? Math.round(100 / Math.max(1, course!.totalLessons ?? course!.lessons ?? 1)) : enrollment.progress);
                 void updateEnrollmentProgress(enrollment.id, {
                   progress: nextProgress,
-                  lastLesson: nextProgress >= 100 ? "Curso completado" : `Lección ${Math.floor(nextProgress / 10)}`,
+                  lastLesson: firstLesson,
                   status: nextProgress >= 100 ? "completed" : "active",
+                });
+                setActiveLesson({
+                  courseSlug: course!.slug,
+                  moduleTitle: firstModule?.title ?? "Contenido del curso",
+                  lesson: firstLesson,
+                  index: 1,
                 });
               }}
               className="w-full rounded-xl bg-[#00FF66] px-5 py-3 font-semibold text-[#0A0A0A] hover:bg-[#00CC52] transition"
             >
-              {enrollment.status === "completed" ? "Revisar curso" : "Continuar curso"}
+              {enrollment.status === "completed" ? "Revisar contenido" : "Abrir curso"}
             </button>
           </div>
         </article>
-      ))}
+        ))}
+      </div>
+
+      <aside className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 xl:sticky xl:top-24 xl:self-start">
+        {lessonBody && currentCourse && activeLesson ? (
+          <div>
+            <div className="mb-5 flex items-center gap-3">
+              <img
+                src={currentCourse.thumbnailUrl ?? getCourseImage(currentCourse.category.slug, currentCourse.id, currentCourse.title)}
+                alt={currentCourse.title}
+                className="h-16 w-24 rounded-xl object-cover"
+                loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.src = IMAGE_FALLBACK;
+                }}
+              />
+              <div>
+                <p className="text-xs uppercase tracking-[0.14em] text-[#00FF66]">{currentCourse.title}</p>
+                <h2 className="text-lg font-bold text-white">{lessonBody.title}</h2>
+              </div>
+            </div>
+            <p className="text-sm leading-6 text-[#B0B0B0]">{lessonBody.intro}</p>
+            <div className="mt-6 space-y-3">
+              {lessonBody.steps.map((step, index) => (
+                <div key={step} className="rounded-xl border border-[#2A2A2A] bg-[#111111] p-4">
+                  <p className="text-xs text-[#00FF66] mb-1">Paso {index + 1}</p>
+                  <p className="text-sm leading-6 text-[#D6D6D6]">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <p className="text-xs uppercase tracking-[0.14em] text-[#00FF66] mb-3">Lector de lecciones</p>
+            <h2 className="text-xl font-bold text-white mb-3">Abre cualquier lección del temario</h2>
+            <p className="text-sm leading-6 text-[#888]">Desde aquí podrás leer el contenido del curso, moverte por sus módulos y guardar progreso sin depender solo del botón de continuar.</p>
+          </div>
+        )}
+      </aside>
     </div>
   );
 }

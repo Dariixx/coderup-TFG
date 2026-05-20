@@ -278,7 +278,7 @@ function mapApiCourse(record: ApiCourseRecord, index: number): Course {
     students: Number(record.total_students) || 0,
     duration: record.duration ?? (durationHours ? `${durationHours}h de contenido` : "0h de contenido"),
     lessons: totalLessons,
-    thumbnailUrl: getCourseImage(record.category_slug ?? record.category_name, record.id, record.title),
+    thumbnailUrl: record.thumbnail_url ?? record.image ?? getCourseImage(record.category_slug ?? record.category_name, record.id, record.title),
     durationHours,
     totalLessons,
     requirements,

@@ -92,6 +92,21 @@ if (isset($input['total_lessons'])) {
     $params[] = max(0, (int) $input['total_lessons']);
 }
 
+if (isset($input['requirements']) || isset($input['requires'])) {
+    $updates[] = '`requires` = ?';
+    $params[] = json_encode($input['requirements'] ?? $input['requires'], JSON_UNESCAPED_UNICODE);
+}
+
+if (isset($input['what_you_learn'])) {
+    $updates[] = 'what_you_learn = ?';
+    $params[] = json_encode($input['what_you_learn'], JSON_UNESCAPED_UNICODE);
+}
+
+if (isset($input['curriculum'])) {
+    $updates[] = 'curriculum = ?';
+    $params[] = json_encode($input['curriculum'], JSON_UNESCAPED_UNICODE);
+}
+
 if (isset($input['is_published'])) {
     $updates[] = 'is_published = ?';
     $params[] = (int) (bool) $input['is_published'];

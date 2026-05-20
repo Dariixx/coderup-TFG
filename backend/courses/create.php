@@ -52,8 +52,8 @@ if (!$stmt->fetch()) {
 
 try {
     $stmt = $conn->prepare('
-        INSERT INTO courses (title, slug, description, price, level, category_id, instructor_id, thumbnail_url, duration_hours, total_lessons, is_published)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+        INSERT INTO courses (title, slug, description, price, level, category_id, instructor_id, thumbnail_url, duration_hours, total_lessons, `requires`, what_you_learn, curriculum, is_published)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ');
     $stmt->execute([
         $title,
@@ -66,6 +66,10 @@ try {
         $input['thumbnail_url'] ?? $input['image'] ?? null,
         (int) ($input['duration_hours'] ?? 10),
         (int) ($input['total_lessons'] ?? 20),
+        json_encode($input['requirements'] ?? $input['requires'] ?? [], JSON_UNESCAPED_UNICODE),
+        json_encode($input['what_you_learn'] ?? [], JSON_UNESCAPED_UNICODE),
+        json_encode($input['curriculum'] ?? ['modulos' => []], JSON_UNESCAPED_UNICODE),
+        isset($input['is_published']) ? (int) (bool) $input['is_published'] : 1,
     ]);
 
     $courseId = $conn->lastInsertId();

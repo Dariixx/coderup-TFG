@@ -4,9 +4,11 @@ require_once __DIR__ . '/../helpers/cors.php';
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/response.php';
 require_once __DIR__ . '/../helpers/catalog.php';
+require_once __DIR__ . '/../helpers/auth.php';
 
 requireMethod('GET');
 
+$includeAll = getOrQuery('all') === '1' || getOrQuery('include_unpublished') === '1';
 $category = getOrQuery('category');
 $level = getOrQuery('level');
 $search = getOrQuery('search');
@@ -14,8 +16,14 @@ $page = max(1, (int) getOrQuery('page', 1));
 $limit = min(50, max(1, (int) getOrQuery('limit', 12)));
 $offset = ($page - 1) * $limit;
 
-$where = ['c.is_published = 1'];
+$where = [];
 $params = [];
+
+if ($includeAll) {
+    requireAdminOrEditor();
+} else {
+    $where[] = 'c.is_published = 1';
+}
 
 if ($category) {
     $where[] = 'cat.slug = ?';
@@ -33,7 +41,7 @@ if ($search) {
     $params[] = "%{$search}%";
 }
 
-$whereSql = implode(' AND ', $where);
+$whereSql = count($where) ? implode(' AND ', $where) : '1 = 1';
 
 $countSql = '
     SELECT COUNT(*) AS total
