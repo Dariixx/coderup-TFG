@@ -9,7 +9,7 @@ import {
 } from "./cart";
 import { updateCurrentUser } from "./auth";
 import type { Course, Order, OrderItem, User } from "./types";
-import { apiFetch, checkout } from "./api";
+import { API_ENDPOINTS, apiFetch, checkout } from "./api";
 
 type OrderListener = () => void;
 
@@ -136,7 +136,7 @@ export async function createSimulatedOrder(user: User, courses: Course[]) {
 /* ─── FETCH USER ORDERS FROM BACKEND ───────────────────────────────────── */
 
 export async function fetchUserOrdersFromBackend(): Promise<Order[] | null> {
-  const result = await apiFetch<any>("/api/orders.php");
+  const result = await apiFetch<any>(API_ENDPOINTS.orders.list);
   if (!result.ok) return null;
 
   const orders = Array.isArray(result.data) ? result.data : result.data.orders ?? [];

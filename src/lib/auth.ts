@@ -1,7 +1,7 @@
 import type { User } from "./types";
 import { loadFromStorage, removeFromStorage, saveToStorage } from "./storage";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "./utils";
-import { apiFetch, setApiAuthToken } from "./api";
+import { API_ENDPOINTS, apiFetch, setApiAuthToken } from "./api";
 
 const SESSION_KEY = "coderup-session";
 
@@ -79,7 +79,7 @@ export async function registerUser(input: { name: string; email: string; passwor
   if (!PASSWORD_REGEX.test(input.password))
     return { ok: false as const, message: "La contraseña debe tener al menos 6 caracteres." };
 
-  const result = await apiFetch<any>("/auth/register.php", {
+  const result = await apiFetch<any>(API_ENDPOINTS.auth.register, {
     method: "POST",
     body: { name, email, password: input.password },
   });
@@ -102,7 +102,7 @@ export async function loginUser(input: { email: string; password: string }) {
   if (!PASSWORD_REGEX.test(input.password))
     return { ok: false as const, message: "La contraseña debe tener al menos 6 caracteres." };
 
-  const result = await apiFetch<any>("/auth/login.php", {
+  const result = await apiFetch<any>(API_ENDPOINTS.auth.login, {
     method: "POST",
     body: { email, password: input.password },
   });
@@ -119,7 +119,7 @@ export async function loginUser(input: { email: string; password: string }) {
 }
 
 export async function logoutUser() {
-  apiFetch("/auth/logout.php", { method: "POST" }).catch(() => {});
+  apiFetch(API_ENDPOINTS.auth.logout, { method: "POST" }).catch(() => {});
   setApiAuthToken(null);
   currentUser = null;
   persist();

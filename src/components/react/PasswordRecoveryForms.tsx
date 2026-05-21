@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { apiFetch } from "../../lib/api";
+import { API_ENDPOINTS, apiFetch } from "../../lib/api";
 import { PASSWORD_REGEX } from "../../lib/utils";
 
 export function ForgotPasswordForm() {
@@ -14,7 +14,7 @@ export function ForgotPasswordForm() {
     setMessage("");
     setResetUrl("");
 
-    const result = await apiFetch("/auth/forgot-password.php", {
+    const result = await apiFetch(API_ENDPOINTS.auth.forgotPassword, {
       method: "POST",
       body: { email },
     });
@@ -94,7 +94,7 @@ export function ResetPasswordForm({ token: initialToken = "" }: { token?: string
     setStatus("loading");
     setMessage("");
 
-    const result = await apiFetch("/auth/reset-password.php", {
+    const result = await apiFetch(API_ENDPOINTS.auth.resetPassword, {
       method: "POST",
       body: { token, password },
     });

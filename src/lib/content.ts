@@ -1,4 +1,4 @@
-import { apiGet } from "./api";
+import { API_ENDPOINTS, apiGet, withQuery } from "./api";
 import { getCourseImage, getInstructorAvatar, IMAGE_FALLBACK } from "./images";
 import type { BlogCategory, BlogPost, Category, Course, Instructor, SEO, Tag } from "./types";
 import { getReadingTime, slugify, truncateText } from "./utils";
@@ -324,7 +324,7 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
 
 async function fetchApiCourses(): Promise<Course[] | null> {
   try {
-    const response = await apiGet<ApiCourseRecord[] | { courses: ApiCourseRecord[] }>("/api/courses.php");
+    const response = await apiGet<ApiCourseRecord[] | { courses: ApiCourseRecord[] }>(API_ENDPOINTS.courses.list);
     const courses = Array.isArray(response.data) ? response.data : response.data?.courses ?? [];
     return courses.map(mapApiCourse);
   } catch {
@@ -339,7 +339,9 @@ export async function getCourses(): Promise<Course[]> {
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
   try {
-    const response = await apiGet<ApiCourseRecord | { course: ApiCourseRecord }>(`/api/courses/${encodeURIComponent(slug)}.php`);
+    const response = await apiGet<ApiCourseRecord | { course: ApiCourseRecord }>(
+      withQuery(API_ENDPOINTS.courses.detail, { slug }),
+    );
     const course = "course" in response.data ? response.data.course : response.data;
 
     if (course) {
@@ -378,7 +380,7 @@ export async function getFeaturedCourses(limit = 3): Promise<Course[]> {
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const response = await apiGet<ApiPostRecord[] | { posts: ApiPostRecord[] }>("/api/posts.php");
+    const response = await apiGet<ApiPostRecord[] | { posts: ApiPostRecord[] }>(API_ENDPOINTS.posts.list);
     const posts = Array.isArray(response.data) ? response.data : response.data?.posts ?? [];
     return posts.map(mapApiPost);
   } catch {
@@ -388,7 +390,9 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   try {
-    const response = await apiGet<ApiPostRecord | { post: ApiPostRecord }>(`/api/posts/${encodeURIComponent(slug)}.php`);
+    const response = await apiGet<ApiPostRecord | { post: ApiPostRecord }>(
+      withQuery(API_ENDPOINTS.posts.detail, { slug }),
+    );
     const post = "post" in response.data ? response.data.post : response.data;
     if (post) {
       return mapApiPost(post);
@@ -403,7 +407,9 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
 
 export async function getInstructors(): Promise<Instructor[]> {
   try {
-    const response = await apiGet<ApiInstructorRecord[] | { instructors: ApiInstructorRecord[] }>("/api/instructors.php");
+    const response = await apiGet<ApiInstructorRecord[] | { instructors: ApiInstructorRecord[] }>(
+      API_ENDPOINTS.instructors.list,
+    );
     const instructors = Array.isArray(response.data) ? response.data : response.data?.instructors ?? [];
     if (instructors.length > 0) {
       return instructors.map(mapApiInstructor);
@@ -418,7 +424,7 @@ export async function getInstructors(): Promise<Instructor[]> {
 export async function getInstructorBySlug(slug: string): Promise<{ instructor: Instructor; courses: Course[] } | null> {
   try {
     const response = await apiGet<{ instructor: ApiInstructorRecord; courses: ApiCourseRecord[] }>(
-      `/api/instructors/show.php?slug=${encodeURIComponent(slug)}`,
+      withQuery(API_ENDPOINTS.instructors.detail, { slug }),
     );
     if (response.data?.instructor) {
       return {

@@ -12,6 +12,44 @@ export const API_BASE_URL = API_BASE;
 const AUTH_TOKEN_KEY = "coderup-auth-token";
 const CART_SESSION_KEY = "coderup-cart-session";
 
+export const API_ENDPOINTS = {
+  auth: {
+    me: "/auth/me.php",
+    login: "/auth/login.php",
+    register: "/auth/register.php",
+    logout: "/auth/logout.php",
+    forgotPassword: "/auth/forgot-password.php",
+    resetPassword: "/auth/reset-password.php",
+  },
+  courses: {
+    list: "/api/courses.php",
+    detail: "/api/courses/show.php",
+  },
+  instructors: {
+    list: "/api/instructors.php",
+    detail: "/api/instructors/show.php",
+  },
+  posts: {
+    list: "/api/posts.php",
+    detail: "/api/posts/show.php",
+  },
+  cart: {
+    root: "/api/cart.php",
+    checkout: "/api/cart/checkout.php",
+  },
+  coupons: {
+    validate: "/api/coupons/validate.php",
+  },
+  orders: {
+    list: "/api/orders.php",
+    create: "/api/orders/create.php",
+  },
+  enrollments: {
+    root: "/api/enrollments.php",
+  },
+  githubProjects: "/api/github-projects.php",
+} as const;
+
 export interface ApiResponse<T = unknown> {
   ok: boolean;
   success: boolean;
@@ -33,6 +71,19 @@ export class ApiRequestError extends Error {
 
 interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
+}
+
+export function withQuery(path: string, params: Record<string, string | number | undefined | null>) {
+  const searchParams = new URLSearchParams();
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      searchParams.set(key, String(value));
+    }
+  });
+
+  const query = searchParams.toString();
+  return query ? `${path}?${query}` : path;
 }
 
 export function getApiAuthToken() {
@@ -179,40 +230,36 @@ export function getApiHelpMessage(error: unknown) {
 }
 
 export async function getCourses(filters?: { category?: string; level?: string }) {
-  const params = new URLSearchParams();
-  if (filters?.category) params.set("category", filters.category);
-  if (filters?.level) params.set("level", filters.level);
-
-  const query = params.toString();
-  return apiGet(query ? `/api/courses.php?${query}` : "/api/courses.php");
+  return apiGet(withQuery(API_ENDPOINTS.courses.list, filters ?? {}));
 }
 
 export async function getCourseDetail(slug: string) {
-  return apiGet(`/api/courses/${encodeURIComponent(slug)}.php`);
+  return apiGet(withQuery(API_ENDPOINTS.courses.detail, { slug }));
 }
 
 export async function getInstructors() {
-  return apiGet("/api/instructors.php");
+  return apiGet(API_ENDPOINTS.instructors.list);
 }
 
 export async function getInstructorDetail(id: number | string) {
-  return apiGet(`/api/instructors/${encodeURIComponent(String(id))}.php`);
+  const key = /^\d+$/.test(String(id)) ? "id" : "slug";
+  return apiGet(withQuery(API_ENDPOINTS.instructors.detail, { [key]: id }));
 }
 
 export async function getBlogPosts(page = 1) {
-  return apiGet(`/api/posts.php?page=${page}`);
+  return apiGet(withQuery(API_ENDPOINTS.posts.list, { page }));
 }
 
 export async function getBlogPost(slug: string) {
-  return apiGet(`/api/posts/${encodeURIComponent(slug)}.php`);
+  return apiGet(withQuery(API_ENDPOINTS.posts.detail, { slug }));
 }
 
 export async function validateCoupon(code: string, itemsCount: number) {
-  return apiPost("/api/coupons/validate.php", { code, items_count: itemsCount });
+  return apiPost(API_ENDPOINTS.coupons.validate, { code, items_count: itemsCount });
 }
 
 export async function createOrder(cart: unknown[], couponCode?: string) {
-  return apiPost("/api/orders/create.php", { cart, coupon_code: couponCode });
+  return apiPost(API_ENDPOINTS.orders.create, { cart, coupon_code: couponCode });
 }
 
 async function cartApiRequest<T>(path: string, options: RequestOptions = {}): Promise<ApiResponse<T>> {
@@ -261,47 +308,47 @@ async function cartApiRequest<T>(path: string, options: RequestOptions = {}): Pr
 }
 
 export async function getCart() {
-  return cartApiRequest<any>("/api/cart.php", { method: "GET" });
+  return cartApiRequest<any>(API_ENDPOINTS.cart.root, { method: "GET" });
 }
 
 export async function addToCart(courseId: number | string) {
-  return cartApiRequest<any>("/api/cart.php", {
+  return cartApiRequest<any>(API_ENDPOINTS.cart.root, {
     method: "POST",
     body: { course_id: Number(courseId) },
   });
 }
 
 export async function removeFromCart(itemId: number | string) {
-  return cartApiRequest<any>(`/api/cart.php?item_id=${encodeURIComponent(String(itemId))}`, {
+  return cartApiRequest<any>(withQuery(API_ENDPOINTS.cart.root, { item_id: itemId }), {
     method: "DELETE",
   });
 }
 
 export async function checkout(couponCode?: string | null) {
-  return cartApiRequest<any>("/api/cart/checkout.php", {
+  return cartApiRequest<any>(API_ENDPOINTS.cart.checkout, {
     method: "POST",
     body: { coupon_code: couponCode || null },
   });
 }
 
 export async function getOrders(page = 1) {
-  return cartApiRequest<any>(`/api/orders.php?page=${encodeURIComponent(String(page))}`, {
+  return cartApiRequest<any>(withQuery(API_ENDPOINTS.orders.list, { page }), {
     method: "GET",
   });
 }
 
 export async function getEnrollments() {
-  return apiGet<any>("/api/enrollments.php");
+  return apiGet<any>(API_ENDPOINTS.enrollments.root);
 }
 
 export async function createEnrollment(courseId: number | string) {
-  return apiPost<any>("/api/enrollments.php", { course_id: Number(courseId) });
+  return apiPost<any>(API_ENDPOINTS.enrollments.root, { course_id: Number(courseId) });
 }
 
 export async function updateEnrollment(enrollmentId: number | string, progress: number) {
-  return apiPut<any>("/api/enrollments.php", { enrollment_id: Number(enrollmentId), progress });
+  return apiPut<any>(API_ENDPOINTS.enrollments.root, { enrollment_id: Number(enrollmentId), progress });
 }
 
 export async function getGithubProjects() {
-  return apiGet<any>("/api/github-projects.php");
+  return apiGet<any>(API_ENDPOINTS.githubProjects);
 }
