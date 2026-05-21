@@ -36,6 +36,8 @@ if (notFound) {
   title={notFound ? "Artículo no encontrado" : post.seo.metaTitle}
   description={notFound ? "El artículo solicitado no está disponible en CoderUp." : post.seo.metaDescription}
   canonical={notFound ? "/404" : `/blog/${post.slug}`}
+  ogType="article"
+  robots={notFound ? "noindex,follow" : "index,follow"}
 >
   <Navbar />
   <BackToTop client:load />

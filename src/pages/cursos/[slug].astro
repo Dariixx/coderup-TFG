@@ -57,6 +57,7 @@ if (notFound) {
   title={notFound ? "Curso no encontrado" : curso.seo.metaTitle}
   description={notFound ? "El curso solicitado no está disponible en CoderUp." : curso.seo.metaDescription}
   canonical={notFound ? "/404" : `/cursos/${curso.slug}`}
+  robots={notFound ? "noindex,follow" : "index,follow"}
 >
   <Navbar />
   <BackToTop client:load />

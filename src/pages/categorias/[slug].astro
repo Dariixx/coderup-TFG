@@ -30,6 +30,7 @@ if (notFound) {
   title={notFound ? "Categoría no encontrada" : `${category.name} | Categorías`}
   description={notFound ? "La categoría solicitada no existe en CoderUp." : category.description}
   canonical={notFound ? "/404" : `/categorias/${category.slug}`}
+  robots={notFound ? "noindex,follow" : "index,follow"}
 >
   <Navbar />
   <main class="flex-1">

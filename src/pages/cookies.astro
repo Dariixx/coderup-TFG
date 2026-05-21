@@ -1,0 +1,53 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import BackToTop from "../components/react/BackToTop.tsx";
+---
+
+<BaseLayout
+  title="Politica de cookies"
+  description="Politica de cookies de CoderUp: almacenamiento tecnico, sesion, carrito, servicios externos y ausencia de analitica publicitaria."
+  canonical="/cookies"
+>
+  <Navbar />
+  <main class="flex-1 pt-32 pb-20">
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-12">
+        <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Legal</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mt-3 mb-4">Politica de cookies</h1>
+        <p class="text-[#888] text-lg leading-relaxed">
+          CoderUp utiliza almacenamiento tecnico para que la experiencia de usuario funcione correctamente. No se han integrado cookies publicitarias ni analitica comercial.
+        </p>
+      </div>
+
+      <div class="grid gap-6">
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Almacenamiento necesario</h2>
+          <ul class="space-y-3 text-[#888] leading-relaxed">
+            <li class="flex gap-3"><Icon name="lucide:key-round" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" /> Sesion de usuario y token de autenticacion para mantener el acceso.</li>
+            <li class="flex gap-3"><Icon name="lucide:shopping-bag" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" /> Carrito local para conservar cursos antes del checkout.</li>
+            <li class="flex gap-3"><Icon name="lucide:settings" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" /> Preferencias tecnicas necesarias para formularios y navegacion.</li>
+          </ul>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Servicios de terceros</h2>
+          <p class="text-[#888] leading-relaxed">
+            Vercel, Railway, GitHub API, Google Fonts y servicios de imagenes pueden procesar datos tecnicos como IP, agente de usuario o cabeceras de peticion para servir la aplicacion. Estas operaciones son necesarias para el despliegue y funcionamiento del proyecto.
+          </p>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Gestion desde el navegador</h2>
+          <p class="text-[#888] leading-relaxed">
+            Puedes eliminar cookies y almacenamiento local desde la configuracion del navegador. Si borras estos datos, puede cerrarse la sesion o vaciarse el carrito, pero la aplicacion seguira siendo accesible.
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <BackToTop client:load />
+</BaseLayout>

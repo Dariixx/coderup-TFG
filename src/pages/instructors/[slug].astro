@@ -21,7 +21,13 @@ if (!data) {
 }
 ---
 
-<BaseLayout title={data ? `${data.instructor.name} | CoderUp` : "Instructor no encontrado"}>
+<BaseLayout
+  title={data ? `${data.instructor.name} | Instructor` : "Instructor no encontrado"}
+  description={data ? `${data.instructor.name}, instructor de ${data.instructor.specialty} en CoderUp con cursos practicos para developers.` : "El instructor solicitado no esta disponible en CoderUp."}
+  canonical={data ? `/instructors/${data.instructor.slug}` : "/404"}
+  ogType="profile"
+  robots={data ? "index,follow" : "noindex,follow"}
+>
   <Navbar />
   <BackToTop client:load />
   {data ? (

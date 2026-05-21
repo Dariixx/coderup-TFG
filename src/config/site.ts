@@ -1,9 +1,14 @@
 export const siteConfig = {
   name: "CoderUp",
-  description: "Aprende. Practica. Evoluciona.",
+  description: "CoderUp es una plataforma educativa de cursos de programacion creada como proyecto DAW, con catalogo, blog, carrito, pedidos y panel de administracion.",
   url: "https://coderup-tfg.vercel.app",
+  backendUrl: "Railway",
   author: "CoderUp Team",
+  legalName: "CoderUp - Proyecto DAW",
+  contactEmail: "hola@coderup-tfg.vercel.app",
   defaultLanguage: "es",
+  defaultOgImage: "/logo.webp",
+  updatedAt: "2026-05-21",
   navigation: [
     { label: "Inicio", href: "/" },
     { label: "Cursos", href: "/cursos" },
@@ -11,5 +16,10 @@ export const siteConfig = {
     { label: "Blog", href: "/blog" },
     { label: "Sobre Nosotros", href: "/sobre-nosotros" },
     { label: "Contacto", href: "/contacto" },
+  ],
+  legalNavigation: [
+    { label: "Privacidad", href: "/privacidad" },
+    { label: "Terminos", href: "/terminos" },
+    { label: "Cookies", href: "/cookies" },
   ],
 };

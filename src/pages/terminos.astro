@@ -1,0 +1,71 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import BackToTop from "../components/react/BackToTop.tsx";
+import { siteConfig } from "../config/site";
+
+const rules = [
+  "Usar cuentas demo solo para probar la aplicacion.",
+  "No intentar acceder a zonas privadas sin rol autorizado.",
+  "No introducir datos sensibles reales en formularios de prueba.",
+  "Respetar el contenido educativo y el codigo del proyecto.",
+];
+---
+
+<BaseLayout
+  title="Terminos de uso"
+  description="Terminos de uso de CoderUp: condiciones de cuenta, cursos, pedidos simulados, roles, contenido y alcance academico DAW."
+  canonical="/terminos"
+>
+  <Navbar />
+  <main class="flex-1 pt-32 pb-20">
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-12">
+        <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Legal</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mt-3 mb-4">Terminos de uso</h1>
+        <p class="text-[#888] text-lg leading-relaxed">
+          Estos terminos regulan el uso de {siteConfig.legalName}, una plataforma educativa desarrollada como proyecto final DAW.
+        </p>
+      </div>
+
+      <div class="grid gap-6">
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Alcance del proyecto</h2>
+          <p class="text-[#888] leading-relaxed">
+            CoderUp simula una plataforma de cursos online con catalogo, blog, carrito, checkout, roles y administracion. Los pedidos y pagos forman parte de la demostracion tecnica y no implican una compra real.
+          </p>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Cuentas y roles</h2>
+          <p class="text-[#888] leading-relaxed mb-4">
+            La aplicacion contempla usuarios cliente, demo, editor y administrador. Cada rol tiene permisos distintos en frontend y backend; las acciones de administracion estan limitadas a usuarios autorizados.
+          </p>
+          <a href="/contacto" class="inline-flex items-center gap-2 text-[#00FF66] hover:underline">
+            <Icon name="lucide:mail" class="w-4 h-4" /> Contactar por incidencias de acceso
+          </a>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Uso permitido</h2>
+          <ul class="space-y-3 text-[#888] leading-relaxed">
+            {rules.map((rule) => (
+              <li class="flex gap-3"><Icon name="lucide:check-circle" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" /> {rule}</li>
+            ))}
+          </ul>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Contenido y disponibilidad</h2>
+          <p class="text-[#888] leading-relaxed">
+            Los cursos, posts, instructores e imagenes pueden ser datos seed o contenido de demostracion. La disponibilidad depende del frontend en Vercel, el backend en Railway y la base de datos configurada para el proyecto.
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <BackToTop client:load />
+</BaseLayout>

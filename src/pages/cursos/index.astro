@@ -10,7 +10,11 @@ import { getCourses } from "../../lib/content";
 const cursos = await getCourses();
 ---
 
-<BaseLayout title="Cursos | CoderUp">
+<BaseLayout
+  title="Cursos de programacion"
+  description="Catalogo de cursos de programacion de CoderUp: filtra por categoria, nivel y tecnologia para avanzar con proyectos reales."
+  canonical="/cursos"
+>
   <Navbar />
 
   <section class="pt-32 pb-20">

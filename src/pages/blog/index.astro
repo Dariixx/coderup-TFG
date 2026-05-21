@@ -9,7 +9,11 @@ import { getBlogPosts } from "../../lib/content";
 const posts = await getBlogPosts();
 ---
 
-<BaseLayout title="Blog | CoderUp">
+<BaseLayout
+  title="Blog de programacion"
+  description="Articulos, tutoriales y guias practicas de desarrollo web para estudiantes y developers en CoderUp."
+  canonical="/blog"
+>
   <Navbar />
 
   <section class="pt-32 pb-20">

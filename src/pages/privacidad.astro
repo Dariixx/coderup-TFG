@@ -1,0 +1,77 @@
+---
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+import BackToTop from "../components/react/BackToTop.tsx";
+import { siteConfig } from "../config/site";
+
+const rights = ["Acceso", "Rectificacion", "Supresion", "Oposicion", "Limitacion", "Portabilidad"];
+---
+
+<BaseLayout
+  title="Privacidad y RGPD"
+  description="Politica de privacidad de CoderUp, proyecto academico DAW: datos tratados, finalidad, base legal, derechos RGPD y contacto."
+  canonical="/privacidad"
+>
+  <Navbar />
+  <main class="flex-1 pt-32 pb-20">
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="mb-12">
+        <span class="text-[#00FF66] text-sm font-semibold uppercase tracking-widest">Legal</span>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mt-3 mb-4">Privacidad y RGPD</h1>
+        <p class="text-[#888] text-lg leading-relaxed">
+          Esta pagina explica como trata los datos {siteConfig.legalName}. CoderUp es un proyecto academico de Desarrollo de Aplicaciones Web, no una plataforma comercial en produccion real.
+        </p>
+      </div>
+
+      <div class="grid gap-6">
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Responsable y contacto</h2>
+          <p class="text-[#888] leading-relaxed">
+            El responsable del tratamiento es {siteConfig.legalName}. Para consultas sobre privacidad o ejercicio de derechos puedes escribir a
+            <a class="text-[#00FF66] hover:underline" href={`mailto:${siteConfig.contactEmail}`}> {siteConfig.contactEmail}</a>.
+          </p>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Datos que puede tratar la aplicacion</h2>
+          <ul class="space-y-3 text-[#888] leading-relaxed">
+            <li class="flex gap-3"><Icon name="lucide:user" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" /> Datos de cuenta: nombre, email, rol, contrasena cifrada y estado de usuario.</li>
+            <li class="flex gap-3"><Icon name="lucide:shopping-cart" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" /> Datos funcionales: carrito, pedidos, cursos inscritos, cupones y progreso asociado.</li>
+            <li class="flex gap-3"><Icon name="lucide:mail" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" /> Datos de contacto: mensajes enviados desde formularios y comunicaciones tecnicas.</li>
+            <li class="flex gap-3"><Icon name="lucide:key-round" class="w-5 h-5 text-[#00FF66] shrink-0 mt-1" /> Datos de seguridad: tokens de sesion, recuperacion de contrasena y trazas tecnicas necesarias.</li>
+          </ul>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Finalidad y base legal</h2>
+          <p class="text-[#888] leading-relaxed">
+            Los datos se usan para autenticar usuarios, mostrar cursos, gestionar pedidos simulados, proteger el panel de administracion y demostrar competencias DAW de frontend, backend PHP, base de datos y despliegue. La base legal es la ejecucion de la relacion de usuario, el consentimiento en formularios y el interes legitimo en seguridad tecnica.
+          </p>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Derechos RGPD</h2>
+          <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+            {rights.map((right) => (
+              <span class="rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-sm text-white">{right}</span>
+            ))}
+          </div>
+          <p class="text-[#888] leading-relaxed">
+            Puedes solicitar el ejercicio de estos derechos por email. En un entorno academico o demo tambien puedes pedir la eliminacion de cuentas de prueba y datos asociados.
+          </p>
+        </article>
+
+        <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8">
+          <h2 class="text-2xl font-bold text-white mb-4">Servicios externos</h2>
+          <p class="text-[#888] leading-relaxed">
+            El frontend se despliega en Vercel y el backend PHP en Railway. La aplicacion puede consultar recursos publicos de GitHub API y cargar imagenes o fuentes externas. Estos servicios pueden registrar informacion tecnica basica segun sus propias politicas.
+          </p>
+        </article>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <BackToTop client:load />
+</BaseLayout>
