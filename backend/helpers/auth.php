@@ -49,29 +49,32 @@ function ensureRequiredRoleAccounts($conn) {
 
     ensureAuthTables($conn);
 
+    // Password demo comun: CoderUp2026!
+    $demoPasswordHash = '$2y$12$CYz/PPvyBPTaRiQSLkiL/.z45Kuk35hjDEYGxl0nbDjdvaG3I97Je';
+
     $accounts = [
         [
             'Admin CoderUp',
             'admin@coderup.com',
-            '$2y$12$5SSktEND/8hWA8xZbEelueOlbtTvnqSVGabsGoV7Y8DKY9PGxgCU.',
+            $demoPasswordHash,
             'admin',
         ],
         [
             'Editor CoderUp',
             'editor@coderup.com',
-            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            $demoPasswordHash,
             'editor',
         ],
         [
             'Cliente CoderUp',
             'cliente@coderup.com',
-            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            $demoPasswordHash,
             'client',
         ],
         [
             'Guest CoderUp',
             'guest@coderup.com',
-            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            $demoPasswordHash,
             'guest',
         ],
     ];

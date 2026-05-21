@@ -20,11 +20,13 @@ INSERT INTO roles (name, description) VALUES
 ('client', 'Cliente que puede comprar cursos'),
 ('guest', 'Visitante sin compras');
 
+-- Usuarios demo para validar permisos por rol.
+-- Password comun de demo: CoderUp2026!
 INSERT INTO users (id, name, email, password, role) VALUES
-(1, 'Admin CoderUp', 'admin@coderup.com', '$2y$12$5SSktEND/8hWA8xZbEelueOlbtTvnqSVGabsGoV7Y8DKY9PGxgCU.', 'admin'),
-(2, 'Editor CoderUp', 'editor@coderup.com', '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq', 'editor'),
-(3, 'Cliente CoderUp', 'cliente@coderup.com', '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq', 'client'),
-(4, 'Guest CoderUp', 'guest@coderup.com', '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq', 'guest');
+(1, 'Admin CoderUp', 'admin@coderup.com', '$2y$12$CYz/PPvyBPTaRiQSLkiL/.z45Kuk35hjDEYGxl0nbDjdvaG3I97Je', 'admin'),
+(2, 'Editor CoderUp', 'editor@coderup.com', '$2y$12$CYz/PPvyBPTaRiQSLkiL/.z45Kuk35hjDEYGxl0nbDjdvaG3I97Je', 'editor'),
+(3, 'Cliente CoderUp', 'cliente@coderup.com', '$2y$12$CYz/PPvyBPTaRiQSLkiL/.z45Kuk35hjDEYGxl0nbDjdvaG3I97Je', 'client'),
+(4, 'Guest CoderUp', 'guest@coderup.com', '$2y$12$CYz/PPvyBPTaRiQSLkiL/.z45Kuk35hjDEYGxl0nbDjdvaG3I97Je', 'guest');
 
 INSERT INTO instructors (id, name, email, bio, avatar_url, specialty, years_experience, total_students, rating) VALUES
 (1, 'Juan García López', 'juan@coderup.com', 'Experto en React y JavaScript moderno. 5 años en desarrollo frontend. Ha mentorizado a más de 2400 estudiantes. Apasionado por la arquitectura de componentes escalable, accesibilidad y rendimiento web.', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&h=400&q=82', 'React / Frontend', 5, 2400, 4.80),

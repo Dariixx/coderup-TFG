@@ -202,6 +202,19 @@ GET https://coderup-tfg-production.up.railway.app/index.php
 - `GET /users/index.php`
 - `POST /users/update-role.php`
 
+## Roles Y Permisos
+
+El proyecto trabaja con cuatro roles definidos en `database/seed.sql` y `backend/helpers/auth.php`:
+
+| Rol | Frontend | Backend |
+| --- | --- | --- |
+| admin | Panel `/admin`, usuarios, pedidos, estadisticas y gestion completa de cursos. | Acceso a endpoints admin, usuarios, pedidos globales y cursos. |
+| editor | Acceso directo a `/admin/cursos` para crear y editar cursos. | Acceso a endpoints protegidos por `requireAdminOrEditor()`. |
+| client | Compra, checkout, pedidos propios y cursos inscritos. | Acceso a endpoints autenticados de carrito, pedidos propios y enrollments. |
+| guest | Cuenta demo sin privilegios de gestion. | Token valido, pero sin permisos `admin` ni `editor`. |
+
+La matriz completa y las credenciales demo estan en [docs/roles.md](docs/roles.md).
+
 ## Pruebas Basicas
 
 ### Build Frontend
@@ -237,11 +250,15 @@ curl "https://coderup-tfg-production.up.railway.app/api/courses/show.php?slug=re
 Usuarios de prueba cargados por `database/seed.sql`:
 
 ```text
-admin@coderup.com
-editor@coderup.com
-cliente@coderup.com
-guest@coderup.com
+Password comun: CoderUp2026!
+
+admin@coderup.com    rol admin
+editor@coderup.com   rol editor
+cliente@coderup.com  rol client
+guest@coderup.com    rol guest
 ```
+
+La matriz completa de permisos de frontend y backend esta en [docs/roles.md](docs/roles.md).
 
 ## Estructura
 
@@ -263,7 +280,8 @@ coderup-TFG/
 │   ├── schema.sql
 │   └── seed.sql
 ├── docs/
-│   └── deployment.md
+│   ├── deployment.md
+│   └── roles.md
 ├── src/
 │   ├── components/
 │   ├── layouts/
