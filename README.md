@@ -1,274 +1,291 @@
-# CoderUp - Plataforma de Cursos Online
+# CoderUp
 
-## Descripción
-Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). Permite registro, autenticación, compra de cursos y gestión de órdenes. Arquitectura moderna con frontend Astro en Vercel y backend PHP en Railway.
+Plataforma e-learning desarrollada como Trabajo Fin de Grado de DAW. Incluye catalogo de cursos, autenticacion, carrito, checkout, pedidos, inscripciones y panel de administracion.
 
-## Tecnologías
-- **Frontend**: Astro, React, TypeScript, Tailwind CSS
-- **Backend**: PHP 8.3, API REST
-- **Base de datos**: MySQL 8.0
-- **Hosting**: Vercel (frontend), Railway (backend + BD)
-- **Email**: Brevo API
+## URLs
 
-## Arquitectura
+- Frontend: https://coderup-tfg.vercel.app
+- Backend API Railway: https://coderup-tfg-production.up.railway.app
+- Repositorio: https://github.com/Dariixx/coderup-TFG
 
-### Frontend (Vercel)
-- Astro para SSR/SSG
-- Componentes React para interactividad
-- TypeScript para type safety
-- Comunicación fetch con backend
+## Stack
 
-### Backend (Railway)
-- PHP 8.3
-- API REST JSON
-- JWT/Tokens para autenticación
-- Bcrypt para contraseñas
+- Frontend: Astro, React, TypeScript, Tailwind CSS
+- Backend: PHP 8.3, API REST JSON
+- Base de datos: MySQL
+- Deploy: Vercel para frontend, Railway para backend y MySQL
+- Email: Brevo API para recuperacion de contraseña
 
-### Base de datos (Railway MySQL)
-- 8 tablas relacionadas
-- Diseño normalizado (3NF)
-- Integridad referencial con FKs
+## Variables De Entorno
 
-## URLs en Producción
-- **Frontend**: https://coderup-tfg.vercel.app
-- **Backend API**: https://coderup-tfg-production.up.railway.app
-- **GitHub**: https://github.com/Dariixx/coderup-TFG
+El archivo [.env.example](.env.example) contiene las variables esperadas. No subas valores reales de secretos al repositorio.
 
-## Funcionalidades Implementadas
+### Vercel
 
-### Autenticación
-- Registro con email único
-- Login con token
-- Logout
-- Recuperación de contraseña (email real con Brevo)
-- Reset password con token temporal (1 hora)
-
-### Ecommerce
-- Catálogo de cursos
-- Carrito de compras
-- Crear órdenes
-- Historial de compras
-- Descuentos con cupones
-
-### Seguridad
-- Contraseñas hasheadas con bcrypt
-- Validación en servidor
-- CORS configurado
-- Sanitización contra XSS
-- Tokens con expiración
-
-### Roles y Permisos
-- **admin**: acceso total
-- **editor**: crear/editar contenido
-- **client**: comprar cursos
-- **guest**: ver catálogo
-
-## Endpoints API
-
-### Autenticación
-- POST /auth/register.php
-- POST /auth/login.php
-- GET /auth/me.php
-- POST /auth/logout.php
-- POST /auth/forgot-password.php
-- POST /auth/reset-password.php
-
-### Cursos
-- GET /api/courses.php
-- GET /api/courses/show.php?slug=react-avanzado
-
-### Órdenes
-- POST /api/orders/create.php
-- GET /api/orders.php
-- GET /orders/index.php
-
-### Contenido
-- GET /api/instructors.php
-- GET /api/instructors/show.php?id=1
-- GET /api/posts.php
-- GET /api/posts/show.php?slug=guia-completa-hooks-react
-- POST /api/coupons/validate.php
-
-## Instalación Local
-
-### Backend
-```bash
-# 1. Clonar repo
-git clone https://github.com/Dariixx/coderup-TFG.git
-cd coderup-TFG
-
-# 2. Importar BD
-mysql -u root coderup < database/schema.sql
-mysql -u root coderup < database/seed.sql
-
-# 3. Arrancar servidor PHP
-php -S localhost:8000 -t backend
-```
-
-### Frontend
-```bash
-# En otra terminal
-npm install
-npm run dev
-# Abre http://localhost:4321
-```
-
-## Variables de Entorno (Railway)
+Solo el frontend necesita conocer la API publica:
 
 ```env
+PUBLIC_API_URL=https://coderup-tfg-production.up.railway.app
+```
+
+### Railway
+
+El backend PHP necesita base de datos, CORS, recuperacion de contraseña y firma de tokens:
+
+```env
+APP_ENV=production
+FRONTEND_URL=https://coderup-tfg.vercel.app
+RESET_PASSWORD_URL=https://coderup-tfg.vercel.app/reset-password
+
 DB_HOST=railway.internal
 DB_PORT=3306
 DB_NAME=railway
 DB_USER=root
-DB_PASS=tu_contraseña
-APP_ENV=production
-BREVO_API_KEY=tu_api_key
-SMTP_FROM_EMAIL=tu@email.com
+DB_PASS=replace_with_railway_mysql_password
+
+AUTH_SECRET=replace_with_a_long_random_secret
+
+BREVO_API_KEY=replace_with_brevo_api_key
+SMTP_FROM_EMAIL=no-reply@coderup-tfg.vercel.app
 SMTP_FROM_NAME=CoderUp
-RESET_PASSWORD_URL=https://tu-url.vercel.app/reset-password
-FRONTEND_URL=https://tu-url.vercel.app
+RESET_EMAIL_DEBUG=false
 ```
 
-## Diagrama de Base de Datos
+Railway puede inyectar nombres equivalentes de MySQL segun el plugin, pero el codigo actual lee `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` y `DB_PASS`.
+
+## Instalacion Local
+
+Requisitos:
+
+- Node.js 22.12 o superior
+- PHP 8.3 con `pdo_mysql`, `mbstring` y `curl`
+- MySQL 8 o compatible
+
+1. Clona el repositorio e instala dependencias:
+
+```bash
+git clone https://github.com/Dariixx/coderup-TFG.git
+cd coderup-TFG
+npm install
+```
+
+2. Crea la base de datos local e importa esquema y datos:
+
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS coderup CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root coderup < database/schema.sql
+mysql -u root coderup < database/seed.sql
+```
+
+3. Crea un `.env` local:
+
+```env
+PUBLIC_API_URL=http://localhost:8000
+APP_ENV=development
+FRONTEND_URL=http://localhost:4321
+RESET_PASSWORD_URL=http://localhost:4321/reset-password
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=coderup
+DB_USER=root
+DB_PASS=
+AUTH_SECRET=local-development-secret-change-me
+RESET_EMAIL_DEBUG=true
+```
+
+4. Arranca el backend:
+
+```bash
+php -S localhost:8000 -t backend
+```
+
+5. En otra terminal, arranca el frontend:
+
+```bash
+npm run dev
+```
+
+Abre http://localhost:4321.
+
+## Despliegue
+
+### Frontend En Vercel
+
+1. Importa el repositorio en Vercel.
+2. Usa framework `Astro`.
+3. Configura:
 
 ```text
-users (id, email, password, name, role, reset_token, reset_token_expires_at, created_at)
-├── orders (id, user_id, order_number, total, status, created_at)
-│   └── order_items (id, order_id, course_id, price_at_purchase)
-├── enrollments (id, user_id, course_id, progress, status, created_at)
-└── roles (id, name, description)
-
-categories (id, name, slug, icon)
-└── courses (id, title, slug, price, level, category_id, created_at)
-
-coupons (id, code, discount_type, discount_value, active)
+Build Command: npm run build
+Output Directory: dist
+Install Command: npm install
 ```
 
-## Flujo de Compra
+4. Añade la variable `PUBLIC_API_URL` con el backend de Railway:
 
-1. Usuario se registra / inicia sesión
-2. Navega catálogo de cursos
-3. Agrega cursos al carrito
-4. Realiza checkout
-5. Sistema crea orden en MySQL
-6. Se enrolla el usuario en los cursos
-7. Usuario ve historial en /mi-cuenta/pedidos
+```env
+PUBLIC_API_URL=https://coderup-tfg-production.up.railway.app
+```
 
-## Flujo de Recuperación de Contraseña
+5. Despliega y comprueba que el dominio final sea:
 
-1. Usuario va a /forgot-password
-2. Ingresa email
-3. Backend genera token + expiración
-4. Envía email real por Brevo
-5. Usuario abre enlace: /reset-password?token=XXX
-6. Introduce nueva contraseña
-7. Backend valida token y actualiza password en MySQL
-8. Usuario puede loguearse con nueva contraseña
-
-## Testing / Demostración
-
-### Crear cuenta
 ```text
-Email: test@example.com
-Contraseña: Test123456
+https://coderup-tfg.vercel.app
 ```
 
-### Usuarios de prueba (seed)
+### Backend En Railway
 
+1. Crea un servicio Railway para el backend PHP desde este repositorio.
+2. Añade un servicio MySQL y copia sus credenciales a las variables `DB_*`.
+3. Configura las variables de Railway indicadas en la seccion anterior.
+4. Railway usa [backend/railway.json](backend/railway.json) y [backend/nixpacks.toml](backend/nixpacks.toml). El comando de arranque esperado es:
 
-### Flujo completo
-1. /register -> crear usuario -> aparece en MySQL
-2. /login -> iniciar sesión -> redirige a /mi-cuenta
-3. /cursos -> ver catálogo
-4. Carrito -> agregar cursos -> checkout
-5. /forgot-password -> reset password -> email real
+```bash
+php -S 0.0.0.0:$PORT -t /app router.php
+```
 
-## Estructura del Proyecto
+5. Importa la base de datos una vez:
+
+```bash
+mysql -h <DB_HOST> -P <DB_PORT> -u <DB_USER> -p <DB_NAME> < database/schema.sql
+mysql -h <DB_HOST> -P <DB_PORT> -u <DB_USER> -p <DB_NAME> < database/seed.sql
+```
+
+6. Comprueba el health check:
+
+```text
+GET https://coderup-tfg-production.up.railway.app/index.php
+```
+
+## Endpoints Principales
+
+### Auth
+
+- `POST /auth/register.php`
+- `POST /auth/login.php`
+- `GET /auth/me.php`
+- `POST /auth/logout.php`
+- `POST /auth/forgot-password.php`
+- `POST /auth/reset-password.php`
+
+### Cursos, Posts E Instructores
+
+- `GET /api/courses.php`
+- `GET /api/courses/show.php?slug=react-avanzado`
+- `GET /api/posts.php`
+- `GET /api/posts/show.php?slug=guia-completa-hooks-react`
+- `GET /api/instructors.php`
+- `GET /api/instructors/show.php?slug=juan-garcia-lopez-1`
+
+### Carrito, Pedidos Y Cuenta
+
+- `GET /api/cart.php`
+- `POST /api/cart.php`
+- `DELETE /api/cart.php?item_id=1`
+- `POST /api/cart/checkout.php`
+- `GET /api/orders.php`
+- `POST /api/orders/create.php`
+- `GET /api/enrollments.php`
+- `POST /api/enrollments.php`
+- `PUT /api/enrollments.php`
+- `POST /api/coupons/validate.php`
+- `GET /api/github-projects.php`
+
+### Admin
+
+- `GET /admin/stats.php`
+- `GET /courses/index.php?all=1`
+- `POST /courses/create.php`
+- `POST /courses/update.php`
+- `POST /courses/delete.php`
+- `GET /orders/index.php`
+- `GET /users/index.php`
+- `POST /users/update-role.php`
+
+## Pruebas Basicas
+
+### Build Frontend
+
+```bash
+npm run build
+```
+
+### Sintaxis PHP
+
+```bash
+find backend -type f -name '*.php' -maxdepth 4 -print0 | xargs -0 -n1 php -l
+```
+
+### Endpoints Publicos
+
+```bash
+curl https://coderup-tfg-production.up.railway.app/index.php
+curl https://coderup-tfg-production.up.railway.app/api/courses.php
+curl "https://coderup-tfg-production.up.railway.app/api/courses/show.php?slug=react-avanzado"
+```
+
+### Flujo Manual
+
+1. Abre https://coderup-tfg.vercel.app.
+2. Registra una cuenta en `/register`.
+3. Inicia sesion en `/login`.
+4. Añade un curso premium al carrito.
+5. Completa checkout.
+6. Revisa `/mi-cuenta/pedidos` y `/mi-cuenta/mis-cursos`.
+7. Prueba `/forgot-password` si `BREVO_API_KEY` esta configurado.
+
+Usuarios de prueba cargados por `database/seed.sql`:
+
+```text
+admin@coderup.com
+editor@coderup.com
+cliente@coderup.com
+guest@coderup.com
+```
+
+## Estructura
 
 ```text
 coderup-TFG/
 ├── backend/
+│   ├── api/
 │   ├── auth/
-│   │   ├── login.php
-│   │   ├── register.php
-│   │   ├── logout.php
-│   │   ├── me.php
-│   │   ├── forgot-password.php
-│   │   └── reset-password.php
 │   ├── courses/
-│   │   ├── index.php
-│   │   ├── show.php
-│   │   ├── create.php
-│   │   ├── update.php
-│   │   └── delete.php
 │   ├── orders/
-│   │   ├── create.php
-│   │   ├── index.php
-│   │   └── user-orders.php
+│   ├── users/
 │   ├── config/
-│   │   └── db.php
 │   ├── helpers/
-│   │   ├── cors.php
-│   │   ├── response.php
-│   │   ├── validators.php
-│   │   ├── auth.php
-│   │   └── mail.php
-│   ├── index.php
-│   ├── nixpacks.toml
-│   └── railway.json
-├── src/
-│   ├── components/
-│   │   ├── react/
-│   │   │   ├── AuthForm.tsx
-│   │   │   ├── CartPage.tsx
-│   │   │   ├── CheckoutPage.tsx
-│   │   │   ├── PasswordRecoveryForms.tsx
-│   │   │   └── ...
-│   │   └── layout/
-│   │       ├── Header.astro
-│   │       ├── Footer.astro
-│   │       └── ...
-│   ├── pages/
-│   │   ├── index.astro
-│   │   ├── register.astro
-│   │   ├── login.astro
-│   │   ├── forgot-password.astro
-│   │   ├── reset-password.astro
-│   │   ├── cursos.astro
-│   │   ├── carrito.astro
-│   │   └── mi-cuenta/
-│   ├── layouts/
-│   │   └── Layout.astro
-│   └── lib/
-│       ├── api.ts
-│       ├── auth.ts
-│       ├── content.ts
-│       ├── types.ts
-│       └── utils.ts
+│   ├── router.php
+│   ├── railway.json
+│   └── nixpacks.toml
 ├── database/
+│   ├── migrations/
 │   ├── schema.sql
 │   └── seed.sql
+├── docs/
+│   └── deployment.md
+├── src/
+│   ├── components/
+│   ├── layouts/
+│   ├── lib/
+│   ├── pages/
+│   └── styles/
 ├── .env.example
-├── README.md
-├── package.json
 ├── astro.config.mjs
-├── tsconfig.json
-└── tailwind.config.js
+├── package.json
+└── vercel.json
 ```
 
-## Notas de Seguridad
+## Notas De Seguridad
 
-- Contraseñas nunca se guardan en texto plano
-- Tokens expiran automáticamente
-- CORS permite solo origen de Vercel
-- Inputs validados en servidor
-- SQL prepared statements (sin inyección)
-- Rate limiting recomendado en producción
+- Las contraseñas se guardan con bcrypt.
+- Los tokens Bearer se firman con `AUTH_SECRET`.
+- CORS permite el dominio de Vercel y localhost.
+- Las consultas SQL usan prepared statements.
+- Los secretos deben vivir en Vercel/Railway, no en Git.
 
-## Autores
-- Desarrollado por: Dario Martos
-- Proyecto Final: DAW (Desarrollo de Aplicaciones Web)
-- Centro: Digitech FP
+## Autor
 
-## Licencia
-Proyecto académico - 2026
+- Dario Martos
+- Proyecto Final DAW
+- Digitech FP
