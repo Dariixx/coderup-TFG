@@ -30,11 +30,15 @@ function mapEnrollment(record: any): Enrollment {
 }
 
 export async function initEnrollments() {
-  const response = await getEnrollmentsApi();
-  if (response.ok) {
-    const data = response.data?.enrollments ?? response.data ?? [];
-    enrollments = Array.isArray(data) ? data.map(mapEnrollment) : [];
-  } else {
+  try {
+    const response = await getEnrollmentsApi();
+    if (response.ok) {
+      const data = response.data?.enrollments ?? response.data ?? [];
+      enrollments = Array.isArray(data) ? data.map(mapEnrollment) : [];
+    } else {
+      enrollments = [];
+    }
+  } catch {
     enrollments = [];
   }
 

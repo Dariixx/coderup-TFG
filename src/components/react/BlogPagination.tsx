@@ -21,7 +21,7 @@ export default function BlogPagination({ posts, postsPerPage = 6 }: Props) {
 
     getBlogPosts()
       .then((items) => setLoadedPosts(items))
-      .catch(() => setLoadError("No se han podido cargar los posts desde MySQL."));
+      .catch(() => setLoadError("No se han podido cargar los artículos desde la API. Revisa la conexión con Railway y PUBLIC_API_URL."));
   }, [loadedPosts.length]);
 
   const categories = ["Todos", ...new Set(loadedPosts.map((p) => p.category.name))];
@@ -70,7 +70,7 @@ export default function BlogPagination({ posts, postsPerPage = 6 }: Props) {
     <div>
       {/* FILTROS */}
       {loadError && (
-        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200" role="alert">
           {loadError}
         </div>
       )}

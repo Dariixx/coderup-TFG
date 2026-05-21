@@ -84,9 +84,17 @@ export function isCartInitialized() {
 }
 
 export async function refreshCartStore() {
-  const response = await apiGetCart();
-  if (response.ok) {
-    hydrateFromApi(response.data);
+  try {
+    const response = await apiGetCart();
+    if (response.ok) {
+      hydrateFromApi(response.data);
+      notify();
+    }
+  } catch {
+    cart = [];
+    subtotal = 0;
+    total = 0;
+    appliedCoupon = null;
     notify();
   }
 }
@@ -185,10 +193,18 @@ export async function applyWelcomeCoupon(code: string) {
   }
 
   if (!COUPON_REGEX.test(normalizedCode)) {
-    return { ok: false as const, message: "El formato del cupón no es válido." };
+    return { ok: false as const, message: "El cupón solo puede contener letras, números, guiones y guiones bajos." };
   }
 
-  const response = await validateCoupon(normalizedCode, cart.length);
+  let response;
+  try {
+    response = await validateCoupon(normalizedCode, cart.length);
+  } catch (error) {
+    return {
+      ok: false as const,
+      message: error instanceof Error ? error.message : "No se ha podido validar el cupón por un problema de conexión con la API.",
+    };
+  }
   const coupon = response.data as {
     valid?: boolean;
     discount_type?: string;
@@ -198,7 +214,10 @@ export async function applyWelcomeCoupon(code: string) {
   };
 
   if (!response.ok || !coupon.valid) {
-    return { ok: false as const, message: coupon.message ?? "El cupón no es válido." };
+    return {
+      ok: false as const,
+      message: response.message || coupon.message || "No se ha podido validar el cupón. Revisa el código o inténtalo de nuevo.",
+    };
   }
 
   const discountValue = Number(coupon.discount_value ?? 0);

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { apiGet, getApiHelpMessage } from "../../../lib/api";
 
 interface StatsPayload {
-  stats: {
+  stats?: {
     users: number;
     courses: number;
     orders: number;
@@ -16,6 +16,10 @@ interface StatsPayload {
       user_email: string;
     }>;
   };
+  totalUsers?: number;
+  totalCourses?: number;
+  totalOrders?: number;
+  totalRevenue?: number;
 }
 
 export default function AdminStats() {
@@ -26,18 +30,37 @@ export default function AdminStats() {
   useEffect(() => {
     apiGet<StatsPayload>("/admin/stats.php")
       .then((response) => {
-        setStats(response.data?.stats ?? null);
+        const data = response.data;
+        const nextStats = data?.stats ?? {
+          users: Number(data?.totalUsers ?? 0),
+          courses: Number(data?.totalCourses ?? 0),
+          orders: Number(data?.totalOrders ?? 0),
+          total_revenue: Number(data?.totalRevenue ?? 0),
+          latest_orders: [],
+        };
+
+        setStats({
+          users: Number(nextStats.users ?? 0),
+          courses: Number(nextStats.courses ?? 0),
+          orders: Number(nextStats.orders ?? 0),
+          total_revenue: Number(nextStats.total_revenue ?? 0),
+          latest_orders: Array.isArray(nextStats.latest_orders) ? nextStats.latest_orders : [],
+        });
         setStatus("success");
         setMessage("");
       })
       .catch((error) => {
         setStatus("error");
-        setMessage(getApiHelpMessage(error));
+        setMessage(`${getApiHelpMessage(error)} No se han podido cargar las métricas del panel.`);
       });
   }, []);
 
   if (status !== "success" || !stats) {
-    return <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 text-[#888]">{message}</div>;
+    return (
+      <div className={`rounded-2xl border p-6 ${status === "error" ? "border-red-500/30 bg-red-500/10 text-red-200" : "border-[#2A2A2A] bg-[#1A1A1A] text-[#888]"}`} role={status === "error" ? "alert" : "status"}>
+        {message || "No se han recibido estadísticas. Actualiza la página o revisa la API de administración."}
+      </div>
+    );
   }
 
   return (
@@ -63,13 +86,13 @@ export default function AdminStats() {
 
       <section className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
         <h2 className="text-xl font-bold text-white mb-4">Últimos pedidos</h2>
-        {stats.latest_orders.length === 0 ? (
+        {(stats.latest_orders ?? []).length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#2A2A2A] bg-[#111111] p-5 text-[#888]">
             Todavia no hay pedidos registrados.
           </div>
         ) : (
           <div className="space-y-3">
-            {stats.latest_orders.map((order) => (
+            {(stats.latest_orders ?? []).map((order) => (
               <div key={order.id} className="rounded-xl border border-[#2A2A2A] bg-[#111111] p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <div>
                   <p className="text-white font-semibold">{order.user_name}</p>

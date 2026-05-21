@@ -28,6 +28,17 @@ export default function AdminPanel() {
   const handleAdminLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setMessage("");
+
+    if (!email.trim()) {
+      setMessage("Introduce el email de una cuenta administradora.");
+      return;
+    }
+
+    if (!password) {
+      setMessage("Introduce la contraseña de la cuenta administradora.");
+      return;
+    }
+
     setLoading(true);
 
     const result = await loginUser({ email, password });
@@ -40,7 +51,7 @@ export default function AdminPanel() {
 
     if (result.user.role !== "admin") {
       await logoutUser();
-      setMessage("Esta zona es solo para administradores.");
+      setMessage(`Tu cuenta tiene rol "${result.user.role}". Esta zona requiere rol "admin".`);
       return;
     }
 
@@ -124,7 +135,7 @@ export default function AdminPanel() {
           />
 
           {message && (
-            <div className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+            <div className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200" role="alert">
               {message}
             </div>
           )}

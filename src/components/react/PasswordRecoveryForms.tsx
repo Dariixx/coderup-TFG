@@ -10,30 +10,49 @@ export function ForgotPasswordForm() {
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) {
+      setStatus("error");
+      setMessage("Introduce el email de tu cuenta para enviarte el enlace de recuperación.");
+      return;
+    }
+
+    if (!normalizedEmail.includes("@") || !normalizedEmail.includes(".")) {
+      setStatus("error");
+      setMessage("El email no parece válido. Usa el formato nombre@dominio.com.");
+      return;
+    }
+
     setStatus("loading");
     setMessage("");
     setResetUrl("");
 
     const result = await apiFetch(API_ENDPOINTS.auth.forgotPassword, {
       method: "POST",
-      body: { email },
+      body: { email: normalizedEmail },
     });
 
     setStatus(result.ok ? "success" : "error");
-    setMessage(result.ok ? result.message || "Revisa tu correo para continuar con el cambio de contraseña." : result.message);
+    setMessage(
+      result.ok
+        ? result.message || "Revisa tu correo para continuar con el cambio de contraseña."
+        : result.message || "No se ha podido enviar el enlace. Revisa el email o inténtalo de nuevo.",
+    );
     if (result.ok && typeof result.data === "object" && result.data && "resetUrl" in result.data) {
       setResetUrl(String(result.data.resetUrl));
     }
   };
 
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-5" noValidate>
       <div>
         <label className="mb-2 block text-sm text-[#888]">Email</label>
         <input
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
+          aria-invalid={status === "error" && (!email.trim() || !email.includes("@"))}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="tu@email.com"
           required
@@ -100,17 +119,22 @@ export function ResetPasswordForm({ token: initialToken = "" }: { token?: string
     });
 
     setStatus(result.ok ? "success" : "error");
-    setMessage(result.ok ? "Contraseña actualizada. Ya puedes iniciar sesión." : result.message);
+    setMessage(
+      result.ok
+        ? "Contraseña actualizada. Ya puedes iniciar sesión."
+        : result.message || "No se ha podido actualizar la contraseña. Solicita un nuevo enlace si este ha caducado.",
+    );
   };
 
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-5" noValidate>
       <div>
         <label className="mb-2 block text-sm text-[#888]">Nueva contraseña</label>
         <input
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
+          aria-invalid={status === "error" && !isValid}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="Mínimo 6 caracteres"
           required
@@ -149,6 +173,7 @@ function StatusMessage({ status, message }: { status: "idle" | "loading" | "succ
           ? "border-red-500/30 bg-red-500/10 text-red-300"
           : "border-[#00FF66]/30 bg-[#00FF66]/10 text-[#9CFFBF]"
       }`}
+      role={status === "error" ? "alert" : "status"}
     >
       {message}
     </p>

@@ -11,20 +11,31 @@ export default function ContactForm() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const validateForm = () => {
+    const missingFields = [
+      !formData.name.trim() ? "nombre" : "",
+      !formData.email.trim() ? "email" : "",
+      !formData.subject.trim() ? "asunto" : "",
+      !formData.message.trim() ? "mensaje" : "",
+    ].filter(Boolean);
+
+    if (missingFields.length) {
+      return `Completa ${missingFields.join(", ")} antes de enviar el formulario.`;
+    }
+
     if (formData.name.trim().length < 2) {
-      return "El nombre debe tener al menos 2 caracteres.";
+      return "El nombre debe tener al menos 2 caracteres para poder identificarte.";
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      return "Introduce un email válido.";
+      return "Introduce un email válido, por ejemplo nombre@dominio.com.";
     }
 
     if (formData.subject.trim().length < 4) {
-      return "El asunto debe ser un poco más descriptivo.";
+      return "El asunto debe tener al menos 4 caracteres para saber de qué trata tu consulta.";
     }
 
     if (formData.message.trim().length < 20) {
-      return "El mensaje debe tener al menos 20 caracteres.";
+      return "El mensaje debe tener al menos 20 caracteres para que podamos responderte bien.";
     }
 
     return "";
@@ -51,7 +62,7 @@ export default function ContactForm() {
       setFormData({ name: "", email: "", subject: "", message: "" });
       setTimeout(() => setStatus("idle"), 3000);
     } catch {
-      setErrorMessage("No se pudo enviar el formulario. Inténtalo de nuevo.");
+      setErrorMessage("No se pudo registrar el mensaje. Revisa la conexión y vuelve a intentarlo.");
       setStatus("error");
     }
   };
@@ -109,7 +120,7 @@ export default function ContactForm() {
         {status === "sending" ? "Enviando..." : status === "sent" ? "Mensaje enviado" : "Enviar mensaje"}
       </button>
       {status === "error" && (
-        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert">
           {errorMessage}
         </p>
       )}

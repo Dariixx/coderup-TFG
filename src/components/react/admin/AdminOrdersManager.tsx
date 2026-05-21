@@ -31,7 +31,7 @@ export default function AdminOrdersManager() {
         setMessage("");
       })
       .catch((error) => {
-        setMessage(getApiHelpMessage(error));
+        setMessage(`${getApiHelpMessage(error)} No se ha podido cargar el histórico global de pedidos.`);
       });
   }, []);
 
@@ -40,11 +40,20 @@ export default function AdminOrdersManager() {
   }
 
   if (!user || user.role !== "admin") {
-    return <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">Solo el rol `admin` puede consultar todos los pedidos.</div>;
+    return (
+      <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-200" role="alert">
+        Solo el rol `admin` puede consultar todos los pedidos. Usa una cuenta administradora para acceder a este panel.
+      </div>
+    );
   }
 
   if (message) {
-    return <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 text-[#888]">{message}</div>;
+    const isLoading = message === "Cargando pedidos...";
+    return (
+      <div role={isLoading ? "status" : "alert"} className={`rounded-2xl border p-6 ${isLoading ? "border-[#2A2A2A] bg-[#1A1A1A] text-[#888]" : "border-red-500/30 bg-red-500/10 text-red-200"}`}>
+        {message}
+      </div>
+    );
   }
 
   return (

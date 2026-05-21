@@ -22,6 +22,12 @@ export default function CartModal({ isOpen, onClose }: Props) {
   }
 
   const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponStatus("error");
+      setCouponMessage("Escribe un código de cupón antes de aplicarlo. Por ejemplo: WELCOME20.");
+      return;
+    }
+
     setLoading(true);
     const result = await applyCoupon(couponCode);
     setCouponStatus(result.ok ? "success" : "error");
@@ -43,7 +49,8 @@ export default function CartModal({ isOpen, onClose }: Props) {
         <div className="p-4 sm:p-6">
           {count === 0 ? (
             <div className="text-center py-14">
-              <p className="text-[#888] mb-6">Tu carrito está vacío.</p>
+              <p className="text-white text-xl font-semibold mb-2">Tu carrito está vacío</p>
+              <p className="text-[#888] mb-6">Añade un curso premium para activar el checkout.</p>
               <a href="/cursos" className="inline-flex rounded-xl bg-[#00FF66] px-6 py-3 font-bold text-[#0A0A0A] hover:bg-[#00CC52] transition">
                 Explorar cursos
               </a>
@@ -78,7 +85,10 @@ export default function CartModal({ isOpen, onClose }: Props) {
             </div>
 
             {couponMessage && (
-              <p className={`mb-4 rounded-xl px-3 py-2 text-sm ${couponStatus === "success" ? "bg-[#00FF66]/10 text-[#9CFFBF]" : "bg-red-500/10 text-red-300"}`}>
+              <p
+                role={couponStatus === "error" ? "alert" : "status"}
+                className={`mb-4 rounded-xl px-3 py-2 text-sm ${couponStatus === "success" ? "bg-[#00FF66]/10 text-[#9CFFBF]" : "bg-red-500/10 text-red-300"}`}
+              >
                 {couponMessage}
               </p>
             )}

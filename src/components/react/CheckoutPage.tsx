@@ -16,13 +16,18 @@ export default function CheckoutPage({ courses }: Props) {
   const [message, setMessage] = useState("");
 
   if (!initialized) {
-    return <div className="h-48 rounded-2xl border border-[#2A2A2A] bg-[#111111] animate-pulse" />;
+    return (
+      <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-8 text-[#888]">
+        Preparando tu sesión de checkout...
+      </div>
+    );
   }
 
   if (!user) {
     return (
       <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-3">Inicia sesión para completar el checkout</h2>
+        <p className="text-[#888] mb-6">Tu carrito se conserva, pero necesitamos identificar tu cuenta para crear el pedido y darte acceso a los cursos.</p>
         <a href="/login" className="inline-flex rounded-xl bg-[#00FF66] px-6 py-3 font-semibold text-[#0A0A0A] hover:bg-[#00CC52] transition">
           Ir al login
         </a>
@@ -34,6 +39,7 @@ export default function CheckoutPage({ courses }: Props) {
     return (
       <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
         <h2 className="text-2xl font-bold text-white mb-3">No hay cursos premium en el carrito</h2>
+        <p className="text-[#888] mb-6">Añade un curso premium antes de finalizar la compra. Los cursos gratuitos se inscriben desde su ficha.</p>
         <a href="/cursos" className="inline-flex rounded-xl bg-[#00FF66] px-6 py-3 font-semibold text-[#0A0A0A] hover:bg-[#00CC52] transition">
           Volver al catálogo
         </a>
@@ -44,11 +50,21 @@ export default function CheckoutPage({ courses }: Props) {
   const handleCheckout = async () => {
     setStatus("loading");
     setMessage("");
-    const result = await createSimulatedOrder(user, courses);
+    let result;
+    try {
+      result = await createSimulatedOrder(user, courses);
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "No se ha podido crear el pedido por un fallo inesperado de conexión.");
+      return;
+    }
 
     if (!result.ok) {
       setStatus("error");
-      setMessage(result.message);
+      setMessage(
+        result.message ||
+          "No se ha podido completar el checkout. Revisa que sigas con sesión iniciada, que el carrito tenga cursos premium y vuelve a intentarlo.",
+      );
       return;
     }
 
@@ -93,6 +109,7 @@ export default function CheckoutPage({ courses }: Props) {
 
         {message && (
           <p
+            role={status === "error" ? "alert" : "status"}
             className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
               status === "error"
                 ? "border-red-500/30 bg-red-500/10 text-red-300"

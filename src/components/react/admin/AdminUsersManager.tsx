@@ -34,7 +34,7 @@ export default function AdminUsersManager() {
       .then(() => setMessage(""))
       .catch((error) => {
         setStatus("error");
-        setMessage(getApiHelpMessage(error));
+        setMessage(`${getApiHelpMessage(error)} No se ha podido cargar el listado de usuarios.`);
       });
   }, []);
 
@@ -43,7 +43,11 @@ export default function AdminUsersManager() {
   }
 
   if (!user || user.role !== "admin") {
-    return <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">Solo el rol `admin` puede gestionar usuarios.</div>;
+    return (
+      <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-200" role="alert">
+        Solo el rol `admin` puede gestionar usuarios y cambiar roles. Inicia sesión con una cuenta administradora.
+      </div>
+    );
   }
 
   const updateRole = async (userId: number, role: string) => {
@@ -55,13 +59,18 @@ export default function AdminUsersManager() {
       await loadUsers();
     } catch (error) {
       setStatus("error");
-      setMessage(getApiHelpMessage(error));
+      setMessage(`${getApiHelpMessage(error)} No se ha podido actualizar el rol de este usuario.`);
     }
   };
 
   return (
     <div className="space-y-4">
-      {message && <div className={`rounded-2xl p-4 text-sm ${status === "error" ? "bg-red-500/10 text-red-300" : "bg-[#1A1A1A] text-[#888]"}`}>{message}</div>}
+      {message && <div role={status === "error" ? "alert" : "status"} className={`rounded-2xl p-4 text-sm ${status === "error" ? "bg-red-500/10 text-red-300" : "bg-[#1A1A1A] text-[#888]"}`}>{message}</div>}
+      {users.length === 0 && !message && (
+        <div className="rounded-2xl border border-dashed border-[#2A2A2A] bg-[#1A1A1A] p-6 text-[#888]">
+          No hay usuarios para mostrar. Revisa que la base de datos tenga el seed cargado.
+        </div>
+      )}
       {users.map((row) => (
         <div key={row.id} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>

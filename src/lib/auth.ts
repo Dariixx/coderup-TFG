@@ -74,8 +74,8 @@ export async function registerUser(input: { name: string; email: string; passwor
   const name = input.name.trim();
   const email = input.email.trim().toLowerCase();
 
-  if (!name) return { ok: false as const, message: "El nombre es obligatorio." };
-  if (!EMAIL_REGEX.test(email)) return { ok: false as const, message: "Introduce un email válido." };
+  if (!name) return { ok: false as const, message: "Escribe tu nombre para crear la cuenta." };
+  if (!EMAIL_REGEX.test(email)) return { ok: false as const, message: "Introduce un email válido, por ejemplo nombre@dominio.com." };
   if (!PASSWORD_REGEX.test(input.password))
     return { ok: false as const, message: "La contraseña debe tener al menos 6 caracteres." };
 
@@ -92,15 +92,21 @@ export async function registerUser(input: { name: string; email: string; passwor
     return { ok: true as const, user };
   }
 
-  return { ok: false as const, message: result.message };
+  return {
+    ok: false as const,
+    message:
+      result.message === "Error al registrar usuario"
+        ? "No se ha podido crear la cuenta. Revisa los datos o inténtalo de nuevo en unos minutos."
+        : result.message,
+  };
 }
 
 export async function loginUser(input: { email: string; password: string }) {
   const email = input.email.trim().toLowerCase();
 
-  if (!EMAIL_REGEX.test(email)) return { ok: false as const, message: "Introduce un email válido." };
+  if (!EMAIL_REGEX.test(email)) return { ok: false as const, message: "Introduce el email con el que te registraste." };
   if (!PASSWORD_REGEX.test(input.password))
-    return { ok: false as const, message: "La contraseña debe tener al menos 6 caracteres." };
+    return { ok: false as const, message: "Introduce tu contraseña. Debe tener al menos 6 caracteres." };
 
   const result = await apiFetch<any>(API_ENDPOINTS.auth.login, {
     method: "POST",
@@ -115,7 +121,13 @@ export async function loginUser(input: { email: string; password: string }) {
     return { ok: true as const, user };
   }
 
-  return { ok: false as const, message: result.message };
+  return {
+    ok: false as const,
+    message:
+      result.message === "Credenciales incorrectas"
+        ? "Email o contraseña incorrectos. Revisa las credenciales y vuelve a intentarlo."
+        : result.message,
+  };
 }
 
 export async function logoutUser() {

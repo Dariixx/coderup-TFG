@@ -32,7 +32,7 @@ export default function CartPage() {
           </svg>
         </div>
         <h2 className="text-2xl font-bold text-white mb-3">Tu carrito está vacío</h2>
-        <p className="text-[#888] mb-8">Añade cursos premium para completar tu compra.</p>
+        <p className="text-[#888] mb-8">Añade al menos un curso premium para activar el checkout y poder aplicar cupones.</p>
         <a
           href="/cursos"
           className="bg-[#00FF66] text-[#0A0A0A] px-8 py-3 rounded-xl font-bold hover:bg-[#00CC52] transition inline-flex items-center gap-2"
@@ -44,6 +44,12 @@ export default function CartPage() {
   }
 
   const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponStatus("error");
+      setCouponMessage("Escribe un código de cupón antes de aplicarlo. Por ejemplo: WELCOME20.");
+      return;
+    }
+
     const result = await applyCoupon(couponCode);
     setCouponStatus(result.ok ? "success" : "error");
     setCouponMessage(result.message);
@@ -73,6 +79,7 @@ export default function CartPage() {
           <div className="mb-5 rounded-xl border border-[#2A2A2A] bg-[#111111] p-4 text-sm">
             <p className="text-[#888] mb-1">Sesión actual</p>
             <p className="text-white">{user ? user.email : "No has iniciado sesión"}</p>
+            {!user && <p className="mt-2 text-xs text-[#888]">Podrás revisar el carrito, pero necesitas iniciar sesión para comprar o usar cupones.</p>}
           </div>
 
           <div className="mb-6">
@@ -89,7 +96,10 @@ export default function CartPage() {
               </button>
             </div>
             {couponMessage && (
-              <p className={`mt-3 rounded-xl px-3 py-2 text-sm ${couponStatus === "success" ? "bg-[#00FF66]/10 text-[#9CFFBF]" : "bg-red-500/10 text-red-300"}`}>
+              <p
+                role={couponStatus === "error" ? "alert" : "status"}
+                className={`mt-3 rounded-xl px-3 py-2 text-sm ${couponStatus === "success" ? "bg-[#00FF66]/10 text-[#9CFFBF]" : "bg-red-500/10 text-red-300"}`}
+              >
                 {couponMessage}
               </p>
             )}

@@ -73,6 +73,38 @@ interface RequestOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
 }
 
+function normalizeBackendMessage(message: string, status?: number) {
+  const normalized = message.trim();
+
+  if (status === 401 || /unauthorized|no autenticado/i.test(normalized)) {
+    return "Tu sesión no está activa. Inicia sesión de nuevo para continuar.";
+  }
+
+  if (status === 403 || /forbidden/i.test(normalized)) {
+    return "No tienes permisos suficientes para realizar esta acción con tu rol actual.";
+  }
+
+  if (/validation failed/i.test(normalized)) {
+    return "Faltan datos obligatorios o hay campos con formato incorrecto. Revisa el formulario antes de enviarlo.";
+  }
+
+  if (/method not allowed|method .* required/i.test(normalized)) {
+    return "La operación no coincide con el método esperado por la API. Actualiza la página e inténtalo de nuevo.";
+  }
+
+  if (/internal_server_error|error interno/i.test(normalized)) {
+    return "El backend ha encontrado un problema interno. Inténtalo de nuevo en unos minutos o revisa los logs del servidor.";
+  }
+
+  if (!normalized || /^error \d+$/i.test(normalized)) {
+    return status
+      ? `La API ha respondido con estado ${status}. Revisa la conexión, la sesión y vuelve a intentarlo.`
+      : "La API no ha devuelto un mensaje de error. Revisa la conexión con Railway y vuelve a intentarlo.";
+  }
+
+  return normalized;
+}
+
 export function withQuery(path: string, params: Record<string, string | number | undefined | null>) {
   const searchParams = new URLSearchParams();
 
@@ -158,7 +190,7 @@ async function requestApi<T>(path: string, options: RequestOptions = {}): Promis
     });
   } catch {
     throw new ApiRequestError(
-      "No se ha podido conectar con el backend. Revisa la URL de la API, el servidor PHP y la base de datos.",
+      "No se ha podido conectar con la API. Comprueba tu conexión, que Railway esté activo y que PUBLIC_API_URL apunte al backend correcto.",
       "network",
     );
   }
@@ -168,14 +200,14 @@ async function requestApi<T>(path: string, options: RequestOptions = {}): Promis
     payload = await response.json();
   } catch {
     throw new ApiRequestError(
-      "La respuesta del backend no es válida. Comprueba que PHP esté activo y no haya errores HTML.",
+      "La API ha respondido con un formato que no es JSON. Revisa errores PHP, CORS o una URL de backend incorrecta.",
       "invalid_json",
       response.status,
     );
   }
 
   const success = payload?.success ?? payload?.ok ?? response.ok;
-  const message = payload?.message ?? (response.ok ? "Success" : `Error ${response.status}`);
+  const message = normalizeBackendMessage(payload?.message ?? (response.ok ? "Success" : `Error ${response.status}`), response.status);
 
   if (!response.ok || !success) {
     throw new ApiRequestError(message, "http", response.status);
@@ -192,10 +224,10 @@ async function requestApi<T>(path: string, options: RequestOptions = {}): Promis
 export async function apiFetch<T>(
   path: string,
   options: RequestOptions = {},
-): Promise<{ ok: true; data: T } | { ok: false; message: string }> {
+): Promise<{ ok: true; data: T; message: string } | { ok: false; message: string }> {
   try {
     const response = await requestApi<T>(path, options);
-    return { ok: true, data: response.data };
+    return { ok: true, data: response.data, message: response.message };
   } catch (error) {
     return { ok: false, message: getApiHelpMessage(error) };
   }
@@ -219,14 +251,14 @@ export function apiDelete<T>(path: string, body?: unknown) {
 
 export function getApiHelpMessage(error: unknown) {
   if (error instanceof ApiRequestError) {
-    return error.message;
+    return normalizeBackendMessage(error.message, error.status);
   }
 
   if (error instanceof Error) {
-    return error.message;
+    return normalizeBackendMessage(error.message);
   }
 
-  return "No se ha podido completar la operación con el backend.";
+  return "La API no ha devuelto detalles del fallo. Revisa la conexión con Railway y vuelve a intentarlo.";
 }
 
 export async function getCourses(filters?: { category?: string; level?: string }) {
@@ -280,29 +312,51 @@ async function cartApiRequest<T>(path: string, options: RequestOptions = {}): Pr
     headers.set("X-CoderUp-Cart-Session", cartSessionId);
   }
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-    credentials: "include",
-    body:
-      options.body === undefined
-        ? undefined
-        : isFormData
-          ? options.body
-          : typeof options.body === "string"
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+      credentials: "include",
+      body:
+        options.body === undefined
+          ? undefined
+          : isFormData
             ? options.body
-            : JSON.stringify(options.body),
-  });
+            : typeof options.body === "string"
+              ? options.body
+              : JSON.stringify(options.body),
+    });
+  } catch {
+    return {
+      ok: false,
+      success: false,
+      message: "No se ha podido conectar con la API del carrito. Comprueba la conexión y vuelve a intentarlo.",
+      data: null as T,
+    };
+  }
 
   setCartSessionId(response.headers.get("X-CoderUp-Cart-Session"));
 
-  const payload = await response.json();
+  let payload: any;
+  try {
+    payload = await response.json();
+  } catch {
+    return {
+      ok: false,
+      success: false,
+      message: "La API del carrito no ha devuelto JSON válido. Revisa el backend PHP o la URL configurada.",
+      data: null as T,
+    };
+  }
+
   const success = payload?.success ?? payload?.ok ?? response.ok;
+  const message = normalizeBackendMessage(payload?.message ?? (response.ok ? "Success" : `Error ${response.status}`), response.status);
 
   return {
     ok: Boolean(success),
     success: Boolean(success),
-    message: payload?.message ?? (response.ok ? "Success" : `Error ${response.status}`),
+    message,
     data: payload?.data ?? payload,
   };
 }

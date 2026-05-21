@@ -22,8 +22,42 @@ export default function AuthForm({ mode }: Props) {
     },
   ];
 
+  const validateBeforeSubmit = () => {
+    const email = formData.email.trim();
+
+    if (mode === "register" && formData.name.trim().length < 2) {
+      return "Completa tu nombre con al menos 2 caracteres.";
+    }
+
+    if (!email) {
+      return "Introduce tu email antes de continuar.";
+    }
+
+    if (!email.includes("@") || !email.includes(".")) {
+      return "El email no parece válido. Usa un formato como nombre@dominio.com.";
+    }
+
+    if (!formData.password) {
+      return "Introduce tu contraseña antes de continuar.";
+    }
+
+    if (!PASSWORD_REGEX.test(formData.password)) {
+      return "La contraseña debe tener al menos 6 caracteres.";
+    }
+
+    return "";
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const validationMessage = validateBeforeSubmit();
+
+    if (validationMessage) {
+      setStatus("error");
+      setMessage(validationMessage);
+      return;
+    }
+
     setStatus("loading");
     setMessage("");
 
@@ -46,7 +80,7 @@ export default function AuthForm({ mode }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       {mode === "register" && (
         <div>
           <label className="block text-sm text-[#888] mb-2">Nombre</label>
@@ -54,6 +88,7 @@ export default function AuthForm({ mode }: Props) {
             type="text"
             value={formData.name}
             onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
+            aria-invalid={status === "error" && mode === "register" && formData.name.trim().length < 2}
             className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
             placeholder="Tu nombre"
           />
@@ -66,6 +101,7 @@ export default function AuthForm({ mode }: Props) {
           type="email"
           value={formData.email}
           onChange={(event) => setFormData((prev) => ({ ...prev, email: event.target.value }))}
+          aria-invalid={status === "error" && !formData.email.trim()}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="tu@email.com"
         />
@@ -77,6 +113,7 @@ export default function AuthForm({ mode }: Props) {
           type="password"
           value={formData.password}
           onChange={(event) => setFormData((prev) => ({ ...prev, password: event.target.value }))}
+          aria-invalid={status === "error" && !PASSWORD_REGEX.test(formData.password)}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="Mínimo 6 caracteres"
         />
@@ -121,6 +158,7 @@ export default function AuthForm({ mode }: Props) {
 
       {message && (
         <p
+          role={status === "error" ? "alert" : "status"}
           className={`rounded-xl border px-4 py-3 text-sm ${
             status === "error"
               ? "border-red-500/30 bg-red-500/10 text-red-300"

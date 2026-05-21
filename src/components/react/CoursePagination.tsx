@@ -24,7 +24,7 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
 
     getCourses()
       .then((items) => setLoadedCursos(items))
-      .catch(() => setLoadError("No se han podido cargar los cursos desde MySQL."));
+      .catch(() => setLoadError("No se han podido cargar los cursos desde la API. Revisa la conexión con Railway y PUBLIC_API_URL."));
   }, [loadedCursos.length]);
 
   const categories = ["Todos", ...new Set(loadedCursos.map((c) => c.category.name))];
@@ -84,7 +84,7 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
     <div>
       {/* FILTROS */}
       {loadError && (
-        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200" role="alert">
           {loadError}
         </div>
       )}

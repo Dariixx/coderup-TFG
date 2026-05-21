@@ -161,7 +161,7 @@ export default function AdminCoursesManager() {
     loadCourses().catch((error) => {
       setListStatus("error");
       setStatus("error");
-      setMessage(getApiHelpMessage(error));
+      setMessage(`${getApiHelpMessage(error)} No se ha podido cargar el listado de cursos.`);
     });
   }, []);
 
@@ -170,7 +170,11 @@ export default function AdminCoursesManager() {
   }
 
   if (!user || !["admin", "editor"].includes(user.role)) {
-    return <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">Necesitas rol `admin` o `editor` para gestionar cursos.</div>;
+    return (
+      <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-200" role="alert">
+        Necesitas rol `admin` o `editor` para gestionar cursos. Con una cuenta `client` o `guest` solo puedes comprar y ver tus cursos.
+      </div>
+    );
   }
 
   const resetForm = () => {
@@ -199,6 +203,24 @@ export default function AdminCoursesManager() {
     setMessage("");
 
     try {
+      if (!form.title.trim()) {
+        setStatus("error");
+        setMessage("El título del curso es obligatorio.");
+        return;
+      }
+
+      if (!form.description.trim()) {
+        setStatus("error");
+        setMessage("La descripción del curso es obligatoria.");
+        return;
+      }
+
+      if (Number(form.price) < 0 || Number.isNaN(Number(form.price))) {
+        setStatus("error");
+        setMessage("El precio debe ser un número igual o superior a 0.");
+        return;
+      }
+
       const payload = {
         id: form.id ? Number(form.id) : undefined,
         title: form.title,
@@ -231,14 +253,14 @@ export default function AdminCoursesManager() {
       await loadCourses();
     } catch (error) {
       setStatus("error");
-      setMessage(getApiHelpMessage(error));
+      setMessage(`${getApiHelpMessage(error)} No se ha podido guardar el curso.`);
     }
   };
 
   const handleDelete = async (id: number) => {
     if (user.role !== "admin") {
       setStatus("error");
-      setMessage("Solo el administrador puede eliminar cursos.");
+      setMessage("Solo el rol `admin` puede eliminar cursos. El rol `editor` puede crear y editar, pero no borrar desde este panel.");
       return;
     }
 
@@ -256,7 +278,7 @@ export default function AdminCoursesManager() {
       await loadCourses();
     } catch (error) {
       setStatus("error");
-      setMessage(getApiHelpMessage(error));
+      setMessage(`${getApiHelpMessage(error)} No se ha podido eliminar el curso.`);
     }
   };
 
@@ -273,7 +295,8 @@ export default function AdminCoursesManager() {
             onClick={() => {
               loadCourses().catch((error) => {
                 setListStatus("error");
-                setMessage(getApiHelpMessage(error));
+                setStatus("error");
+                setMessage(`${getApiHelpMessage(error)} No se ha podido actualizar el listado de cursos.`);
               });
             }}
             className="rounded-xl border border-[#2A2A2A] px-4 py-2 text-sm font-semibold text-white transition hover:border-[#00FF66]/50"
@@ -282,7 +305,13 @@ export default function AdminCoursesManager() {
           </button>
         </div>
 
-        {courses.length === 0 ? (
+        {listStatus === "error" && (
+          <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 p-5 text-red-200" role="alert">
+            {message || "No se ha podido cargar el listado de cursos. Revisa tu sesión y la API."}
+          </div>
+        )}
+
+        {courses.length === 0 && listStatus !== "error" ? (
           <div className="mt-6 rounded-xl border border-dashed border-[#2A2A2A] bg-[#111111] p-5 text-[#888]">
             No hay cursos en la base de datos. Crea el primero desde este formulario.
           </div>
@@ -493,7 +522,7 @@ export default function AdminCoursesManager() {
           )}
         </div>
 
-        {message && <p className={`rounded-xl px-4 py-3 text-sm ${status === "error" ? "bg-red-500/10 text-red-300" : "bg-[#00FF66]/10 text-[#9CFFBF]"}`}>{message}</p>}
+        {message && listStatus !== "error" && <p role={status === "error" ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-sm ${status === "error" ? "bg-red-500/10 text-red-300" : "bg-[#00FF66]/10 text-[#9CFFBF]"}`}>{message}</p>}
       </form>
     </div>
   );

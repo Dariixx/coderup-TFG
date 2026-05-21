@@ -81,7 +81,7 @@ export async function createSimulatedOrder(user: User, courses: Course[]) {
   const cart = getCartItems();
 
   if (!cart.length) {
-    return { ok: false as const, message: "El carrito está vacío." };
+    return { ok: false as const, message: "El carrito está vacío. Añade al menos un curso premium antes de finalizar la compra." };
   }
 
   const items: OrderItem[] = cart.map((item) => ({
@@ -99,7 +99,12 @@ export async function createSimulatedOrder(user: User, courses: Course[]) {
   const result = await checkout(couponCode);
 
   if (!result.ok) {
-    return { ok: false as const, message: result.message };
+    return {
+      ok: false as const,
+      message:
+        result.message ||
+        "No se ha podido procesar el checkout. Revisa la sesión, el cupón aplicado y la conexión con la API.",
+    };
   }
 
   const newOrder: Order = {
