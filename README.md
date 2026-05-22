@@ -265,11 +265,6 @@ cliente@coderup.com  rol client
 guest@coderup.com    rol guest
 ```
 
-Si las credenciales demo no funcionan en Railway sin querer borrar pedidos/cursos existentes, importa:
-
-```bash
-mysql -h <DB_HOST> -P <DB_PORT> -u <DB_USER> -p <DB_NAME> < database/migrations/2026_05_22_fix_demo_user_passwords.sql
-```
 
 La matriz completa de permisos de frontend y backend esta en [docs/roles.md](docs/roles.md).
 
