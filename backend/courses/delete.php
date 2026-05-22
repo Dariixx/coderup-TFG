@@ -7,7 +7,7 @@ require_once __DIR__ . '/../helpers/response.php';
 require_once __DIR__ . '/../helpers/auth.php';
 
 requireMethods(['POST', 'DELETE']);
-$user = requireAdminOrEditor();
+$user = requireRole('admin');
 
 $input = getJsonInput();
 $courseId = $input['id'] ?? getOrQuery('id');

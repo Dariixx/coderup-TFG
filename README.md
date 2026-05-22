@@ -165,8 +165,15 @@ GET https://coderup-tfg-production.up.railway.app/index.php
 - `POST /auth/login.php`
 - `GET /auth/me.php`
 - `POST /auth/logout.php`
+- `POST /auth/change-password.php`
 - `POST /auth/forgot-password.php`
 - `POST /auth/reset-password.php`
+
+### Usuarios
+
+- `POST /users/update-profile.php`
+- `GET /users/index.php`
+- `POST /users/update-role.php`
 
 ### Cursos, Posts E Instructores
 
@@ -256,6 +263,12 @@ admin@coderup.com    rol admin
 editor@coderup.com   rol editor
 cliente@coderup.com  rol client
 guest@coderup.com    rol guest
+```
+
+Si las credenciales demo no funcionan en Railway sin querer borrar pedidos/cursos existentes, importa:
+
+```bash
+mysql -h <DB_HOST> -P <DB_PORT> -u <DB_USER> -p <DB_NAME> < database/migrations/2026_05_22_fix_demo_user_passwords.sql
 ```
 
 La matriz completa de permisos de frontend y backend esta en [docs/roles.md](docs/roles.md).

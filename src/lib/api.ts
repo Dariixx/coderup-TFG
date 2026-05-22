@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
     login: "/auth/login.php",
     register: "/auth/register.php",
     logout: "/auth/logout.php",
+    changePassword: "/auth/change-password.php",
     forgotPassword: "/auth/forgot-password.php",
     resetPassword: "/auth/reset-password.php",
   },
@@ -46,6 +47,9 @@ export const API_ENDPOINTS = {
   },
   enrollments: {
     root: "/api/enrollments.php",
+  },
+  users: {
+    updateProfile: "/users/update-profile.php",
   },
   githubProjects: "/api/github-projects.php",
 } as const;
