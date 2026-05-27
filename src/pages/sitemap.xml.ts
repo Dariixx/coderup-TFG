@@ -8,7 +8,18 @@ export async function GET() {
     getBlogPosts(),
   ]);
 
-  const staticRoutes = ["/", "/cursos", "/categorias", "/blog", "/contacto", "/sobre-nosotros", "/carrito"];
+  const staticRoutes = [
+    "/",
+    "/cursos",
+    "/categorias",
+    "/blog",
+    "/contacto",
+    "/sobre-nosotros",
+    "/carrito",
+    "/privacidad",
+    "/aviso-legal",
+    "/cookies",
+  ];
   const dynamicRoutes = [
     ...courses.map((course) => `/cursos/${course.slug}`),
     ...categories.map((category) => `/categorias/${category.slug}`),

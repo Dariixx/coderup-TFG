@@ -30,13 +30,17 @@ export default function AdminUsersManager() {
   };
 
   useEffect(() => {
+    if (!initialized || user?.role !== "admin") {
+      return;
+    }
+
     loadUsers()
       .then(() => setMessage(""))
       .catch((error) => {
         setStatus("error");
         setMessage(getApiHelpMessage(error));
       });
-  }, []);
+  }, [initialized, user?.role]);
 
   if (!initialized) {
     return <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 text-[#888]">Cargando sesión...</div>;

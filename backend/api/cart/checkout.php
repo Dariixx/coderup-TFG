@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../helpers/cart.php';
 
 requireMethod('POST');
 
-$user = requireAuth();
+$user = requireNonGuestUser();
 $input = getJsonInput();
 $sessionId = getCartSessionId();
 $couponCode = isset($input['coupon_code']) && $input['coupon_code'] !== '' ? strtoupper(trim($input['coupon_code'])) : null;

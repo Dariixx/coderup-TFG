@@ -7,12 +7,16 @@ require_once __DIR__ . '/../helpers/response.php';
 require_once __DIR__ . '/../helpers/auth.php';
 
 requireMethod('GET');
-requireAuth();
+$currentUser = requireAuth();
 
 $userId = getOrQuery('id');
 
 if (!$userId) {
     sendError('id es requerido', 400);
+}
+
+if (($currentUser['role'] ?? 'client') !== 'admin' && (int) $currentUser['id'] !== (int) $userId) {
+    sendError('Forbidden', 403);
 }
 
 $stmt = $conn->prepare('

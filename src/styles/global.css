@@ -14,6 +14,15 @@
     --color-border: #2A2A2A;
   }
 
+  :root[data-theme="light"] {
+    --color-bg: #f6f8f7;
+    --color-bg-alt: #ffffff;
+    --color-bg-card: #ffffff;
+    --color-text: #111827;
+    --color-text-muted: #4b5563;
+    --color-border: #d8e0dc;
+  }
+
   html {
     scroll-behavior: smooth;
     background-color: var(--color-bg);
@@ -23,6 +32,63 @@
   body {
     font-family: 'Inter', system-ui, sans-serif;
     min-height: 100vh;
+  }
+
+  :root[data-theme="light"] body {
+    background-color: var(--color-bg) !important;
+    color: var(--color-text) !important;
+  }
+
+  :root[data-theme="light"] .bg-\[\#0A0A0A\],
+  :root[data-theme="light"] .bg-\[\#111111\],
+  :root[data-theme="light"] .bg-\[\#111111\]\/70,
+  :root[data-theme="light"] .bg-\[\#1A1A1A\],
+  :root[data-theme="light"] .bg-\[\#1A1A1A\]\/90,
+  :root[data-theme="light"] .bg-gradient-to-br {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+  }
+
+  :root[data-theme="light"] .bg-\[\#0A0A0A\]\/90 {
+    background-color: rgba(255, 255, 255, 0.92) !important;
+  }
+
+  :root[data-theme="light"] .text-white,
+  :root[data-theme="light"] .text-\[\#E0E0E0\],
+  :root[data-theme="light"] .text-\[\#CFCFCF\] {
+    color: #111827 !important;
+  }
+
+  :root[data-theme="light"] .text-\[\#888\],
+  :root[data-theme="light"] .text-\[\#777\],
+  :root[data-theme="light"] .text-\[\#666\] {
+    color: #4b5563 !important;
+  }
+
+  :root[data-theme="light"] .border-\[\#2A2A2A\],
+  :root[data-theme="light"] .border-t,
+  :root[data-theme="light"] .border-b {
+    border-color: #d8e0dc !important;
+  }
+
+  :root[data-theme="light"] input,
+  :root[data-theme="light"] textarea,
+  :root[data-theme="light"] select {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+  }
+
+  :root[data-theme="light"] .blog-article,
+  :root[data-theme="light"] .blog-article p,
+  :root[data-theme="light"] .blog-article li,
+  :root[data-theme="light"] .blog-article td {
+    color: #374151;
+  }
+
+  :root[data-theme="light"] .blog-article h2,
+  :root[data-theme="light"] .blog-article h3,
+  :root[data-theme="light"] .blog-article strong {
+    color: #111827;
   }
 
   ::selection {

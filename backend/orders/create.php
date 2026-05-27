@@ -7,7 +7,7 @@ require_once __DIR__ . '/../helpers/auth.php';
 require_once __DIR__ . '/../helpers/coupons.php';
 
 requireMethod('POST');
-$user = requireAuth();
+$user = requireNonGuestUser();
 $input = getJsonInput();
 
 $cart = $input['cart'] ?? $input['items'] ?? [];

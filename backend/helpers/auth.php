@@ -49,29 +49,31 @@ function ensureRequiredRoleAccounts($conn) {
 
     ensureAuthTables($conn);
 
+    $demoPasswordHash = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/iWslm.1.6.m5YGOvq';
+
     $accounts = [
         [
             'Admin CoderUp',
             'admin@coderup.com',
-            '$2y$12$5SSktEND/8hWA8xZbEelueOlbtTvnqSVGabsGoV7Y8DKY9PGxgCU.',
+            $demoPasswordHash,
             'admin',
         ],
         [
             'Editor CoderUp',
             'editor@coderup.com',
-            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            $demoPasswordHash,
             'editor',
         ],
         [
             'Cliente CoderUp',
             'cliente@coderup.com',
-            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            $demoPasswordHash,
             'client',
         ],
         [
             'Guest CoderUp',
             'guest@coderup.com',
-            '$2y$12$POEyqluPrPRN7kSWikC9RefQC799cgOnh1F5MDe6Qs.YSe7s2Vbdq',
+            $demoPasswordHash,
             'guest',
         ],
     ];
@@ -311,6 +313,15 @@ function requireAdminOrEditor() {
     $user = requireAuth();
     if (!in_array($user['role'], ['admin', 'editor'])) {
         sendError('Forbidden', 403);
+    }
+    return $user;
+}
+
+// Requiere una cuenta autenticada que no sea demo/guest.
+function requireNonGuestUser() {
+    $user = requireAuth();
+    if (($user['role'] ?? 'guest') === 'guest') {
+        sendError('Las cuentas demo no pueden realizar esta acción', 403);
     }
     return $user;
 }

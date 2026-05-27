@@ -34,6 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 $input = getJsonInput();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (($user['role'] ?? 'guest') === 'guest') {
+        sendError('Las cuentas demo no pueden inscribirse en cursos', 403);
+    }
+
     $courseId = (int) ($input['course_id'] ?? $input['courseId'] ?? 0);
     if ($courseId <= 0) {
         sendError('course_id requerido', 400);

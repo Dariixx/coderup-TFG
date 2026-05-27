@@ -1,0 +1,39 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+---
+
+<BaseLayout title="Cookies" description="Politica de cookies y almacenamiento local de CoderUp.">
+  <Navbar />
+  <main class="flex-1 pt-32 pb-20">
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div>
+        <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Cookies</p>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Cookies y almacenamiento local</h1>
+        <p class="text-[#888] leading-relaxed">
+          CoderUp usa almacenamiento tecnico necesario para mantener sesion, carrito, preferencias y funcionamiento de la demo.
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 space-y-5 text-[#CFCFCF] leading-relaxed">
+        <h2 class="text-2xl font-bold text-white">Elementos usados</h2>
+        <p>
+          Se guarda un token de autenticacion, una sesion de carrito y la preferencia de tema claro u oscuro en
+          localStorage. No se usan cookies publicitarias.
+        </p>
+
+        <h2 class="text-2xl font-bold text-white">Finalidad tecnica</h2>
+        <p>
+          Mantener al usuario autenticado, conservar el carrito entre paginas y recordar la apariencia elegida.
+        </p>
+
+        <h2 class="text-2xl font-bold text-white">Gestion</h2>
+        <p>
+          El usuario puede cerrar sesion desde la cuenta o borrar los datos desde la configuracion del navegador.
+        </p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

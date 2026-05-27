@@ -56,6 +56,7 @@ export default function AuthForm({ mode }: Props) {
             onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
             className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
             placeholder="Tu nombre"
+            required
           />
         </div>
       )}
@@ -68,6 +69,7 @@ export default function AuthForm({ mode }: Props) {
           onChange={(event) => setFormData((prev) => ({ ...prev, email: event.target.value }))}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="tu@email.com"
+          required
         />
       </div>
 
@@ -79,6 +81,8 @@ export default function AuthForm({ mode }: Props) {
           onChange={(event) => setFormData((prev) => ({ ...prev, password: event.target.value }))}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="Mínimo 6 caracteres"
+          minLength={6}
+          required
         />
         {mode === "register" && (
           <div className="mt-3 rounded-xl border border-[#2A2A2A] bg-[#111111]/70 px-4 py-3" aria-live="polite">

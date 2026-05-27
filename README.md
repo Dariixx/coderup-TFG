@@ -175,6 +175,57 @@ Contraseña: Test123456
 
 ### Usuarios de prueba (seed)
 
+```text
+Admin:
+Email: admin@coderup.com
+Contraseña: password
+
+Editor:
+Email: editor@coderup.com
+Contraseña: password
+
+Cliente:
+Email: cliente@coderup.com
+Contraseña: password
+
+Guest/demo:
+Email: guest@coderup.com
+Contraseña: password
+```
+
+> Nota: estas credenciales son solo para demostración académica. En un entorno real deben cambiarse por contraseñas únicas y robustas.
+
+### Matriz de permisos para la defensa
+
+| Rol | Puede hacer | No debe poder hacer | Rutas clave |
+| --- | --- | --- | --- |
+| admin | Gestionar cursos, usuarios, pedidos, estadísticas y roles | - | `/admin`, `/admin/cursos`, `/admin/usuarios`, `/admin/pedidos` |
+| editor | Crear y editar cursos/contenido | Gestionar usuarios, pedidos, estadísticas globales o eliminar cursos | `/admin/cursos` |
+| client | Comprar cursos, ver sus pedidos e inscripciones | Acceder a panel admin/editor o endpoints administrativos | `/cursos`, `/carrito`, `/checkout`, `/mi-cuenta` |
+| guest | Navegar y probar la demo | Comprar, inscribirse, gestionar cursos, usuarios o pedidos | `/cursos`, `/blog`, `/mi-cuenta` |
+
+### Pruebas finales Fase 4
+
+Checklist mínimo de entrega:
+
+- Home, catálogo, detalle de curso, blog, carrito, checkout, cuenta y admin cargan en producción.
+- API Railway responde en `/index.php`, `/api/courses.php`, `/api/posts.php` y `/api/github-projects.php`.
+- Rutas protegidas sin token devuelven 401.
+- Admin puede ver estadísticas, usuarios, pedidos y gestionar cursos.
+- Editor puede crear/editar cursos, pero no gestionar usuarios ni pedidos.
+- Cliente puede comprar cursos, consultar pedidos y ver sus inscripciones.
+- Guest/demo puede navegar, pero no completar checkout ni inscribirse.
+- Página 404 responde para rutas inexistentes.
+- Páginas legales disponibles: `/privacidad`, `/aviso-legal` y `/cookies`.
+- Prueba de carga básica recomendada: 10 peticiones GET a `/api/courses.php` sin errores.
+- Copia de seguridad recomendada antes de la defensa: exportar MySQL desde Railway y conservar `database/schema.sql` + `database/seed.sql`.
+
+### Incidencias conocidas y mantenimiento
+
+- La pasarela de pago y el formulario de contacto son simulados para la demo académica.
+- El token se almacena en `localStorage`; para producción real sería recomendable valorar cookies `HttpOnly`.
+- Mantener actualizadas las variables `PUBLIC_API_URL`, `FRONTEND_URL`, `AUTH_SECRET` y credenciales SMTP en Vercel/Railway.
+- Revisar logs de Railway tras cada despliegue y ejecutar `npm run build` antes de publicar.
 
 ### Flujo completo
 1. /register -> crear usuario -> aparece en MySQL

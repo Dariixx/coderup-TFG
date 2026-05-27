@@ -1,0 +1,41 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+---
+
+<BaseLayout title="Aviso legal" description="Aviso legal de CoderUp como proyecto academico de fin de grado.">
+  <Navbar />
+  <main class="flex-1 pt-32 pb-20">
+    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div>
+        <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Informacion legal</p>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Aviso legal</h1>
+        <p class="text-[#888] leading-relaxed">
+          Esta web forma parte de CoderUp, un Trabajo Fin de Grado de Desarrollo de Aplicaciones Web.
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 space-y-5 text-[#CFCFCF] leading-relaxed">
+        <h2 class="text-2xl font-bold text-white">Uso del sitio</h2>
+        <p>
+          El contenido, cursos, pedidos y pagos son simulados para demostrar funcionalidades tecnicas de una plataforma
+          e-learning. No existe venta real ni pasarela de pago real.
+        </p>
+
+        <h2 class="text-2xl font-bold text-white">Responsabilidad</h2>
+        <p>
+          El proyecto se entrega con fines educativos. Las integraciones externas y servicios cloud pueden depender de
+          disponibilidad de Vercel, Railway y GitHub.
+        </p>
+
+        <h2 class="text-2xl font-bold text-white">Propiedad intelectual</h2>
+        <p>
+          El codigo y la documentacion pertenecen al proyecto academico CoderUp. Las imagenes externas proceden de
+          proveedores publicos usados como recursos de demostracion.
+        </p>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

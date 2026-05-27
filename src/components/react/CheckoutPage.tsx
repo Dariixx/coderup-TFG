@@ -30,6 +30,18 @@ export default function CheckoutPage({ courses }: Props) {
     );
   }
 
+  if (user.role === "guest") {
+    return (
+      <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">
+        <h2 className="text-2xl font-bold text-white mb-3">La cuenta demo no puede completar compras</h2>
+        <p className="text-[#888] mb-6">Usa una cuenta cliente para finalizar pedidos e inscribirte en cursos.</p>
+        <a href="/register" className="inline-flex rounded-xl bg-[#00FF66] px-6 py-3 font-semibold text-[#0A0A0A] hover:bg-[#00CC52] transition">
+          Crear cuenta cliente
+        </a>
+      </div>
+    );
+  }
+
   if (!cart.length) {
     return (
       <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 text-center">

@@ -47,6 +47,16 @@ export default function AccountDashboard() {
           </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
+          {user.role === "admin" && (
+            <a href="/admin" className="rounded-xl border border-[#2A2A2A] px-5 py-3 text-white hover:border-[#00FF66]/50 transition">
+              Panel admin
+            </a>
+          )}
+          {user.role === "editor" && (
+            <a href="/admin/cursos" className="rounded-xl border border-[#2A2A2A] px-5 py-3 text-white hover:border-[#00FF66]/50 transition">
+              Gestionar cursos
+            </a>
+          )}
           <a href="/mi-cuenta/mis-cursos" className="rounded-xl border border-[#2A2A2A] px-5 py-3 text-white hover:border-[#00FF66]/50 transition">
             Mis cursos
           </a>

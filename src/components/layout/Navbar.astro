@@ -3,6 +3,7 @@ import { siteConfig } from "../../config/site";
 import { Icon } from "astro-icon/components";
 import CartButton from "../react/CartButton.tsx";
 import AccountNavButton from "../react/AccountNavButton.tsx";
+import ThemeToggle from "../react/ThemeToggle.tsx";
 ---
 
 <nav class="fixed top-0 w-full z-50 bg-[#0A0A0A]/90 backdrop-blur-md border-b border-[#2A2A2A]" id="navbar">
@@ -21,6 +22,7 @@ import AccountNavButton from "../react/AccountNavButton.tsx";
     </div>
 
     <div class="flex items-center gap-4">
+      <ThemeToggle client:load />
       <AccountNavButton client:load />
       <CartButton client:load />
       <a href="/cursos" class="hidden md:inline-flex items-center gap-2 bg-[#00FF66] text-[#0A0A0A] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#00CC52] transition">
