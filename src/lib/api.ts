@@ -94,6 +94,7 @@ async function requestApi<T>(path: string, options: RequestOptions = {}): Promis
   let response: Response;
   try {
     response = await fetch(`${API_BASE}${path}`, {
+      cache: "no-store",
       ...options,
       headers,
       body:
@@ -243,6 +244,7 @@ async function cartApiRequest<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   const response = await fetch(`${API_BASE}${path}`, {
+    cache: "no-store",
     ...options,
     headers,
     credentials: "include",

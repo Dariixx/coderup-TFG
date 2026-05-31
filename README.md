@@ -1,7 +1,7 @@
 # CoderUp - Plataforma de Cursos Online
 
 ## Descripción
-Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). Permite registro, autenticación, compra de cursos y gestión de órdenes. Arquitectura moderna con frontend Astro en Vercel y backend PHP en Railway.
+Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). Permite registro, autenticación por roles, catálogo de cursos, blog, carrito, cupones, newsletter real por email, espacio personal y panel de administración/editor conectado a MySQL. La pasarela de pago está marcada como beta y no procesa compras reales.
 
 ## Tecnologías
 - **Frontend**: Astro, React, TypeScript, Tailwind CSS
@@ -9,14 +9,17 @@ Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). 
 - **Base de datos**: MySQL 8.0
 - **Hosting**: Vercel (frontend), Railway (backend + BD)
 - **Email**: Brevo API
+- **API externa**: GitHub API para proyectos destacados en la home
+- **Control de versiones**: Git + GitHub
 
 ## Arquitectura
 
 ### Frontend (Vercel)
-- Astro para SSR/SSG
+- Astro con salida estática en Vercel
 - Componentes React para interactividad
 - TypeScript para type safety
 - Comunicación fetch con backend
+- Diseño responsive, modo claro/oscuro, favoritos y estados de carga/error
 
 ### Backend (Railway)
 - PHP 8.3
@@ -25,7 +28,7 @@ Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). 
 - Bcrypt para contraseñas
 
 ### Base de datos (Railway MySQL)
-- 8 tablas relacionadas
+- 12 tablas relacionadas
 - Diseño normalizado (3NF)
 - Integridad referencial con FKs
 
@@ -46,9 +49,16 @@ Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). 
 ### Ecommerce
 - Catálogo de cursos
 - Carrito de compras
-- Crear órdenes
-- Historial de compras
+- Checkout preparado en modo beta: informa que no hay pasarela real y no crea pedidos falsos
+- Historial de pedidos cuando existan registros reales en la base de datos
 - Descuentos con cupones
+- Favoritos por usuario en el espacio personal
+- Cupones visibles según rol
+
+### Blog y comunicación
+- Blog con artículos, categorías, imágenes de cover y tiempo de lectura
+- Newsletter conectada a Brevo para enviar cursos destacados
+- Recuperación de contraseña con email real
 
 ### Seguridad
 - Contraseñas hasheadas con bcrypt
@@ -59,9 +69,9 @@ Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). 
 
 ### Roles y Permisos
 - **admin**: acceso total
-- **editor**: crear/editar contenido
-- **client**: comprar cursos
-- **guest**: ver catálogo
+- **editor**: crear, editar y eliminar cursos
+- **client**: navegar, usar carrito, favoritos, cupones y espacio personal
+- **guest**: ver catálogo/blog y probar la demo sin modificar datos críticos
 
 ## Endpoints API
 
@@ -76,6 +86,9 @@ Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). 
 ### Cursos
 - GET /api/courses.php
 - GET /api/courses/show.php?slug=react-avanzado
+- POST /courses/create.php
+- POST /courses/update.php
+- POST /courses/delete.php
 
 ### Órdenes
 - POST /api/orders/create.php
@@ -88,29 +101,68 @@ Plataforma e-learning profesional desarrollada como Trabajo Fin de Grado (DAW). 
 - GET /api/posts.php
 - GET /api/posts/show.php?slug=guia-completa-hooks-react
 - POST /api/coupons/validate.php
+- GET /api/coupons.php
+- POST /api/newsletter.php
+
+### Admin
+- GET /admin/stats.php
+- POST /admin/apply-catalog-migration.php
 
 ## Instalación Local
 
-### Backend
+### Requisitos previos
+- Node.js 22.12 o superior
+- npm
+- PHP 8.3 o superior con PDO MySQL
+- MySQL 8.0
+- Cuenta Brevo si se quiere probar envío real de emails
+
+### 1. Clonar e instalar frontend
 ```bash
-# 1. Clonar repo
 git clone https://github.com/Dariixx/coderup-TFG.git
 cd coderup-TFG
+npm install
+```
 
-# 2. Importar BD
+### 2. Crear base de datos
+```bash
+mysql -u root -e "CREATE DATABASE coderup CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 mysql -u root coderup < database/schema.sql
 mysql -u root coderup < database/seed.sql
+```
 
-# 3. Arrancar servidor PHP
+### 3. Variables locales
+Crea un `.env` o configura las variables equivalentes en tu entorno:
+
+```env
+PUBLIC_API_URL=http://localhost:8000
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=coderup
+DB_USER=root
+DB_PASS=
+AUTH_SECRET=coderup-local-secret
+BREVO_API_KEY=
+SMTP_FROM_EMAIL=no-reply@coderup.local
+SMTP_FROM_NAME=CoderUp
+FRONTEND_URL=http://localhost:4321
+RESET_PASSWORD_URL=http://localhost:4321/reset-password
+```
+
+### 4. Arrancar backend
+```bash
 php -S localhost:8000 -t backend
 ```
 
-### Frontend
+### 5. Arrancar frontend
 ```bash
-# En otra terminal
-npm install
 npm run dev
 # Abre http://localhost:4321
+```
+
+### 6. Build de producción
+```bash
+npm run build
 ```
 
 ## Variables de Entorno (Railway)
@@ -144,15 +196,15 @@ categories (id, name, slug, icon)
 coupons (id, code, discount_type, discount_value, active)
 ```
 
-## Flujo de Compra
+## Flujo de Checkout Beta
 
 1. Usuario se registra / inicia sesión
 2. Navega catálogo de cursos
 3. Agrega cursos al carrito
-4. Realiza checkout
-5. Sistema crea orden en MySQL
-6. Se enrolla el usuario en los cursos
-7. Usuario ve historial en /mi-cuenta/pedidos
+4. Revisa el resumen y los cupones
+5. El checkout informa que CoderUp está en beta
+6. No se procesa pasarela real, no se crea pedido falso y no se inscribe automáticamente
+7. El modelo de datos de pedidos/inscripciones queda preparado para conectar una pasarela real
 
 ## Flujo de Recuperación de Contraseña
 
@@ -199,10 +251,29 @@ Contraseña: password
 
 | Rol | Puede hacer | No debe poder hacer | Rutas clave |
 | --- | --- | --- | --- |
-| admin | Gestionar cursos, usuarios, pedidos, estadísticas y roles | - | `/admin`, `/admin/cursos`, `/admin/usuarios`, `/admin/pedidos` |
-| editor | Crear y editar cursos/contenido | Gestionar usuarios, pedidos, estadísticas globales o eliminar cursos | `/admin/cursos` |
-| client | Comprar cursos, ver sus pedidos e inscripciones | Acceder a panel admin/editor o endpoints administrativos | `/cursos`, `/carrito`, `/checkout`, `/mi-cuenta` |
+| admin | Gestionar cursos, usuarios, pedidos, estadísticas, cupones y roles | - | `/admin`, `/admin/cursos`, `/admin/usuarios`, `/admin/pedidos` |
+| editor | Crear, editar y eliminar cursos desde el panel | Gestionar usuarios, pedidos o estadísticas globales | `/admin/cursos` |
+| client | Usar catálogo, carrito, favoritos, cupones y espacio personal | Acceder a panel admin/editor o endpoints administrativos | `/cursos`, `/carrito`, `/checkout`, `/mi-cuenta` |
 | guest | Navegar y probar la demo | Comprar, inscribirse, gestionar cursos, usuarios o pedidos | `/cursos`, `/blog`, `/mi-cuenta` |
+
+### Comprobación frente a requisitos DAW
+
+| Requisito mínimo | Estado en CoderUp |
+| --- | --- |
+| Frontend y backend separados | `src/` en Astro/React y `backend/` en PHP REST |
+| Git y repositorio documentado | GitHub + este README |
+| Despliegue local o nube | Vercel + Railway |
+| HTML/CSS/JS y responsive | Astro, React, TypeScript, Tailwind y CSS global responsive |
+| Validación cliente/servidor | Regex/formularios en cliente y validadores PHP |
+| Comunicación fetch/AJAX | `src/lib/api.ts` contra endpoints REST |
+| API externa pública | GitHub API en proyectos destacados |
+| Base de datos relacional | MySQL con 12 tablas y claves foráneas |
+| CRUD funcional | Cursos, usuarios/roles, pedidos, cupones, carrito, reseñas e inscripciones |
+| Mínimo 4 usuarios/roles | admin, editor, client y guest |
+| Login con sesión/token | Token Bearer y helpers de auth |
+| Seguridad XSS/SQLi | Sanitización, prepared statements, bcrypt |
+| RGPD básico | Páginas legales: privacidad, cookies, aviso legal y términos |
+| Elemento diferenciador | Deploy profesional, modo claro/oscuro, favoritos, newsletter real, Brevo y GitHub API |
 
 ### Pruebas finales Fase 4
 
@@ -211,9 +282,9 @@ Checklist mínimo de entrega:
 - Home, catálogo, detalle de curso, blog, carrito, checkout, cuenta y admin cargan en producción.
 - API Railway responde en `/index.php`, `/api/courses.php`, `/api/posts.php` y `/api/github-projects.php`.
 - Rutas protegidas sin token devuelven 401.
-- Admin puede ver estadísticas, usuarios, pedidos y gestionar cursos.
-- Editor puede crear/editar cursos, pero no gestionar usuarios ni pedidos.
-- Cliente puede comprar cursos, consultar pedidos y ver sus inscripciones.
+- Admin puede ver estadísticas, usuarios, pedidos, cupones y gestionar cursos.
+- Editor puede crear/editar/eliminar cursos, pero no gestionar usuarios ni pedidos.
+- Cliente puede usar carrito, favoritos, cupones y cuenta personal.
 - Guest/demo puede navegar, pero no completar checkout ni inscribirse.
 - Página 404 responde para rutas inexistentes.
 - Páginas legales disponibles: `/privacidad`, `/aviso-legal` y `/cookies`.
@@ -231,7 +302,7 @@ Checklist mínimo de entrega:
 1. /register -> crear usuario -> aparece en MySQL
 2. /login -> iniciar sesión -> redirige a /mi-cuenta
 3. /cursos -> ver catálogo
-4. Carrito -> agregar cursos -> checkout
+4. Carrito -> agregar cursos -> checkout beta
 5. /forgot-password -> reset password -> email real
 
 ## Estructura del Proyecto
@@ -256,6 +327,14 @@ coderup-TFG/
 │   │   ├── create.php
 │   │   ├── index.php
 │   │   └── user-orders.php
+│   ├── coupons/
+│   │   ├── index.php
+│   │   └── validate.php
+│   ├── newsletter/
+│   │   └── subscribe.php
+│   ├── admin/
+│   │   ├── stats.php
+│   │   └── apply-catalog-migration.php
 │   ├── config/
 │   │   └── db.php
 │   ├── helpers/
@@ -285,8 +364,10 @@ coderup-TFG/
 │   │   ├── login.astro
 │   │   ├── forgot-password.astro
 │   │   ├── reset-password.astro
-│   │   ├── cursos.astro
+│   │   ├── cursos/
 │   │   ├── carrito.astro
+│   │   ├── blog/
+│   │   ├── admin/
 │   │   └── mi-cuenta/
 │   ├── layouts/
 │   │   └── Layout.astro
@@ -298,7 +379,8 @@ coderup-TFG/
 │       └── utils.ts
 ├── database/
 │   ├── schema.sql
-│   └── seed.sql
+│   ├── seed.sql
+│   └── migrations/
 ├── .env.example
 ├── README.md
 ├── package.json

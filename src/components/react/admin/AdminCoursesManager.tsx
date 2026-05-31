@@ -146,6 +146,7 @@ export default function AdminCoursesManager() {
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [listStatus, setListStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [message, setMessage] = useState("");
+  const [verifiedAt, setVerifiedAt] = useState("");
 
   const loadCourses = async () => {
     setListStatus("loading");
@@ -157,6 +158,7 @@ export default function AdminCoursesManager() {
       return nextCourses.find((course) => course.id === current.id) ?? nextCourses[0] ?? null;
     });
     setListStatus("success");
+    setVerifiedAt(new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" }));
   };
 
   useEffect(() => {
@@ -225,16 +227,19 @@ export default function AdminCoursesManager() {
       };
 
       if (form.id) {
-        await apiPost("/courses/update.php", { ...payload, _method: "PUT" });
-        setMessage("Curso actualizado correctamente.");
+        const response = await apiPost<CourseRecord>("/courses/update.php", { ...payload, _method: "PUT" });
+        const updatedCourse = response.data;
+        setSelectedCourse(updatedCourse);
+        setMessage(`Curso "${updatedCourse.title}" guardado y verificado en la base de datos.`);
       } else {
-        await apiPost("/courses/create.php", payload);
-        setMessage("Curso creado correctamente.");
+        const response = await apiPost<CourseRecord>("/courses/create.php", payload);
+        setSelectedCourse(response.data);
+        setMessage(`Curso "${response.data.title}" creado y verificado en la base de datos.`);
       }
 
       setStatus("success");
-      resetForm();
       await loadCourses();
+      setForm(emptyForm);
     } catch (error) {
       setStatus("error");
       setMessage(getApiHelpMessage(error));
@@ -267,6 +272,7 @@ export default function AdminCoursesManager() {
           <div>
             <h2 className="text-xl font-bold text-white">Cursos en la base de datos</h2>
             <p className="text-sm text-[#888]">Carga todos los cursos, publicados u ocultos, para revisarlos, editarlos o eliminarlos desde el panel.</p>
+            {verifiedAt && <p className="mt-2 text-xs text-[#00FF66]">Última verificación contra Railway: {verifiedAt}</p>}
           </div>
           <button
             type="button"
@@ -287,7 +293,8 @@ export default function AdminCoursesManager() {
             No hay cursos en la base de datos. Crea el primero desde este formulario.
           </div>
         ) : (
-          <div className="mt-6 overflow-x-auto">
+          <>
+          <div className="mt-6 hidden overflow-x-auto lg:block">
             <table className="w-full min-w-[760px] text-left text-sm">
               <thead className="text-xs uppercase tracking-wider text-[#888]">
                 <tr className="border-b border-[#2A2A2A]">
@@ -349,6 +356,48 @@ export default function AdminCoursesManager() {
               </tbody>
             </table>
           </div>
+          <div className="mt-6 grid gap-4 lg:hidden">
+            {courses.map((course) => {
+              const selected = selectedCourse?.id === course.id;
+
+              return (
+                <article key={course.id} className={`rounded-xl border bg-[#111111] p-4 ${selected ? "border-[#00FF66]/50" : "border-[#2A2A2A]"}`}>
+                  <div className="flex gap-3">
+                    <img
+                      src={courseImage(course)}
+                      alt={course.title}
+                      className="h-20 w-24 shrink-0 rounded-lg bg-[#111111] object-cover"
+                      loading="lazy"
+                      onError={(event) => {
+                        event.currentTarget.src = IMAGE_FALLBACK;
+                      }}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white">{course.title}</p>
+                      <p className="truncate text-xs text-[#777]">/{course.slug}</p>
+                      <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                        <span className="rounded-full bg-[#00FF66]/10 px-2 py-1 text-[#00FF66]">{course.category_name}</span>
+                        <span className="rounded-full bg-[#2A2A2A] px-2 py-1 text-white">{course.level}</span>
+                        <span className="rounded-full bg-[#2A2A2A] px-2 py-1 text-white">{Number(course.price).toFixed(2)} €</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <button type="button" onClick={() => handleView(course)} className="rounded-lg border border-[#2A2A2A] px-3 py-2 text-xs text-white transition hover:border-[#00FF66]/50">
+                      Ver
+                    </button>
+                    <button type="button" onClick={() => handleEdit(course)} className="rounded-lg border border-[#2A2A2A] px-3 py-2 text-xs text-white transition hover:border-[#00FF66]/50">
+                      Editar
+                    </button>
+                    <button type="button" onClick={() => handleDelete(course.id)} className="rounded-lg border border-red-500/40 px-3 py-2 text-xs text-red-300 transition hover:bg-red-500/10">
+                      Eliminar
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+          </>
         )}
       </section>
 

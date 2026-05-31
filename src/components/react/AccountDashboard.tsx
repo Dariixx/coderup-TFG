@@ -88,26 +88,26 @@ export default function AccountDashboard() {
         </div>
       </section>
 
-      <section className="grid md:grid-cols-2 xl:grid-cols-5 gap-6">
-        <a href="/mi-cuenta/mis-cursos" className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 hover:border-[#00FF66]/50 transition">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <a href="/mi-cuenta/mis-cursos" className="min-w-0 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5 hover:border-[#00FF66]/50 transition">
           <p className="text-[#888] text-sm mb-2">Mis cursos</p>
-          <p className="text-3xl font-bold text-white">{myEnrollments.length}</p>
+          <p className="text-2xl font-bold text-white sm:text-3xl">{myEnrollments.length}</p>
         </a>
-        <a href="/mi-cuenta/pedidos" className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 hover:border-[#00FF66]/50 transition">
+        <a href="/mi-cuenta/pedidos" className="min-w-0 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5 hover:border-[#00FF66]/50 transition">
           <p className="text-[#888] text-sm mb-2">Pedidos</p>
-          <p className="text-3xl font-bold text-white">{myOrders.length}</p>
+          <p className="text-2xl font-bold text-white sm:text-3xl">{myOrders.length}</p>
         </a>
-        <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+        <div className="min-w-0 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
           <p className="text-[#888] text-sm mb-2">Favoritos</p>
-          <p className="text-3xl font-bold text-white">{favorites.length}</p>
+          <p className="text-2xl font-bold text-white sm:text-3xl">{favorites.length}</p>
         </div>
-        <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+        <div className="min-w-0 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
           <p className="text-[#888] text-sm mb-2">Certificados</p>
-          <p className="text-3xl font-bold text-white">Próximamente</p>
+          <p className="text-lg font-bold leading-tight text-white sm:text-xl">En preparación</p>
         </div>
-        <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+        <div className="min-w-0 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
           <p className="text-[#888] text-sm mb-2">Ajustes de cuenta</p>
-          <p className="text-lg font-semibold text-white">{user.usedWelcomeCoupon ? "Cupón usado" : "Cupón disponible"}</p>
+          <p className="text-base font-semibold leading-tight text-white">{user.usedWelcomeCoupon ? "Cupón usado" : "Cupón disponible"}</p>
         </div>
       </section>
 

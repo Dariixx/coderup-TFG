@@ -1,11 +1,14 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
 require_once __DIR__ . '/../helpers/cors.php';
 
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/response.php';
 require_once __DIR__ . '/../helpers/validators.php';
 require_once __DIR__ . '/../helpers/auth.php';
+require_once __DIR__ . '/../helpers/catalog.php';
 
 requireMethods(['POST', 'PUT']);
 $user = requireAdminOrEditor();
@@ -123,12 +126,12 @@ try {
     $stmt = $conn->prepare($sql);
     $stmt->execute($params);
 
-    // Obtener curso actualizado
-    $stmt = $conn->prepare('SELECT c.*, cat.name as category_name FROM courses c JOIN categories cat ON c.category_id = cat.id WHERE c.id = ?');
+    // Obtener curso actualizado con la misma forma que consume el panel y el catálogo.
+    $stmt = $conn->prepare(courseSelectSql() . ' WHERE c.id = ? LIMIT 1');
     $stmt->execute([$courseId]);
     $course = $stmt->fetch();
 
-    sendSuccess($course, 'Curso actualizado correctamente');
+    sendSuccess(formatCourse($course), 'Curso actualizado correctamente');
 } catch (PDOException $e) {
     sendError('Error al actualizar curso', 500, $e->getMessage());
 }
