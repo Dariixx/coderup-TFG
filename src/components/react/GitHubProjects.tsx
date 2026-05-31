@@ -42,16 +42,37 @@ export default function GitHubProjects() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadingFallback = window.setTimeout(() => setLoading(false), 1800);
+
     getGithubProjects()
       .then((response) => {
         const items = response.data?.projects ?? [];
         setProjects(Array.isArray(items) && items.length ? items : fallbackProjects);
       })
-      .finally(() => setLoading(false));
+      .catch(() => setProjects(fallbackProjects))
+      .finally(() => {
+        window.clearTimeout(loadingFallback);
+        setLoading(false);
+      });
+
+    return () => window.clearTimeout(loadingFallback);
   }, []);
 
   if (loading) {
-    return <div className="h-32 rounded-2xl border border-[#2A2A2A] bg-[#111111] animate-pulse" />;
+    return (
+      <div className="grid md:grid-cols-3 gap-6" aria-label="Cargando proyectos populares">
+        {[0, 1, 2].map((item) => (
+          <div key={item} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+            <div className="mb-4 h-3 w-20 rounded-full bg-[#00FF66]/20 animate-pulse" />
+            <div className="mb-3 h-5 w-2/3 rounded-full bg-[#2A2A2A] animate-pulse" />
+            <div className="space-y-2">
+              <div className="h-3 rounded-full bg-[#2A2A2A] animate-pulse" />
+              <div className="h-3 w-4/5 rounded-full bg-[#2A2A2A] animate-pulse" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
 
   return (

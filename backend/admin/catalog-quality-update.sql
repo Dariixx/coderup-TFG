@@ -17,8 +17,6 @@ ON DUPLICATE KEY UPDATE
   instructor_id = VALUES(instructor_id),
   duration_hours = VALUES(duration_hours),
   total_lessons = VALUES(total_lessons),
-  total_students = VALUES(total_students),
-  rating = VALUES(rating),
   `requires` = VALUES(`requires`),
   what_you_learn = VALUES(what_you_learn),
   curriculum = VALUES(curriculum),

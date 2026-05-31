@@ -1,5 +1,6 @@
 import type { Course } from "../../lib/types";
 import { useMemo, useState } from "react";
+import { saveCourseReview } from "../../lib/api";
 import { useAuth } from "./useAuth";
 import { useEnrollments } from "./useEnrollments";
 import { getCourseImage, IMAGE_FALLBACK } from "../../lib/images";
@@ -12,6 +13,8 @@ export default function MyCoursesPage({ courses }: Props) {
   const { user, initialized } = useAuth();
   const { enrollments, initialized: enrollmentsReady, updateEnrollmentProgress } = useEnrollments();
   const [activeLesson, setActiveLesson] = useState<{ courseSlug: string; moduleTitle: string; lesson: string; index: number } | null>(null);
+  const [reviewRatings, setReviewRatings] = useState<Record<string, number>>({});
+  const [reviewStatus, setReviewStatus] = useState<Record<string, "idle" | "saving" | "saved" | "error">>({});
   const currentCourse = activeLesson ? courses.find((course) => course.slug === activeLesson.courseSlug) : null;
   const lessonBody = useMemo(() => {
     if (!activeLesson || !currentCourse) return null;
@@ -49,6 +52,15 @@ export default function MyCoursesPage({ courses }: Props) {
       course: courses.find((course) => course.slug === enrollment.courseSlug),
     }))
     .filter((item) => item.course);
+
+  const submitReview = async (courseId: number | string, rating: number) => {
+    const key = String(courseId);
+    setReviewRatings((prev) => ({ ...prev, [key]: rating }));
+    setReviewStatus((prev) => ({ ...prev, [key]: "saving" }));
+
+    const result = await saveCourseReview(courseId, rating);
+    setReviewStatus((prev) => ({ ...prev, [key]: result.ok ? "saved" : "error" }));
+  };
 
   if (!myCourses.length) {
     return (
@@ -128,6 +140,47 @@ export default function MyCoursesPage({ courses }: Props) {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="mb-5 rounded-xl border border-[#2A2A2A] bg-[#111111] p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-white">Tu valoración</p>
+                <span className="text-xs text-[#888]">
+                  {reviewStatus[String(course!.id)] === "saving"
+                    ? "Guardando..."
+                    : reviewStatus[String(course!.id)] === "saved"
+                    ? "Guardada"
+                    : reviewStatus[String(course!.id)] === "error"
+                    ? "No se pudo guardar"
+                    : "Opcional"}
+                </span>
+              </div>
+              <div className="flex gap-2" aria-label={`Valorar ${course!.title}`}>
+                {[1, 2, 3, 4, 5].map((rating) => {
+                  const selectedRating = reviewRatings[String(course!.id)] ?? 0;
+                  const isActive = rating <= selectedRating;
+                  return (
+                    <button
+                      key={rating}
+                      type="button"
+                      onClick={() => void submitReview(course!.id, rating)}
+                      className={`h-10 w-10 rounded-xl border text-lg transition hover:-translate-y-0.5 ${
+                        isActive
+                          ? "border-[#00FF66]/50 bg-[#00FF66]/15 text-[#00FF66]"
+                          : "border-[#2A2A2A] bg-[#0A0A0A] text-[#888] hover:border-[#00FF66]/40 hover:text-[#00FF66]"
+                      }`}
+                      aria-label={`${rating} de 5`}
+                    >
+                      ★
+                    </button>
+                  );
+                })}
+              </div>
+              {reviewStatus[String(course!.id)] === "error" && (
+                <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                  Inicia sesión de nuevo si la sesión ha caducado.
+                </p>
+              )}
             </div>
 
             <button

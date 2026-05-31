@@ -303,6 +303,10 @@ export async function updateEnrollment(enrollmentId: number | string, progress: 
   return apiPut<any>("/api/enrollments.php", { enrollment_id: Number(enrollmentId), progress });
 }
 
+export async function saveCourseReview(courseId: number | string, rating: number, comment = "") {
+  return apiPost<any>("/api/course-reviews.php", { course_id: Number(courseId), rating, comment });
+}
+
 export async function getGithubProjects() {
   return apiGet<any>("/api/github-projects.php");
 }

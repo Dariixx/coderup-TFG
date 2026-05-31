@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../helpers/response.php';
 require_once __DIR__ . '/../../helpers/auth.php';
 require_once __DIR__ . '/../../helpers/coupons.php';
 require_once __DIR__ . '/../../helpers/cart.php';
+require_once __DIR__ . '/../../helpers/course_metrics.php';
 
 requireMethod('POST');
 
@@ -77,12 +78,11 @@ try {
         $stmt = $conn->prepare('INSERT INTO order_items (order_id, course_id, price_at_purchase) VALUES (?, ?, ?)');
         $stmt->execute([$orderId, $item['id'], $item['price']]);
 
-        $stmt = $conn->prepare('
-            INSERT INTO enrollments (user_id, course_id, progress, status)
-            VALUES (?, ?, 0, "enrolled")
-            ON DUPLICATE KEY UPDATE status = "enrolled"
-        ');
+        $stmt = $conn->prepare('INSERT IGNORE INTO enrollments (user_id, course_id, progress, status) VALUES (?, ?, 0, "enrolled")');
         $stmt->execute([$user['id'], $item['id']]);
+        if ($stmt->rowCount() > 0) {
+            incrementCourseStudentCount($conn, (int) $item['id']);
+        }
 
         $enrollments[] = [
             'course_id' => (int) $item['id'],

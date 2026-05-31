@@ -5,6 +5,7 @@ require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/response.php';
 require_once __DIR__ . '/../helpers/auth.php';
 require_once __DIR__ . '/../helpers/coupons.php';
+require_once __DIR__ . '/../helpers/course_metrics.php';
 
 requireMethod('POST');
 $user = requireNonGuestUser();
@@ -84,12 +85,11 @@ try {
         ');
         $stmt->execute([$orderId, $course['id'], $course['price']]);
 
-        $stmt = $conn->prepare('
-            INSERT INTO enrollments (user_id, course_id, progress, status)
-            VALUES (?, ?, 0, "enrolled")
-            ON DUPLICATE KEY UPDATE status = "enrolled"
-        ');
+        $stmt = $conn->prepare('INSERT IGNORE INTO enrollments (user_id, course_id, progress, status) VALUES (?, ?, 0, "enrolled")');
         $stmt->execute([$user['id'], $course['id']]);
+        if ($stmt->rowCount() > 0) {
+            incrementCourseStudentCount($conn, (int) $course['id']);
+        }
 
         $enrollments[] = [
             'course_id' => (int) $course['id'],

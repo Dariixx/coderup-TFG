@@ -20,12 +20,14 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
   const deferredSearch = useDeferredValue(searchQuery);
 
   useEffect(() => {
-    if (loadedCursos.length > 0) return;
-
     getCourses()
-      .then((items) => setLoadedCursos(items))
+      .then((items) => {
+        if (items.length > 0) {
+          setLoadedCursos(items);
+        }
+      })
       .catch(() => setLoadError("No se han podido cargar los cursos desde MySQL."));
-  }, [loadedCursos.length]);
+  }, []);
 
   const categories = ["Todos", ...new Set(loadedCursos.map((c) => c.category.name))];
   const levels = ["Todos", ...new Set(loadedCursos.map((c) => c.level))];
@@ -46,9 +48,6 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
   const startIndex = (currentPage - 1) * cursosPerPage;
   const currentCursos = filtered.slice(startIndex, startIndex + cursosPerPage);
   const ratingLabel = (course: Course) => (course.rating > 0 ? `${course.rating.toFixed(1)} valoración` : "Sin valoraciones");
-  const requirementsLabel = (course: Course) =>
-    course.requirements?.length ? `${course.requirements.length} requisitos` : "Sin requisitos previos";
-  const modulesLabel = (course: Course) => `${course.curriculum?.length ?? 0} módulos`;
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -159,10 +158,7 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
       {currentCursos.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {currentCursos.map((curso) => (
-            <article
-              key={curso.slug}
-              className="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1"
-            >
+            <article key={curso.slug} className="course-card group">
               <a href={`/cursos/${curso.slug}`} className="block">
               <img
                 src={curso.thumbnailUrl ?? getCourseImage(curso.category.slug, curso.id, curso.title)}
@@ -170,7 +166,7 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
                 className="h-44 w-full bg-[#111111] object-cover transition duration-500 group-hover:scale-105"
                 loading="lazy"
                 onError={(event) => {
-                  event.currentTarget.src = IMAGE_FALLBACK;
+                  event.currentTarget.src = getCourseImage(curso.category.slug, curso.id, curso.title);
                 }}
               />
               <div className="p-6">
@@ -182,7 +178,7 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
                   </span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#00FF66] transition">{curso.title}</h3>
-                <p className="text-[#888] text-sm mb-4 line-clamp-3">{curso.description}</p>
+                <p className="text-[#888] text-sm mb-4 line-clamp-2">{curso.description}</p>
                 <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#2A2A2A] bg-[#111111] p-3">
                   <img
                     src={curso.instructor.avatarUrl ?? IMAGE_FALLBACK}
@@ -198,24 +194,6 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
                     <p className="truncate text-xs text-[#888]">{curso.instructor.specialty ?? curso.instructor.role}</p>
                   </div>
                 </div>
-                <dl className="grid grid-cols-2 gap-2 text-xs text-[#888]">
-                  <div className="rounded-lg bg-[#111111] px-3 py-2">
-                    <dt className="text-[#00FF66]">Duración</dt>
-                    <dd>{curso.duration}</dd>
-                  </div>
-                  <div className="rounded-lg bg-[#111111] px-3 py-2">
-                    <dt className="text-[#00FF66]">Lecciones</dt>
-                    <dd>{curso.lessons}</dd>
-                  </div>
-                  <div className="rounded-lg bg-[#111111] px-3 py-2">
-                    <dt className="text-[#00FF66]">Temario</dt>
-                    <dd>{modulesLabel(curso)}</dd>
-                  </div>
-                  <div className="rounded-lg bg-[#111111] px-3 py-2">
-                    <dt className="text-[#00FF66]">Requisitos</dt>
-                    <dd>{requirementsLabel(curso)}</dd>
-                  </div>
-                </dl>
                 <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#2A2A2A] pt-4 text-sm">
                   <span className="font-bold text-[#00FF66]">{formatPrice(curso.price)}</span>
                   <span className="flex items-center gap-1 text-[#888]">

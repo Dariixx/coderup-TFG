@@ -4,6 +4,7 @@ require_once __DIR__ . '/../helpers/cors.php';
 require_once __DIR__ . '/../config/db.php';
 require_once __DIR__ . '/../helpers/response.php';
 require_once __DIR__ . '/../helpers/auth.php';
+require_once __DIR__ . '/../helpers/course_metrics.php';
 
 requireMethods(['GET', 'POST', 'PUT']);
 
@@ -49,12 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         sendError('Curso no encontrado', 404);
     }
 
-    $stmt = $conn->prepare('
-        INSERT INTO enrollments (user_id, course_id, progress, status)
-        VALUES (?, ?, 0, "enrolled")
-        ON DUPLICATE KEY UPDATE status = "enrolled"
-    ');
+    $stmt = $conn->prepare('INSERT IGNORE INTO enrollments (user_id, course_id, progress, status) VALUES (?, ?, 0, "enrolled")');
     $stmt->execute([$user['id'], $courseId]);
+    if ($stmt->rowCount() > 0) {
+        incrementCourseStudentCount($conn, $courseId);
+    }
 
     sendSuccess(['course_id' => $courseId], 'Inscripción creada', 201);
 }
