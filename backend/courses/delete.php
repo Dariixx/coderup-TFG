@@ -26,11 +26,37 @@ if (!$stmt->fetch()) {
 }
 
 try {
-    // Eliminar del carrito primero (si existiera relación)
+    $conn->beginTransaction();
+
+    // Limpiar relaciones explícitas antes del curso. Algunas instalaciones antiguas
+    // no tienen ON DELETE CASCADE en order_items y bloqueaban el borrado desde panel.
+    $relatedTables = [
+        'cart_items',
+        'course_reviews',
+        'enrollments',
+        'order_items',
+    ];
+
+    foreach ($relatedTables as $table) {
+        try {
+            $stmt = $conn->prepare("DELETE FROM {$table} WHERE course_id = ?");
+            $stmt->execute([$courseId]);
+        } catch (PDOException $ignored) {
+            // La tabla puede no existir en instalaciones parciales; no debe bloquear
+            // la eliminación si la relación no está creada.
+        }
+    }
+
     $stmt = $conn->prepare('DELETE FROM courses WHERE id = ?');
     $stmt->execute([$courseId]);
 
+    $conn->commit();
+
     sendSuccess(null, 'Curso eliminado correctamente');
 } catch (PDOException $e) {
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
+
     sendError('Error al eliminar curso', 500, $e->getMessage());
 }

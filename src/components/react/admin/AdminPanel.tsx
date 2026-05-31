@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { loginUser, logoutUser } from "../../../lib/auth";
 import { useAuth } from "../useAuth";
 import AdminCoursesManager from "./AdminCoursesManager";
@@ -26,6 +26,15 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(false);
 
   const isAdmin = user?.role === "admin";
+  const isEditor = user?.role === "editor";
+  const isStaff = isAdmin || isEditor;
+  const visibleTabs = isAdmin ? tabs : tabs.filter((tab) => tab.id === "cursos");
+
+  useEffect(() => {
+    if (isEditor && activeTab !== "cursos") {
+      setActiveTab("cursos");
+    }
+  }, [activeTab, isEditor]);
 
   const handleAdminLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,15 +49,15 @@ export default function AdminPanel() {
       return;
     }
 
-    if (result.user.role !== "admin") {
+    if (!["admin", "editor"].includes(result.user.role)) {
       await logoutUser();
-      setMessage("Esta zona es solo para administradores.");
+      setMessage("Esta zona es solo para perfiles admin o editor.");
       return;
     }
 
     setEmail("");
     setPassword("");
-    setActiveTab("resumen");
+    setActiveTab(result.user.role === "editor" ? "cursos" : "resumen");
   };
 
   const handleLogout = async () => {
@@ -64,15 +73,15 @@ export default function AdminPanel() {
     );
   }
 
-  if (!isAdmin) {
+  if (!isStaff) {
     return (
       <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
         <section className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-8 lg:p-10 flex flex-col justify-between">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Admin</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Panel interno</p>
             <h1 className="text-4xl lg:text-5xl font-bold text-white mb-5">Acceso privado</h1>
             <p className="text-[#888] text-lg leading-relaxed">
-              Entra al panel interno para controlar cursos, usuarios, pedidos y estadisticas desde una sola zona.
+              Entra con una cuenta admin o editor. Admin controla toda la plataforma; editor gestiona el catalogo de cursos.
             </p>
           </div>
           <div className="mt-10 grid grid-cols-2 gap-3 text-sm">
@@ -97,7 +106,7 @@ export default function AdminPanel() {
 
         <form onSubmit={handleAdminLogin} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8 lg:p-10">
           <p className="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Inicio de sesion especial</p>
-          <h2 className="text-3xl font-bold text-white mb-8">Panel de administracion</h2>
+          <h2 className="text-3xl font-bold text-white mb-8">Panel interno</h2>
 
           <label className="block text-sm font-semibold text-[#888] mb-2" htmlFor="admin-email">
             Email
@@ -148,10 +157,12 @@ export default function AdminPanel() {
       <section className="rounded-2xl border border-[#2A2A2A] bg-gradient-to-br from-[#111111] to-[#171717] p-6 lg:p-8">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Administracion</p>
-            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-3">Panel CoderUp</h1>
+            <p className="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">{isAdmin ? "Administracion" : "Edicion"}</p>
+            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-3">{isAdmin ? "Panel CoderUp" : "Panel de cursos"}</h1>
             <p className="text-[#888] max-w-3xl">
-              Gestiona la plataforma desde un unico panel: resumen, cursos, usuarios y pedidos sin salir de esta pagina.
+              {isAdmin
+                ? "Gestiona la plataforma desde un unico panel: resumen, cursos, usuarios y pedidos sin salir de esta pagina."
+                : "Gestiona cursos desde la base de datos real: crear, editar, publicar u ocultar y eliminar contenido del catalogo."}
             </p>
           </div>
 
@@ -171,7 +182,7 @@ export default function AdminPanel() {
       </section>
 
       <nav className="grid sm:grid-cols-2 xl:grid-cols-5 gap-3">
-        {tabs.map((tab) => {
+        {visibleTabs.map((tab) => {
           const selected = activeTab === tab.id;
 
           return (
@@ -193,11 +204,11 @@ export default function AdminPanel() {
       </nav>
 
       <section className="space-y-6">
-        {activeTab === "resumen" && <AdminStats />}
+        {isAdmin && activeTab === "resumen" && <AdminStats />}
         {activeTab === "cursos" && <AdminCoursesManager />}
-        {activeTab === "usuarios" && <AdminUsersManager />}
-        {activeTab === "pedidos" && <AdminOrdersManager />}
-        {activeTab === "cupones" && <CouponsPanel />}
+        {isAdmin && activeTab === "usuarios" && <AdminUsersManager />}
+        {isAdmin && activeTab === "pedidos" && <AdminOrdersManager />}
+        {isAdmin && activeTab === "cupones" && <CouponsPanel />}
       </section>
     </div>
   );
