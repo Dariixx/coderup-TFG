@@ -49,7 +49,7 @@ function ensureRequiredRoleAccounts($conn) {
 
     ensureAuthTables($conn);
 
-    $demoPasswordHash = '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/iWslm.1.6.m5YGOvq';
+    $demoPasswordHash = password_hash('password', PASSWORD_BCRYPT, ['cost' => 12]);
 
     $accounts = [
         [
@@ -87,8 +87,11 @@ function ensureRequiredRoleAccounts($conn) {
             role = VALUES(role)
     ');
 
+    $updateStmt = $conn->prepare('UPDATE users SET name = ?, password = ?, role = ? WHERE email = ?');
+
     foreach ($accounts as $account) {
         $stmt->execute($account);
+        $updateStmt->execute([$account[0], $account[2], $account[3], $account[1]]);
     }
 
     $stmt = $conn->prepare("UPDATE users SET role = 'client' WHERE email = ?");

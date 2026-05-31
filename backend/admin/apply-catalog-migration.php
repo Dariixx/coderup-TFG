@@ -54,8 +54,10 @@ $statements = [
 $migrationFiles = [
     __DIR__ . '/catalog-quality-update.sql',
     __DIR__ . '/course-reviews-and-counts.sql',
+    __DIR__ . '/reset-demo-users.sql',
     __DIR__ . '/../../database/migrations/2026_05_31_catalog_quality_update.sql',
     __DIR__ . '/../../database/migrations/2026_05_31_course_reviews_and_counts.sql',
+    __DIR__ . '/../../database/migrations/2026_05_31_reset_demo_users.sql',
 ];
 
 try {
@@ -74,7 +76,9 @@ try {
             }
         }
     }
-    sendSuccess(['statements' => count($statements), 'files' => count($migrationFiles)], 'Migración de catálogo y blog aplicada');
+    ensureRequiredRoleAccounts($conn);
+
+    sendSuccess(['statements' => count($statements), 'files' => count($migrationFiles)], 'Migración de catálogo, blog y usuarios demo aplicada');
 } catch (Throwable $e) {
     if ($conn->inTransaction()) {
         $conn->rollBack();
