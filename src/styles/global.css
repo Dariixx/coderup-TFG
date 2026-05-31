@@ -38,15 +38,12 @@
     min-height: 100vh;
   }
 
-  button,
-  [role="button"],
-  summary,
-  a[href],
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"],
-  select,
-  label[for] {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  .cursor-pointer {
     cursor: pointer;
   }
 
