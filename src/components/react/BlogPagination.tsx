@@ -132,7 +132,7 @@ export default function BlogPagination({ posts, postsPerPage = 6 }: Props) {
               <img
                 src={post.cover?.url ?? IMAGE_FALLBACK}
                 alt={post.title}
-                className="h-48 w-full bg-[#111111] object-contain p-8 transition duration-500 group-hover:scale-105"
+                className="h-48 w-full bg-[#111111] object-cover transition duration-500 group-hover:scale-105"
                 loading="lazy"
                 onError={(event) => {
                   event.currentTarget.src = IMAGE_FALLBACK;

@@ -64,23 +64,6 @@ const blogCategoryDescriptions: Record<string, string> = {
   Automatización: "Flujos de trabajo, productividad técnica y automatización aplicada a proyectos reales.",
 };
 
-const blogCopyOverrides: Record<string, { title: string; excerpt: string; content: string; cover_image_url: string }> = {
-  "guia-completa-hooks-react": {
-    title: "Guía práctica de Hooks en React",
-    excerpt: "Aprende cuándo usar useState, useEffect, useContext y custom hooks con ejemplos pensados para una plataforma de cursos.",
-    content:
-      "<h2>Por qué importan los hooks</h2><p>Los hooks permiten crear pantallas interactivas sin convertir cada componente en una estructura difícil de seguir. En CoderUp se usan para controlar formularios, filtros de cursos, carrito, autenticación y carga de datos desde la API.</p><p>useState ayuda con estados cercanos a la interfaz, como abrir un modal o recordar una búsqueda. useEffect sirve para sincronizar la pantalla con datos externos, por ejemplo al pedir cursos a MySQL. useContext es útil cuando una información debe compartirse entre varias zonas, como el usuario autenticado o el carrito.</p><h2>Buenas prácticas para clientes</h2><p>Un buen hook debe resolver una responsabilidad concreta y devolver nombres fáciles de entender. Esto mejora la accesibilidad del producto porque los estados de carga, error y éxito se muestran de forma clara, sin dejar al cliente esperando sin explicación.</p><p>También conviene cuidar las dependencias de useEffect. Si están mal definidas, la página puede repetir peticiones o enseñar datos desactualizados. Separar la lógica en hooks pequeños hace que el comportamiento sea más previsible y fácil de mantener.</p><h2>Conclusión</h2><p>Dominar hooks no consiste en memorizar funciones, sino en construir experiencias fluidas, comprensibles y preparadas para crecer.</p>",
-    cover_image_url: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=1200&q=82",
-  },
-  "api-rest-mejores-practicas": {
-    title: "API REST: respuestas claras para clientes",
-    excerpt: "Diseña endpoints previsibles, mensajes de error útiles y respuestas consistentes para que el frontend sea más fiable.",
-    content:
-      "<h2>Una API como contrato</h2><p>Una API REST no es solo una lista de archivos en backend. Es el contrato que permite que la interfaz muestre cursos, posts, instructores, cupones y pedidos sin adivinar cómo llegan los datos.</p><p>Cuando las respuestas mantienen una estructura consistente, el frontend puede enseñar mensajes claros: cursos cargados, cupón aplicado, pedido completado o error de validación. Esto mejora la experiencia del cliente porque cada acción tiene una respuesta comprensible.</p><h2>Seguridad y mantenimiento</h2><p>Las buenas prácticas incluyen validación de entrada, prepared statements, tokens de sesión y códigos HTTP correctos. Un error 400 comunica datos inválidos, un 401 falta de autenticación, un 404 recurso inexistente y un 500 un fallo inesperado.</p><p>También conviene paginar listados, documentar campos y evitar exponer detalles internos. Así la aplicación puede crecer sin romper las pantallas existentes.</p><h2>Conclusión</h2><p>Una API profesional falla bien, protege los datos y permite que la experiencia del cliente sea estable.</p>",
-    cover_image_url: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=82",
-  },
-};
-
 interface ApiCourseRecord {
   id: number;
   category_id: number;
@@ -322,7 +305,7 @@ function mapApiCourse(record: ApiCourseRecord, index: number): Course {
 }
 
 function mapApiPost(record: ApiPostRecord): BlogPost {
-  const displayRecord = { ...record, ...blogCopyOverrides[record.slug] };
+  const displayRecord = record;
   const category = createBlogCategory(record.category);
   const tags = parseJsonField<string[]>(displayRecord.tags, []).map((tag, index) => ({
     id: `${displayRecord.slug}-${index}`,
@@ -337,7 +320,7 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
     excerpt: displayRecord.excerpt,
     content: displayRecord.content,
     publishedAt: displayRecord.published_at,
-    readingTime: Number(displayRecord.read_time_minutes ?? displayRecord.read_time) || getReadingTime(displayRecord.content),
+    readingTime: getReadingTime(displayRecord.content),
     author: displayRecord.author_name ?? "Equipo CoderUp",
     category,
     tags,
@@ -352,7 +335,7 @@ function mapApiPost(record: ApiPostRecord): BlogPost {
 
 async function fetchApiCourses(): Promise<Course[] | null> {
   try {
-    const response = await apiGet<ApiCourseRecord[] | { courses: ApiCourseRecord[] }>("/api/courses.php");
+    const response = await apiGet<ApiCourseRecord[] | { courses: ApiCourseRecord[] }>("/api/courses.php?limit=50");
     const courses = Array.isArray(response.data) ? response.data : response.data?.courses ?? [];
     return courses.map(mapApiCourse);
   } catch {

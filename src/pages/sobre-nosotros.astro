@@ -5,19 +5,28 @@ import Footer from "../components/layout/Footer.astro";
 import BackToTop from "../components/react/BackToTop.tsx";
 import { Icon } from "astro-icon/components";
 import { getAboutImage, IMAGE_FALLBACK } from "../lib/images";
+import { getCourses } from "../lib/content";
 
 const values = [
   { icon: "lucide:target", title: "Práctica sobre teoría", description: "Creemos que se aprende haciendo. Todos nuestros cursos están basados en proyectos reales." },
-  { icon: "lucide:refresh-cw", title: "Siempre actualizado", description: "La tecnología cambia rápido. Nuestros cursos se actualizan constantemente." },
-  { icon: "lucide:users", title: "Comunidad", description: "Aprender juntos es mejor. Nuestra comunidad es parte fundamental de la experiencia." },
-  { icon: "lucide:heart", title: "Accesibilidad", description: "Educación de calidad al alcance de todos, sin importar tu background." },
+  { icon: "lucide:layers-3", title: "Catálogo claro", description: "Cada curso muestra nivel, temario, requisitos, duración, precio e instructor." },
+  { icon: "lucide:database", title: "Datos desde MySQL", description: "El catálogo, blog e instructores salen de la base de datos desplegada." },
+  { icon: "lucide:heart", title: "Accesibilidad", description: "Cuidamos contraste, legibilidad y navegación para una experiencia más usable." },
 ];
 
+const courses = await getCourses();
+const courseCount = courses.length;
+const categoryCount = new Set(courses.map((course) => course.category.slug)).size;
+const certificateCount = courseCount;
+const averageRating = courseCount
+  ? (courses.reduce((sum, course) => sum + Number(course.rating ?? 0), 0) / courseCount).toFixed(1)
+  : "0.0";
+
 const stats = [
-  { icon: "lucide:book-open", value: "+50", label: "Cursos" },
-  { icon: "lucide:users", value: "+10K", label: "Estudiantes" },
-  { icon: "lucide:star", value: "4.9", label: "Valoración media" },
-  { icon: "lucide:award", value: "+5K", label: "Certificados" },
+  { icon: "lucide:book-open", value: String(courseCount), label: "Cursos publicados" },
+  { icon: "lucide:folder", value: String(categoryCount), label: "Categorías" },
+  { icon: "lucide:star", value: averageRating, label: "Valoración media" },
+  { icon: "lucide:award", value: String(certificateCount), label: "Certificaciones disponibles" },
 ];
 
 const aboutImage = getAboutImage();
@@ -35,9 +44,8 @@ const aboutImage = getAboutImage();
           Creemos en aprender <span class="text-[#00FF66]">haciendo</span>
         </h1>
         <p class="text-[#888] text-lg leading-relaxed">
-          CoderUp nació con una misión clara: hacer que aprender programación sea práctico, 
-          accesible y relevante para el mundo real. No somos una universidad, somos developers 
-          que enseñan a developers.
+          CoderUp organiza cursos de programación en un catálogo práctico, con instructores,
+          temarios y contenidos conectados a una base de datos real.
         </p>
       </div>
     </div>
@@ -83,17 +91,16 @@ const aboutImage = getAboutImage();
           </h2>
           <div class="space-y-4 text-[#888] leading-relaxed">
             <p>
-              Creemos que cualquier persona debería tener acceso a educación de calidad en tecnología, 
-              sin importar su ubicación, su experiencia previa o su situación económica.
+              Queremos que el catálogo sea fácil de explorar: cada curso debe explicar qué se aprende,
+              qué requisitos tiene, cuánto dura y quién lo imparte.
             </p>
             <p>
-              Nuestros cursos están diseñados por profesionales en activo que trabajan con estas 
-              tecnologías cada día. No enseñamos teoría vacía: enseñamos lo que realmente se usa 
-              en la industria.
+              La plataforma conecta cursos, categorías, instructores, blog, carrito y pedidos con el
+              backend PHP y MySQL desplegado en producción.
             </p>
             <p>
-              Cada curso incluye proyectos prácticos, ejercicios y recursos para que puedas 
-              construir tu portfolio mientras aprendes.
+              Cada curso publicado puede emitir una certificación de finalización, por eso el número
+              de certificaciones disponibles se calcula desde el número real de cursos.
             </p>
           </div>
         </div>
@@ -116,8 +123,8 @@ const aboutImage = getAboutImage();
             <div class="flex items-start gap-4">
               <Icon name="lucide:check-circle" class="w-6 h-6 text-[#00FF66] shrink-0 mt-0.5" />
               <div>
-                <h3 class="text-white font-semibold">Comunidad activa</h3>
-                <p class="text-[#888] text-sm">Resuelve dudas y conecta con otros estudiantes y mentores.</p>
+                <h3 class="text-white font-semibold">Datos consistentes</h3>
+                <p class="text-[#888] text-sm">Cursos, categorías, instructores y blog se muestran desde MySQL.</p>
               </div>
             </div>
             <div class="flex items-start gap-4">
@@ -158,7 +165,7 @@ const aboutImage = getAboutImage();
   <section class="py-20 border-t border-[#2A2A2A]">
     <div class="max-w-4xl mx-auto px-4 text-center">
       <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">¿Listo para empezar?</h2>
-      <p class="text-[#888] text-lg mb-10">Únete a miles de developers que ya están aprendiendo con CoderUp.</p>
+      <p class="text-[#888] text-lg mb-10">Explora el catálogo completo y elige el curso que encaje con tu nivel.</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="/cursos" class="bg-[#00FF66] text-[#0A0A0A] px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#00CC52] transition shadow-lg shadow-[#00FF66]/20 flex items-center gap-2 justify-center">
           <Icon name="lucide:rocket" class="w-5 h-5" /> Explorar cursos

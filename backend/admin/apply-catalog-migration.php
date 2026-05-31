@@ -18,6 +18,7 @@ if (!$hasMigrationKey && (!$user || !in_array($user['role'], ['admin', 'editor']
 $statements = [
     "UPDATE instructors SET avatar_url = '/instructors/juan-garcia.jpeg' WHERE email = 'juan@coderup.com'",
     "UPDATE instructors SET avatar_url = '/instructors/maria-lopez.png' WHERE email = 'maria@coderup.com'",
+    "UPDATE instructors SET avatar_url = '/instructors/carlos-rodriguez.png' WHERE email = 'carlos@coderup.com'",
     "UPDATE instructors SET avatar_url = '/instructors/ana-martinez.png' WHERE email = 'ana@coderup.com'",
     "UPDATE courses SET thumbnail_url = 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=1200&q=82' WHERE slug = 'react-avanzado'",
     "UPDATE courses SET thumbnail_url = 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=82' WHERE slug = 'nodejs-apis-rest'",
@@ -50,13 +51,30 @@ $statements = [
     ('Automatizar builds con GitHub Actions', 'automatizar-builds-github-actions', 'Configura workflows para ejecutar build, tests y despliegues con cada cambio importante del repositorio.', '<h2>Automatización visible</h2><p>GitHub Actions permite convertir tareas repetitivas en workflows. Cada push puede ejecutar instalación de dependencias, build, tests y comprobaciones básicas de calidad.</p><p>Esto aporta confianza al equipo y también mejora la defensa del proyecto: se ve que el repositorio no solo contiene código, sino un proceso de entrega.</p><h2>Qué automatizar primero</h2><p>Lo más útil suele ser empezar por build y tests. Después se pueden añadir lint, auditoría de dependencias, generación de artefactos y despliegue controlado con secrets.</p><p>Un workflow claro debe tener nombres descriptivos, jobs separados y logs fáciles de interpretar.</p><h2>Conclusión</h2><p>Automatizar el pipeline reduce errores manuales y hace que el proyecto parezca más profesional desde la primera captura.</p>', 'https://images.unsplash.com/photo-1556075798-4825dfaaf498?auto=format&fit=crop&w=1200&q=82', 3, 'Automatización', JSON_ARRAY('github-actions', 'ci-cd', 'devops'), 7, TRUE, NOW()) ON DUPLICATE KEY UPDATE title = VALUES(title), excerpt = VALUES(excerpt), content = VALUES(content), cover_image_url = VALUES(cover_image_url), author_id = VALUES(author_id), category = VALUES(category), tags = VALUES(tags), read_time_minutes = VALUES(read_time_minutes), is_published = VALUES(is_published)"
 ];
 
+$migrationFiles = [
+    __DIR__ . '/catalog-quality-update.sql',
+    __DIR__ . '/../../database/migrations/2026_05_31_catalog_quality_update.sql',
+];
+
 try {
     $conn->beginTransaction();
     foreach ($statements as $statement) {
         $conn->exec($statement);
     }
+    foreach ($migrationFiles as $migrationFile) {
+        if (!is_file($migrationFile)) {
+            continue;
+        }
+        $sql = trim((string) file_get_contents($migrationFile));
+        foreach (preg_split('/;\s*(?:\r?\n|$)/', $sql) as $statement) {
+            $statement = trim($statement);
+            if ($statement !== '') {
+                $conn->exec($statement);
+            }
+        }
+    }
     $conn->commit();
-    sendSuccess(['statements' => count($statements)], 'Migración de catálogo y blog aplicada');
+    sendSuccess(['statements' => count($statements), 'files' => count($migrationFiles)], 'Migración de catálogo y blog aplicada');
 } catch (Throwable $e) {
     if ($conn->inTransaction()) {
         $conn->rollBack();

@@ -4,7 +4,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Navbar from "../components/layout/Navbar.astro";
 import Footer from "../components/layout/Footer.astro";
 import AnimatedCounter from "../components/react/AnimatedCounter.tsx";
-import TestimonialCarousel from "../components/react/TestimonialCarousel.tsx";
 import FAQAccordion from "../components/react/FAQAccordion.tsx";
 import BackToTop from "../components/react/BackToTop.tsx";
 import GitHubProjects from "../components/react/GitHubProjects.tsx";
@@ -35,7 +34,7 @@ type CoursesPayload = HomeCourse[] | { courses?: HomeCourse[] };
 let coursesPayload: CoursesPayload = [];
 
 try {
-  const response = await getCourses() as { data: CoursesPayload };
+  const response = await getCourses({ limit: "50" }) as { data: CoursesPayload };
   coursesPayload = response.data;
 } catch {
   coursesPayload = [];
@@ -45,8 +44,9 @@ const courses = Array.isArray(coursesPayload) ? coursesPayload : coursesPayload?
 const markedFeatured = courses.filter((course) => course.is_featured === true || course.is_featured === 1 || course.is_featured === "1");
 const featuredCourses = (markedFeatured.length > 0 ? markedFeatured : courses).slice(0, 3);
 const courseCount = courses.length;
+const categoryCount = new Set(courses.map((course) => course.category_slug ?? course.category_name ?? course.category?.name).filter(Boolean)).size;
 const studentsTotal = courses.reduce((sum, course) => sum + Number(course.total_students ?? course.students ?? 0), 0);
-const studentsK = Math.max(1, Math.round(studentsTotal / 1000));
+const studentsK = Math.round(studentsTotal / 1000);
 const ratingAverage = courses.length
   ? courses.reduce((sum, course) => sum + Number(course.rating ?? 0), 0) / courses.length
   : 4.9;
@@ -54,10 +54,10 @@ const ratingDecimal = Math.round((ratingAverage - Math.floor(ratingAverage)) * 1
 
 const faqs = [
   { question: "¿Los cursos son para principiantes?", answer: "Sí, tenemos cursos para todos los niveles. Desde cero absoluto hasta nivel avanzado. Cada curso indica claramente el nivel requerido." },
-  { question: "¿Cuánto tiempo tengo acceso al curso?", answer: "Acceso de por vida. Una vez compras un curso, es tuyo para siempre. Incluye todas las actualizaciones futuras sin coste adicional." },
-  { question: "¿Hay certificado al completar un curso?", answer: "Sí, todos los cursos incluyen un certificado de finalización que puedes añadir a tu LinkedIn o CV." },
-  { question: "¿Puedo pedir un reembolso?", answer: "Ofrecemos garantía de 30 días. Si no estás satisfecho, te devolvemos el 100% del dinero sin preguntas." },
-  { question: "¿Cómo se imparten los cursos?", answer: "Vídeos grabados en alta calidad, ejercicios prácticos, proyectos reales y acceso a la comunidad de estudiantes y mentores." },
+  { question: "¿Qué información incluye cada curso?", answer: "Cada ficha muestra descripción, nivel, duración, número de lecciones, requisitos, temario, instructor, valoración y precio." },
+  { question: "¿Hay cursos gratuitos?", answer: "Sí. Los cursos con precio 0 aparecen marcados como gratuitos en el catálogo." },
+  { question: "¿Cómo se organizan las certificaciones?", answer: "Cada curso publicado puede tener una certificación de finalización asociada, por eso el total se calcula desde el catálogo real." },
+  { question: "¿De dónde salen los datos?", answer: "El catálogo, instructores y blog se cargan desde el backend PHP conectado a MySQL." },
 ];
 
 ---
@@ -80,12 +80,11 @@ const faqs = [
         <span class="text-[#00FF66]">Evoluciona.</span>
       </h1>
       <p class="text-lg md:text-xl text-[#888] max-w-2xl mx-auto mb-10">
-        Cursos prácticos de programación creados por developers, para developers. 
-        Sube de nivel con proyectos reales.
+        Cursos prácticos de programación con categorías, instructores, temarios y precios cargados desde el catálogo real.
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <a href="/cursos" class="bg-[#00FF66] text-[#0A0A0A] px-8 py-4 rounded-xl font-bold text-lg hover:bg-[#00CC52] transition shadow-lg shadow-[#00FF66]/20 flex items-center gap-2 justify-center">
-          <Icon name="lucide:rocket" class="w-5 h-5" /> Empieza Gratis
+          <Icon name="lucide:rocket" class="w-5 h-5" /> Explorar catálogo
         </a>
         <a href="#como-funciona" class="border border-[#2A2A2A] text-white px-8 py-4 rounded-xl font-bold text-lg hover:border-[#00FF66]/50 transition flex items-center gap-2 justify-center">
           <Icon name="lucide:play" class="w-5 h-5" /> Cómo funciona
@@ -99,7 +98,7 @@ const faqs = [
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         <div>
-          <AnimatedCounter client:visible end={courseCount || 12} prefix="+" />
+          <AnimatedCounter client:visible end={courseCount} />
           <p class="text-[#888] mt-2">Cursos</p>
         </div>
         <div>
@@ -111,8 +110,8 @@ const faqs = [
           <p class="text-[#888] mt-2">Valoración</p>
         </div>
         <div>
-          <AnimatedCounter client:visible end={100} suffix="%" />
-          <p class="text-[#888] mt-2">Práctico</p>
+          <AnimatedCounter client:visible end={categoryCount} />
+          <p class="text-[#888] mt-2">Categorías</p>
         </div>
       </div>
     </div>
@@ -152,14 +151,14 @@ const faqs = [
             <Icon name="lucide:code" class="w-8 h-8 text-[#00FF66]" />
           </div>
           <h3 class="text-xl font-bold text-white mb-3">2. Aprende practicando</h3>
-          <p class="text-[#888]">Vídeos claros + ejercicios prácticos + proyectos reales. Aprende haciendo, no memorizando.</p>
+          <p class="text-[#888]">Revisa requisitos, temario y lecciones para avanzar con una ruta clara.</p>
         </div>
         <div class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl p-8 text-center hover:border-[#00FF66]/50 transition group">
           <div class="w-16 h-16 bg-[#00FF66]/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-[#00FF66]/20 transition">
             <Icon name="lucide:trophy" class="w-8 h-8 text-[#00FF66]" />
           </div>
           <h3 class="text-xl font-bold text-white mb-3">3. Sube de nivel</h3>
-          <p class="text-[#888]">Obtén tu certificado, mejora tu portfolio y consigue el trabajo de tus sueños.</p>
+          <p class="text-[#888]">Completa el curso y usa su temario como guía para tu siguiente proyecto.</p>
         </div>
       </div>
     </div>
@@ -170,7 +169,7 @@ const faqs = [
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="text-center mb-16">
         <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Cursos Destacados</h2>
-        <p class="text-[#888] text-lg">Los más populares de nuestra plataforma</p>
+        <p class="text-[#888] text-lg">Una selección del catálogo publicado</p>
       </div>
       <div class="grid md:grid-cols-3 gap-8">
         {featuredCourses.map((course) => (
@@ -208,17 +207,6 @@ const faqs = [
     </div>
   </section>
 
-  <!-- TESTIMONIOS -->
-  <section class="py-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">Lo que dicen nuestros alumnos</h2>
-        <p class="text-[#888] text-lg">Miles de developers ya confían en CoderUp</p>
-      </div>
-      <TestimonialCarousel client:visible />
-    </div>
-  </section>
-
   <!-- FAQ -->
   <section class="py-20 bg-[#111]/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -238,7 +226,7 @@ const faqs = [
         ¿Listo para subir de nivel?
       </h2>
       <p class="text-[#888] text-lg mb-10">
-        Únete a miles de developers que ya están evolucionando con CoderUp.
+        Revisa los cursos disponibles y empieza por el que encaje con tu nivel.
       </p>
       <a href="/cursos" class="bg-[#00FF66] text-[#0A0A0A] px-10 py-4 rounded-xl font-bold text-lg hover:bg-[#00CC52] transition shadow-lg shadow-[#00FF66]/20 hover:shadow-[#00FF66]/40 hover:scale-105 inline-flex items-center gap-2">
         <Icon name="lucide:rocket" class="w-5 h-5" /> Empezar Ahora

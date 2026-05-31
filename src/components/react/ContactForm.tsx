@@ -43,15 +43,18 @@ export default function ContactForm() {
     setErrorMessage("");
     setStatus("sending");
 
-    // Simulación asíncrona defendible para la demo mientras no exista backend de contacto.
-    await new Promise((resolve) => setTimeout(resolve, 1200));
-
     try {
+      const mailto = new URL("mailto:hola@coderup-tfg.vercel.app");
+      mailto.searchParams.set("subject", formData.subject.trim());
+      mailto.searchParams.set(
+        "body",
+        `Nombre: ${formData.name.trim()}\nEmail: ${formData.email.trim()}\n\n${formData.message.trim()}`,
+      );
+      window.location.href = mailto.toString();
       setStatus("sent");
-      setFormData({ name: "", email: "", subject: "", message: "" });
       setTimeout(() => setStatus("idle"), 3000);
     } catch {
-      setErrorMessage("No se pudo enviar el formulario. Inténtalo de nuevo.");
+      setErrorMessage("No se pudo abrir tu cliente de correo. Escríbenos a hola@coderup-tfg.vercel.app.");
       setStatus("error");
     }
   };
@@ -106,7 +109,7 @@ export default function ContactForm() {
             : "bg-[#00FF66] text-[#0A0A0A] hover:bg-[#00CC52] shadow-lg shadow-[#00FF66]/20"
         }`}
       >
-        {status === "sending" ? "Enviando..." : status === "sent" ? "Mensaje enviado" : "Enviar mensaje"}
+        {status === "sending" ? "Preparando..." : status === "sent" ? "Correo preparado" : "Preparar email"}
       </button>
       {status === "error" && (
         <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
@@ -115,7 +118,7 @@ export default function ContactForm() {
       )}
       {status === "sent" && (
         <p className="rounded-xl border border-[#00FF66]/30 bg-[#00FF66]/10 px-4 py-3 text-sm text-[#9CFFBF]">
-          Hemos registrado tu mensaje correctamente. Te responderemos lo antes posible.
+          Se ha abierto tu cliente de correo con el mensaje preparado.
         </p>
       )}
     </form>

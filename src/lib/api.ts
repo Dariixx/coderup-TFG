@@ -178,10 +178,11 @@ export function getApiHelpMessage(error: unknown) {
   return "No se ha podido completar la operación con el backend.";
 }
 
-export async function getCourses(filters?: { category?: string; level?: string }) {
+export async function getCourses(filters?: { category?: string; level?: string; limit?: string }) {
   const params = new URLSearchParams();
   if (filters?.category) params.set("category", filters.category);
   if (filters?.level) params.set("level", filters.level);
+  if (filters?.limit) params.set("limit", filters.limit);
 
   const query = params.toString();
   return apiGet(query ? `/api/courses.php?${query}` : "/api/courses.php");

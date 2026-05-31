@@ -2,20 +2,24 @@
 
 @layer base {
   :root {
-    --color-primary: #00FF66;
-    --color-primary-dark: #00CC52;
-    --color-secondary: #00FF66;
-    --color-accent: #00FF66;
-    --color-bg: #0A0A0A;
-    --color-bg-alt: #111111;
-    --color-bg-card: #1A1A1A;
-    --color-text: #E0E0E0;
-    --color-text-muted: #888888;
-    --color-border: #2A2A2A;
+    --color-primary: #26F27A;
+    --color-primary-dark: #16C963;
+    --color-secondary: #38BDF8;
+    --color-accent: #A78BFA;
+    --color-bg: #070A0D;
+    --color-bg-alt: #0F141B;
+    --color-bg-card: #151B23;
+    --color-text: #E6EDF3;
+    --color-text-muted: #A8B3C1;
+    --color-border: #2B3542;
   }
 
   :root[data-theme="light"] {
-    --color-bg: #f6f8f7;
+    --color-primary: #087A3D;
+    --color-primary-dark: #066A35;
+    --color-secondary: #0369A1;
+    --color-accent: #6D28D9;
+    --color-bg: #f7faf8;
     --color-bg-alt: #ffffff;
     --color-bg-card: #ffffff;
     --color-text: #111827;
@@ -62,7 +66,20 @@
   :root[data-theme="light"] .text-\[\#888\],
   :root[data-theme="light"] .text-\[\#777\],
   :root[data-theme="light"] .text-\[\#666\] {
-    color: #4b5563 !important;
+    color: #445063 !important;
+  }
+
+  :root[data-theme="light"] .text-\[\#00FF66\] {
+    color: #087a3d !important;
+  }
+
+  :root[data-theme="light"] .bg-\[\#00FF66\] {
+    background-color: #087a3d !important;
+    color: #ffffff !important;
+  }
+
+  :root[data-theme="light"] .bg-\[\#00FF66\]\/10 {
+    background-color: rgba(8, 122, 61, 0.1) !important;
   }
 
   :root[data-theme="light"] .border-\[\#2A2A2A\],

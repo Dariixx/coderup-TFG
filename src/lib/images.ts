@@ -43,7 +43,7 @@ const courseImages: Array<[string, string]> = [
 const instructorAvatars = [
   "/instructors/juan-garcia.jpeg",
   "/instructors/maria-lopez.png",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&h=400&q=82",
+  "/instructors/carlos-rodriguez.png",
   "/instructors/ana-martinez.png",
 ];
 
