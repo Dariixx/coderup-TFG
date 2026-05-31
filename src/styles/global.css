@@ -38,6 +38,25 @@
     min-height: 100vh;
   }
 
+  button,
+  [role="button"],
+  summary,
+  a[href],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  select,
+  label[for] {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    cursor: not-allowed;
+  }
+
   :root[data-theme="light"] body {
     background-color: var(--color-bg) !important;
     color: var(--color-text) !important;

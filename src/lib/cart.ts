@@ -65,6 +65,12 @@ function hydrateFromApi(payload: any) {
   }
 }
 
+function recalculateCartTotals() {
+  subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+  const discount = appliedCoupon?.discountAmount ?? 0;
+  total = Math.max(0, Number((subtotal - discount).toFixed(2)));
+}
+
 export async function initCartStore() {
   if (loadingPromise) {
     return loadingPromise;
@@ -131,8 +137,24 @@ export async function addCourseToCart(item: CartItem) {
     return false;
   }
 
+  const previous = {
+    cart,
+    subtotal,
+    total,
+    appliedCoupon,
+  };
+
+  cart = [...cart, { ...item, id: item.id ?? -Date.now() }];
+  recalculateCartTotals();
+  notify();
+
   const response = await apiAddToCart(item.courseId);
   if (!response.ok) {
+    cart = previous.cart;
+    subtotal = previous.subtotal;
+    total = previous.total;
+    appliedCoupon = previous.appliedCoupon;
+    notify();
     return false;
   }
 
@@ -151,9 +173,31 @@ export async function removeCourseFromCart(slugOrId: string | number) {
     return;
   }
 
+  const previous = {
+    cart,
+    subtotal,
+    total,
+    appliedCoupon,
+  };
+
+  cart = cart.filter((cartItem) => cartItem.slug !== item.slug && cartItem.id !== item.id);
+  recalculateCartTotals();
+  notify();
+
+  if (item.id < 0) {
+    await refreshCartStore().catch(() => {});
+    return;
+  }
+
   const response = await apiRemoveFromCart(item.id);
   if (response.ok) {
     hydrateFromApi(response.data);
+    notify();
+  } else {
+    cart = previous.cart;
+    subtotal = previous.subtotal;
+    total = previous.total;
+    appliedCoupon = previous.appliedCoupon;
     notify();
   }
 }

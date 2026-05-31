@@ -18,6 +18,7 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
   const [inCart, setInCart] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [pending, setPending] = useState(false);
 
   useEffect(() => {
     if (initialized) {
@@ -37,15 +38,25 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
     enrollmentsReady &&
     enrollments.some((enrollment) => enrollment.userId === user.id && enrollment.courseSlug === item.slug);
 
-  const handleClick = () => {
-    if (inCart) {
-      void removeFromCart(item.slug);
-      setInCart(false);
-    } else {
-      void addToCart(item);
-      setInCart(true);
-      setAnimating(true);
-      setTimeout(() => setAnimating(false), 600);
+  const handleClick = async () => {
+    if (pending) return;
+
+    setPending(true);
+    try {
+      if (inCart) {
+        setInCart(false);
+        await removeFromCart(item.slug);
+      } else {
+        setInCart(true);
+        setAnimating(true);
+        const added = await addToCart(item);
+        if (!added) {
+          setInCart(isInCart(item.slug));
+        }
+        setTimeout(() => setAnimating(false), 600);
+      }
+    } finally {
+      setPending(false);
     }
   };
 
@@ -89,20 +100,21 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
   return (
     <button
       onClick={handleClick}
+      disabled={pending}
       className={`font-bold transition flex items-center gap-2 justify-center rounded-xl ${
         animating ? "scale-95" : "scale-100"
       } ${
         inCart
           ? "bg-[#1A1A1A] border-2 border-[#00FF66] text-[#00FF66] hover:bg-red-500/10 hover:border-red-500 hover:text-red-400"
           : "bg-[#00FF66] text-[#0A0A0A] hover:bg-[#00CC52] shadow-lg shadow-[#00FF66]/20"
-      } ${size === "large" ? "px-8 py-4 text-lg" : "px-6 py-3 text-sm"}`}
+      } ${pending ? "opacity-85" : ""} ${size === "large" ? "px-8 py-4 text-lg" : "px-6 py-3 text-sm"}`}
     >
       {inCart ? (
         <>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          En el carrito
+          {pending ? "Actualizando..." : "En el carrito"}
         </>
       ) : (
         <>
@@ -113,7 +125,7 @@ export default function AddToCartButton({ item, course, size = "normal" }: Props
               d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"
             />
           </svg>
-          Añadir — {item.price}€
+          {pending ? "Actualizando..." : `Añadir — ${item.price}€`}
         </>
       )}
     </button>

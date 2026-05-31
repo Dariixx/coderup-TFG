@@ -1,0 +1,87 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Navbar from "../components/layout/Navbar.astro";
+import Footer from "../components/layout/Footer.astro";
+---
+
+<BaseLayout title="Terminos" description="Terminos de uso de CoderUp en fase beta.">
+  <Navbar />
+  <main class="flex-1 pt-32 pb-20">
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div class="max-w-3xl">
+        <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Terminos</p>
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Terminos de uso</h1>
+        <p class="text-[#888] leading-relaxed">
+          Estos terminos explican como usar CoderUp durante la beta. La plataforma muestra cursos, carrito,
+          inscripciones y pedidos con una experiencia realista, pero sin cobros reales.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4">
+        <div class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+          <p class="text-[#00FF66] text-sm font-semibold mb-2">Beta</p>
+          <p class="text-[#CFCFCF] text-sm leading-6">Funciones en prueba y datos revisables.</p>
+        </div>
+        <div class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+          <p class="text-[#00FF66] text-sm font-semibold mb-2">Cursos</p>
+          <p class="text-[#CFCFCF] text-sm leading-6">Catalogo, temarios y precios de demostracion.</p>
+        </div>
+        <div class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+          <p class="text-[#00FF66] text-sm font-semibold mb-2">Pedidos</p>
+          <p class="text-[#CFCFCF] text-sm leading-6">Checkout simulado, sin pasarela bancaria.</p>
+        </div>
+      </div>
+
+      <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8 space-y-7 text-[#CFCFCF] leading-relaxed">
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Uso permitido</h2>
+          <p>
+            Puedes navegar por el catalogo, crear una cuenta, anadir cursos al carrito, completar pedidos simulados,
+            inscribirte en cursos gratuitos o comprados y valorar cursos en los que estes inscrito.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Compras y precios</h2>
+          <p>
+            Los precios, cupones, pedidos y certificaciones mostrados forman parte de una beta. No se realiza ningun
+            cargo real y no se entrega una certificacion oficial fuera del entorno de demostracion.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Cuentas y seguridad</h2>
+          <p>
+            El usuario debe usar datos razonables y no intentar acceder a zonas privadas, manipular roles, alterar
+            pedidos ajenos o explotar errores de la beta. Las cuentas demo pueden tener permisos limitados.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Contenido educativo</h2>
+          <p>
+            Los cursos, articulos, temarios e instructores se presentan para probar una experiencia e-learning
+            completa. El contenido puede actualizarse, ampliarse o reorganizarse durante la beta.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Disponibilidad</h2>
+          <p>
+            La web depende de servicios de despliegue y base de datos. Puede haber interrupciones, cambios de datos o
+            reinicios de la base durante mantenimiento, migraciones o evaluacion tecnica.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Contacto</h2>
+          <p>
+            Para dudas sobre cuenta, datos o funcionamiento de la beta, utiliza la pagina de contacto. El objetivo es
+            mantener una experiencia clara, segura y defendible como producto educativo en desarrollo.
+          </p>
+        </section>
+      </article>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

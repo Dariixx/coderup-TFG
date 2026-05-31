@@ -4,38 +4,79 @@ import Navbar from "../components/layout/Navbar.astro";
 import Footer from "../components/layout/Footer.astro";
 ---
 
-<BaseLayout title="Privacidad" description="Politica de privacidad de CoderUp para el tratamiento de datos personales en un proyecto academico.">
+<BaseLayout title="Privacidad" description="Politica de privacidad de CoderUp para usuarios de la beta.">
   <Navbar />
   <main class="flex-1 pt-32 pb-20">
-    <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-      <div>
-        <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">RGPD</p>
+    <section class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div class="max-w-3xl">
+        <p class="text-sm uppercase tracking-[0.2em] text-[#00FF66] mb-4">Privacidad</p>
         <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Politica de privacidad</h1>
         <p class="text-[#888] leading-relaxed">
-          CoderUp es un proyecto academico de DAW. Los datos se usan solo para demostrar registro, autenticacion,
-          compra simulada de cursos, pedidos e inscripciones.
+          CoderUp es una plataforma beta de cursos para developers. Tratamos los datos imprescindibles para probar
+          cuentas, catalogo, carrito, pedidos simulados, inscripciones y progreso de aprendizaje.
         </p>
       </div>
 
-      <div class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 space-y-5 text-[#CFCFCF] leading-relaxed">
-        <h2 class="text-2xl font-bold text-white">Datos tratados</h2>
-        <p>Nombre, email, contraseña cifrada, rol, pedidos, cursos inscritos y progreso academico simulado.</p>
-
-        <h2 class="text-2xl font-bold text-white">Finalidad</h2>
-        <p>Gestionar cuentas, sesiones, carrito, pedidos, roles y acceso a cursos dentro de la demo.</p>
-
-        <h2 class="text-2xl font-bold text-white">Conservacion y derechos</h2>
-        <p>
-          Al ser un TFG, los datos se conservan mientras dure la evaluacion del proyecto. El usuario puede solicitar
-          acceso, rectificacion o eliminacion usando la pagina de contacto.
-        </p>
-
-        <h2 class="text-2xl font-bold text-white">Seguridad</h2>
-        <p>
-          Las contraseñas se almacenan con hash bcrypt, la comunicacion usa HTTPS en produccion y el backend aplica
-          validaciones y consultas preparadas.
-        </p>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+          <p class="text-[#00FF66] text-sm font-semibold mb-2">Datos de cuenta</p>
+          <p class="text-[#CFCFCF] text-sm leading-6">Nombre, email, rol y contrasena cifrada.</p>
+        </div>
+        <div class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
+          <p class="text-[#00FF66] text-sm font-semibold mb-2">Datos de uso</p>
+          <p class="text-[#CFCFCF] text-sm leading-6">Carrito, pedidos, inscripciones, progreso y valoraciones.</p>
+        </div>
       </div>
+
+      <article class="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6 md:p-8 space-y-7 text-[#CFCFCF] leading-relaxed">
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Responsable y alcance</h2>
+          <p>
+            Esta politica se aplica al uso de CoderUp como beta academica y demostrable. La plataforma simula una
+            experiencia comercial realista, pero actualmente no procesa pagos reales ni emite certificaciones oficiales.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Finalidades</h2>
+          <p>
+            Usamos los datos para crear cuentas, iniciar sesion, gestionar roles, mantener el carrito, registrar pedidos
+            simulados, desbloquear cursos, guardar progreso y permitir valoraciones de cursos inscritos.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Base de legitimacion</h2>
+          <p>
+            El tratamiento se basa en la ejecucion de la relacion de usuario beta con la plataforma y en el interes
+            legitimo de mantener seguridad, trazabilidad y funcionamiento correcto del servicio.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Conservacion</h2>
+          <p>
+            Los datos se conservan mientras la beta este activa o mientras sean necesarios para revisar el proyecto.
+            Las cuentas de prueba pueden limpiarse periodicamente para mantener la base de datos ordenada.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Seguridad</h2>
+          <p>
+            Las contrasenas se almacenan con hash, el backend usa consultas preparadas y las peticiones en produccion
+            se sirven sobre HTTPS. Aun asi, al ser beta, no debes introducir informacion sensible innecesaria.
+          </p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold text-white mb-3">Derechos</h2>
+          <p>
+            Puedes solicitar acceso, rectificacion, eliminacion o limitacion de tus datos desde la pagina de contacto.
+            La respuesta se realizara atendiendo al alcance tecnico de la beta.
+          </p>
+        </section>
+      </article>
     </section>
   </main>
   <Footer />
