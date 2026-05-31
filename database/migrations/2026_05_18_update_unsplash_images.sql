@@ -1,7 +1,7 @@
-UPDATE instructors SET avatar_url = 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&h=400&q=82' WHERE id = 1;
-UPDATE instructors SET avatar_url = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&h=400&q=82' WHERE id = 2;
+UPDATE instructors SET avatar_url = '/instructors/juan-garcia.jpeg' WHERE id = 1;
+UPDATE instructors SET avatar_url = '/instructors/maria-lopez.png' WHERE id = 2;
 UPDATE instructors SET avatar_url = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&h=400&q=82' WHERE id = 3;
-UPDATE instructors SET avatar_url = 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&h=400&q=82' WHERE id = 4;
+UPDATE instructors SET avatar_url = '/instructors/ana-martinez.png' WHERE id = 4;
 
 UPDATE courses SET thumbnail_url = 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=1200&q=82' WHERE id = 1;
 UPDATE courses SET thumbnail_url = 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=82' WHERE id = 2;

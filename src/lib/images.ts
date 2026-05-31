@@ -41,10 +41,10 @@ const courseImages: Array<[string, string]> = [
 ];
 
 const instructorAvatars = [
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&h=400&q=82",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&h=400&q=82",
+  "/instructors/juan-garcia.jpeg",
+  "/instructors/maria-lopez.png",
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&h=400&q=82",
-  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&h=400&q=82",
+  "/instructors/ana-martinez.png",
 ];
 
 export function getCourseImage(category?: string | null, id?: number | string | null, title?: string | null) {

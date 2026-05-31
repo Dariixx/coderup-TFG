@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS roles;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
+-- Seguridad y usuarios
 CREATE TABLE roles (
   id INT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(50) NOT NULL UNIQUE,
@@ -39,6 +40,7 @@ CREATE TABLE users (
   INDEX idx_role (role)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Catálogo académico
 CREATE TABLE instructors (
   id INT PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL,
@@ -93,6 +95,7 @@ CREATE TABLE courses (
   INDEX idx_published (is_published)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Blog y contenido editorial
 CREATE TABLE posts (
   id INT PRIMARY KEY AUTO_INCREMENT,
   title VARCHAR(255) NOT NULL,
@@ -114,6 +117,7 @@ CREATE TABLE posts (
   INDEX idx_author (author_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Carrito, pedidos e inscripciones
 CREATE TABLE coupons (
   id INT PRIMARY KEY AUTO_INCREMENT,
   code VARCHAR(50) NOT NULL UNIQUE,
