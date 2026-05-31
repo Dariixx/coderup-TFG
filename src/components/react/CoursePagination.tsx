@@ -1,6 +1,7 @@
 import { startTransition, useDeferredValue, useEffect, useMemo, useState } from "react";
 import type { Course } from "../../lib/types";
 import AddToCartButton from "./AddToCartButton";
+import FavoriteButton from "./FavoriteButton";
 import { formatPrice } from "../../lib/utils";
 import { getCourses } from "../../lib/content";
 import { getCourseImage, IMAGE_FALLBACK } from "../../lib/images";
@@ -158,7 +159,10 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
       {currentCursos.length > 0 ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {currentCursos.map((curso) => (
-            <article key={curso.slug} className="course-card group">
+            <article key={curso.slug} className="course-card group relative">
+              <div className="absolute right-3 top-3 z-10">
+                <FavoriteButton course={curso} compact />
+              </div>
               <a href={`/cursos/${curso.slug}`} className="block">
               <img
                 src={curso.thumbnailUrl ?? getCourseImage(curso.category.slug, curso.id, curso.title)}

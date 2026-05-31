@@ -1,4 +1,4 @@
-import { formatDate, formatPrice } from "../../lib/utils";
+import { formatDate, formatMoney, formatPrice } from "../../lib/utils";
 import { useAuth } from "./useAuth";
 import { useOrders } from "./useOrders";
 
@@ -64,7 +64,7 @@ export default function OrdersPage() {
             </div>
             <div>
               <p className="text-[#888]">Descuento</p>
-              <p className="text-white font-semibold">-{formatPrice(order.discount)}</p>
+              <p className="text-white font-semibold">-{formatMoney(order.discount)}</p>
             </div>
             <div>
               <p className="text-[#888]">Cupón</p>

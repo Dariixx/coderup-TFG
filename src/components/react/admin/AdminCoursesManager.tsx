@@ -34,6 +34,8 @@ const categories = [
   { id: 3, name: "DevOps" },
   { id: 4, name: "Mobile" },
   { id: 5, name: "Diseño" },
+  { id: 6, name: "IA" },
+  { id: 7, name: "Ciberseguridad" },
 ];
 
 const emptyForm = {
@@ -147,7 +149,7 @@ export default function AdminCoursesManager() {
 
   const loadCourses = async () => {
     setListStatus("loading");
-    const response = await apiGet<CourseRecord[] | { courses: CourseRecord[] }>("/courses/index.php?all=1&limit=50");
+    const response = await apiGet<CourseRecord[] | { courses: CourseRecord[] }>(`/courses/index.php?all=1&limit=50&t=${Date.now()}`);
     const nextCourses = Array.isArray(response.data) ? response.data : response.data?.courses ?? [];
     setCourses(nextCourses);
     setSelectedCourse((current) => {
@@ -240,12 +242,6 @@ export default function AdminCoursesManager() {
   };
 
   const handleDelete = async (id: number) => {
-    if (user.role !== "admin") {
-      setStatus("error");
-      setMessage("Solo el administrador puede eliminar cursos.");
-      return;
-    }
-
     if (!window.confirm("¿Seguro que quieres eliminar este curso?")) {
       return;
     }
@@ -342,11 +338,9 @@ export default function AdminCoursesManager() {
                           <button type="button" onClick={() => handleEdit(course)} className="rounded-lg border border-[#2A2A2A] px-3 py-2 text-xs text-white transition hover:border-[#00FF66]/50">
                             Editar
                           </button>
-                          {user.role === "admin" && (
-                            <button type="button" onClick={() => handleDelete(course.id)} className="rounded-lg border border-red-500/40 px-3 py-2 text-xs text-red-300 transition hover:bg-red-500/10">
-                              Eliminar
-                            </button>
-                          )}
+                          <button type="button" onClick={() => handleDelete(course.id)} className="rounded-lg border border-red-500/40 px-3 py-2 text-xs text-red-300 transition hover:bg-red-500/10">
+                            Eliminar
+                          </button>
                         </div>
                       </td>
                     </tr>

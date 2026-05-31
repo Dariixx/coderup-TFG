@@ -4,6 +4,7 @@ import { useAuth } from "../useAuth";
 
 interface OrderRecord {
   id: number;
+  order_number?: string;
   user_name: string;
   user_email: string;
   total: number | string;
@@ -61,7 +62,7 @@ export default function AdminOrdersManager() {
         <article key={order.id} className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
             <div>
-              <h2 className="text-xl font-bold text-white">Pedido #{order.id}</h2>
+              <h2 className="text-xl font-bold text-white">{order.order_number ?? `Pedido #${order.id}`}</h2>
               <p className="text-sm text-[#888]">{order.user_name} · {order.user_email}</p>
             </div>
             <div className="text-right">

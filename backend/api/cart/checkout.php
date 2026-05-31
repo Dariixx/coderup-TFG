@@ -18,6 +18,11 @@ $couponCode = isset($input['coupon_code']) && $input['coupon_code'] !== '' ? str
 ensureCartTable($conn);
 ensureDefaultCoupons($conn);
 
+sendError(
+    'CoderUp está en beta: la pasarela de pago todavía no procesa compras reales. No se ha creado ningún pedido ni inscripción.',
+    409
+);
+
 try {
     $stmt = $conn->prepare('
         SELECT c.id, c.title, c.price

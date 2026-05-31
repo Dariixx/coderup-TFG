@@ -5,6 +5,7 @@ import Navbar from "../../components/layout/Navbar.astro";
 import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import AddToCartButton from "../../components/react/AddToCartButton.tsx";
+import FavoriteButton from "../../components/react/FavoriteButton.tsx";
 import { getCourseBySlug, getCourses } from "../../lib/content";
 import { getCourseImage, getInstructorAvatar, IMAGE_FALLBACK } from "../../lib/images";
 import { formatPrice } from "../../lib/utils";
@@ -125,6 +126,7 @@ if (notFound) {
 
           <div class="flex flex-col sm:flex-row gap-4">
             <AddToCartButton client:load size="large" item={cartItem} course={curso} />
+            <FavoriteButton client:load course={curso} />
             <a href="#temario" class="border border-[#2A2A2A] text-white px-8 py-4 rounded-xl font-bold text-lg hover:border-[#00FF66]/50 transition flex items-center gap-2 justify-center">
               <Icon name="lucide:play" class="w-5 h-5" /> Ver temario
             </a>

@@ -14,6 +14,14 @@ export function formatPrice(price: number, currency = "EUR", locale = "es-ES") {
   }).format(price);
 }
 
+export function formatMoney(price: number, currency = "EUR", locale = "es-ES") {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    minimumFractionDigits: 2,
+  }).format(price);
+}
+
 export function formatDate(
   date: string | Date,
   locale = "es-ES",

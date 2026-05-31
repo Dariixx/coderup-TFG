@@ -35,6 +35,10 @@ function ensureDefaultCoupons($conn) {
 
     $stmt->execute(['WELCOME20', 'Descuento 20% primera compra', 'percentage', 20.00, 1, 1, null]);
     $stmt->execute(['SUMMER10', 'Descuento verano 10%', 'percentage', 10.00, 1, 0, date('Y-m-d H:i:s', strtotime('+6 months'))]);
+    $stmt->execute(['BUY3', '15% al llevar 3 o más cursos', 'buy_x_get_discount', 15.00, 3, 0, null]);
+    $stmt->execute(['BUY5', '25% al llevar 5 o más cursos', 'buy_x_get_discount', 25.00, 5, 0, null]);
+    $stmt->execute(['EDITOR15', 'Cupón interno para revisión editorial', 'percentage', 15.00, 1, 0, null]);
+    $stmt->execute(['ADMIN50', 'Cupón de validación para administración', 'percentage', 50.00, 1, 0, null]);
 }
 
 function getEligibleCoupon($conn, $code, $itemsCount) {

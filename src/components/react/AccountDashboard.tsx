@@ -1,5 +1,8 @@
 import type { Enrollment, Order } from "../../lib/types";
-import { formatDate, generateInitials } from "../../lib/utils";
+import { getFavorites, subscribeFavorites, type FavoriteCourse } from "../../lib/favorites";
+import { formatDate, formatPrice, generateInitials } from "../../lib/utils";
+import { useEffect, useState } from "react";
+import CouponsPanel from "./CouponsPanel";
 import { useAuth } from "./useAuth";
 import { useEnrollments } from "./useEnrollments";
 import { useOrders } from "./useOrders";
@@ -8,6 +11,18 @@ export default function AccountDashboard() {
   const { user, initialized, logoutUser } = useAuth();
   const { enrollments, initialized: enrollmentsReady } = useEnrollments();
   const { orders, initialized: ordersReady } = useOrders();
+  const [favorites, setFavorites] = useState<FavoriteCourse[]>([]);
+
+  useEffect(() => {
+    if (!user) {
+      setFavorites([]);
+      return;
+    }
+
+    const sync = () => setFavorites(getFavorites(user.id));
+    sync();
+    return subscribeFavorites(sync);
+  }, [user?.id]);
 
   if (!initialized || (user && (!enrollmentsReady || !ordersReady))) {
     return <div className="h-40 rounded-2xl border border-[#2A2A2A] bg-[#111111] animate-pulse" />;
@@ -84,7 +99,7 @@ export default function AccountDashboard() {
         </a>
         <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
           <p className="text-[#888] text-sm mb-2">Favoritos</p>
-          <p className="text-3xl font-bold text-white">Preparado</p>
+          <p className="text-3xl font-bold text-white">{favorites.length}</p>
         </div>
         <div className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
           <p className="text-[#888] text-sm mb-2">Certificados</p>
@@ -94,6 +109,42 @@ export default function AccountDashboard() {
           <p className="text-[#888] text-sm mb-2">Ajustes de cuenta</p>
           <p className="text-lg font-semibold text-white">{user.usedWelcomeCoupon ? "Cupón usado" : "Cupón disponible"}</p>
         </div>
+      </section>
+
+      <CouponsPanel />
+
+      <section className="rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-6">
+        <div className="mb-5 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm uppercase tracking-[0.16em] text-[#00FF66]">Favoritos</p>
+            <h2 className="text-2xl font-bold text-white">Cursos guardados</h2>
+          </div>
+          <a href="/cursos" className="rounded-xl border border-[#2A2A2A] px-4 py-2 text-sm font-semibold text-white transition hover:border-[#00FF66]/50">
+            Explorar
+          </a>
+        </div>
+        {favorites.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-[#2A2A2A] bg-[#111111] p-4 text-sm text-[#888]">
+            Cuando marques cursos con el corazón, aparecerán aquí.
+          </p>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {favorites.map((course) => (
+              <a key={course.slug} href={`/cursos/${course.slug}`} className="group overflow-hidden rounded-xl border border-[#2A2A2A] bg-[#111111] transition hover:-translate-y-0.5 hover:border-[#00FF66]/45">
+                {course.thumbnailUrl && <img src={course.thumbnailUrl} alt={course.title} className="h-32 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />}
+                <div className="p-4">
+                  <div className="mb-2 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-[#00FF66]/10 px-2 py-1 text-xs text-[#00FF66]">{course.category}</span>
+                    <span className="rounded-full bg-[#2A2A2A] px-2 py-1 text-xs text-white">{course.level}</span>
+                  </div>
+                  <h3 className="font-bold text-white group-hover:text-[#00FF66]">{course.title}</h3>
+                  <p className="mt-1 text-xs text-[#888]">{course.instructorName}</p>
+                  <p className="mt-3 font-bold text-[#00FF66]">{formatPrice(course.price)}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
       </section>
     </div>
   );

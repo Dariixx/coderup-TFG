@@ -1,5 +1,6 @@
 ---
 import { Icon } from "astro-icon/components";
+import NewsletterForm from "../react/NewsletterForm.tsx";
 ---
 
 <footer class="border-t border-[#2A2A2A] py-16 mt-auto bg-[#0A0A0A]">
@@ -61,16 +62,7 @@ import { Icon } from "astro-icon/components";
       <div>
         <h4 class="text-white font-semibold mb-4">Newsletter</h4>
         <p class="text-[#888] text-sm mb-4">Recibe las últimas novedades y cursos.</p>
-        <form class="flex gap-2">
-          <input 
-            type="email" 
-            placeholder="tu@email.com" 
-            class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-lg px-4 py-2 text-sm text-white placeholder-[#888] focus:outline-none focus:border-[#00FF66] flex-1"
-          />
-          <button type="submit" class="bg-[#00FF66] text-[#0A0A0A] px-4 py-2 rounded-lg font-semibold text-sm hover:bg-[#00CC52] transition">
-            <Icon name="lucide:send" class="w-4 h-4" />
-          </button>
-        </form>
+        <NewsletterForm client:load />
       </div>
 
     </div>

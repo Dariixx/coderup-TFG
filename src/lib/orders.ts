@@ -99,7 +99,12 @@ export async function createSimulatedOrder(user: User, courses: Course[]) {
   const result = await checkout(couponCode);
 
   if (!result.ok) {
-    return { ok: false as const, message: result.message };
+    return {
+      ok: false as const,
+      message:
+        result.message ||
+        "CoderUp está en beta: la pasarela de pago todavía no procesa compras reales.",
+    };
   }
 
   const newOrder: Order = {

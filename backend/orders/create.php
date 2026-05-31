@@ -11,6 +11,11 @@ requireMethod('POST');
 $user = requireNonGuestUser();
 $input = getJsonInput();
 
+sendError(
+    'CoderUp está en beta: la pasarela de pago todavía no procesa compras reales. No se ha creado ningún pedido ni inscripción.',
+    409
+);
+
 $cart = $input['cart'] ?? $input['items'] ?? [];
 if (empty($cart) || !is_array($cart)) {
     sendError('cart es requerido y debe ser un array', 400);

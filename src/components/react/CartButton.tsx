@@ -23,8 +23,8 @@ export default function CartButton() {
         />
       </svg>
       {count > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 bg-[#00FF66] text-[#0A0A0A] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
-          {count}
+        <span className="absolute -top-2 -right-2 z-20 min-w-5 h-5 px-1 rounded-full border-2 border-[#0A0A0A] bg-[#00FF66] text-[#0A0A0A] text-[11px] font-black leading-none flex items-center justify-center shadow-lg shadow-[#00FF66]/30">
+          {count > 99 ? "99+" : count}
         </span>
       )}
     </a>

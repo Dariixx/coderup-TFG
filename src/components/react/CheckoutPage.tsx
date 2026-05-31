@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { createSimulatedOrder } from "../../lib/orders";
 import type { Course } from "../../lib/types";
-import { formatPrice } from "../../lib/utils";
+import { formatMoney, formatPrice } from "../../lib/utils";
 import { useAuth } from "./useAuth";
 import { useCart } from "./useCart";
 
@@ -75,7 +75,7 @@ export default function CheckoutPage({ courses }: Props) {
     <div className="grid lg:grid-cols-3 gap-8">
       <div className="lg:col-span-2 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-8">
         <h2 className="text-2xl font-bold text-white mb-2">Finalizar compra</h2>
-        <p className="text-[#888] mb-8">Revisa tus datos y confirma tu pedido para acceder a tus cursos.</p>
+        <p className="text-[#888] mb-8">CoderUp está en beta: puedes revisar el pedido, pero la pasarela de pago no procesa compras reales todavía.</p>
 
         <div className="grid md:grid-cols-2 gap-5 mb-6">
           <div>
@@ -90,8 +90,8 @@ export default function CheckoutPage({ courses }: Props) {
 
         <div className="rounded-2xl border border-[#2A2A2A] bg-[#111111] p-6 mb-6">
           <p className="text-sm text-[#888] mb-2">Método de pago</p>
-          <p className="text-white font-semibold">Pago seguro procesado</p>
-          <p className="text-sm text-[#666] mt-2">No se almacena información sensible ni datos de tarjeta.</p>
+          <p className="text-white font-semibold">Pasarela desactivada por beta</p>
+          <p className="text-sm text-[#666] mt-2">No se crea pedido ni inscripción automática hasta conectar una pasarela real.</p>
         </div>
 
         <button
@@ -100,7 +100,7 @@ export default function CheckoutPage({ courses }: Props) {
           disabled={status === "loading"}
           className="w-full rounded-xl bg-[#00FF66] px-5 py-4 font-bold text-[#0A0A0A] transition hover:bg-[#00CC52] disabled:cursor-wait disabled:opacity-70"
         >
-          {status === "loading" ? "Procesando pedido..." : "Finalizar compra"}
+          {status === "loading" ? "Comprobando beta..." : "Finalizar compra"}
         </button>
 
         {message && (
@@ -133,7 +133,7 @@ export default function CheckoutPage({ courses }: Props) {
           </div>
           <div className="flex justify-between">
             <span className="text-[#888]">Descuento</span>
-            <span className="text-white">-{formatPrice(discount)}</span>
+            <span className="text-white">-{formatMoney(discount)}</span>
           </div>
           <div className="flex justify-between text-lg font-semibold">
             <span className="text-white">Total</span>

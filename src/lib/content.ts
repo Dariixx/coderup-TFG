@@ -62,6 +62,9 @@ const blogCategoryDescriptions: Record<string, string> = {
   UX: "Accesibilidad, experiencia de usuario y diseño centrado en producto.",
   Ciberseguridad: "Seguridad web, protección de datos y prácticas defensivas para productos digitales.",
   Automatización: "Flujos de trabajo, productividad técnica y automatización aplicada a proyectos reales.",
+  Ecommerce: "Carrito, checkout, cupones y flujos de compra aplicados a educación online.",
+  Producto: "Decisiones realistas para convertir una beta en un producto defendible.",
+  Diseño: "Imágenes, composición visual y coherencia de interfaz para catálogos digitales.",
 };
 
 interface ApiCourseRecord {
@@ -389,7 +392,7 @@ export async function getFeaturedCourses(limit = 3): Promise<Course[]> {
 
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const response = await apiGet<ApiPostRecord[] | { posts: ApiPostRecord[] }>("/api/posts.php");
+    const response = await apiGet<ApiPostRecord[] | { posts: ApiPostRecord[] }>("/api/posts.php?limit=50");
     const posts = Array.isArray(response.data) ? response.data : response.data?.posts ?? [];
     return posts.map(mapApiPost);
   } catch {

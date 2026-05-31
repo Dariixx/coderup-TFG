@@ -55,9 +55,11 @@ $migrationFiles = [
     __DIR__ . '/catalog-quality-update.sql',
     __DIR__ . '/course-reviews-and-counts.sql',
     __DIR__ . '/reset-demo-users.sql',
+    __DIR__ . '/more-blog-posts.sql',
     __DIR__ . '/../../database/migrations/2026_05_31_catalog_quality_update.sql',
     __DIR__ . '/../../database/migrations/2026_05_31_course_reviews_and_counts.sql',
     __DIR__ . '/../../database/migrations/2026_05_31_reset_demo_users.sql',
+    __DIR__ . '/../../database/migrations/2026_05_31_more_blog_posts.sql',
 ];
 
 try {

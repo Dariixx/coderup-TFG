@@ -212,6 +212,14 @@ export async function validateCoupon(code: string, itemsCount: number) {
   return apiPost("/api/coupons/validate.php", { code, items_count: itemsCount });
 }
 
+export async function getAvailableCoupons() {
+  return apiGet<any>("/api/coupons.php");
+}
+
+export async function subscribeNewsletter(email: string) {
+  return apiFetch<any>("/api/newsletter.php", { method: "POST", body: { email } });
+}
+
 export async function createOrder(cart: unknown[], couponCode?: string) {
   return apiPost("/api/orders/create.php", { cart, coupon_code: couponCode });
 }

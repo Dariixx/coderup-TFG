@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { formatPrice } from "../../lib/utils";
+import { formatMoney, formatPrice } from "../../lib/utils";
 import CartItem from "./CartItem";
 import { useAuth } from "./useAuth";
 import { useCart } from "./useCart";
@@ -91,7 +91,7 @@ export default function CartModal({ isOpen, onClose }: Props) {
               {discount > 0 && (
                 <div className="flex justify-between">
                   <span className="text-[#888]">Descuento</span>
-                  <span className="text-[#00FF66]">-{formatPrice(discount)}</span>
+                  <span className="text-[#00FF66]">-{formatMoney(discount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-lg">

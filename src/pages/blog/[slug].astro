@@ -6,6 +6,7 @@ import Footer from "../../components/layout/Footer.astro";
 import BackToTop from "../../components/react/BackToTop.tsx";
 import BlogContent from "../../components/react/BlogContent.tsx";
 import { getBlogPostBySlug, getBlogPosts } from "../../lib/content";
+import { IMAGE_FALLBACK } from "../../lib/images";
 import { formatDate } from "../../lib/utils";
 
 export async function getStaticPaths() {
@@ -80,6 +81,7 @@ if (notFound) {
               alt={rel.title}
               class="h-32 w-full bg-[#111111] object-cover transition duration-500 group-hover:scale-105"
               loading="lazy"
+              onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
             />
             <div class="p-5">
               <div class="flex items-center gap-2 mb-2">

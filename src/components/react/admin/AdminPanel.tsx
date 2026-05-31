@@ -5,14 +5,16 @@ import AdminCoursesManager from "./AdminCoursesManager";
 import AdminOrdersManager from "./AdminOrdersManager";
 import AdminStats from "./AdminStats";
 import AdminUsersManager from "./AdminUsersManager";
+import CouponsPanel from "../CouponsPanel";
 
-type AdminTab = "resumen" | "cursos" | "usuarios" | "pedidos";
+type AdminTab = "resumen" | "cursos" | "usuarios" | "pedidos" | "cupones";
 
 const tabs: Array<{ id: AdminTab; label: string; description: string }> = [
   { id: "resumen", label: "Resumen", description: "Metricas principales" },
   { id: "cursos", label: "Cursos", description: "Crear, editar y eliminar" },
   { id: "usuarios", label: "Usuarios", description: "Roles y accesos" },
   { id: "pedidos", label: "Pedidos", description: "Compras y cupones" },
+  { id: "cupones", label: "Cupones", description: "Disponibles por rol" },
 ];
 
 export default function AdminPanel() {
@@ -168,7 +170,7 @@ export default function AdminPanel() {
         </div>
       </section>
 
-      <nav className="grid sm:grid-cols-2 xl:grid-cols-4 gap-3">
+      <nav className="grid sm:grid-cols-2 xl:grid-cols-5 gap-3">
         {tabs.map((tab) => {
           const selected = activeTab === tab.id;
 
@@ -195,6 +197,7 @@ export default function AdminPanel() {
         {activeTab === "cursos" && <AdminCoursesManager />}
         {activeTab === "usuarios" && <AdminUsersManager />}
         {activeTab === "pedidos" && <AdminOrdersManager />}
+        {activeTab === "cupones" && <CouponsPanel />}
       </section>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { formatPrice } from "../../lib/utils";
+import { formatMoney, formatPrice } from "../../lib/utils";
 import CartItem from "./CartItem";
 import { useAuth } from "./useAuth";
 import { useCart } from "./useCart";
@@ -102,7 +102,7 @@ export default function CartPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-[#888]">Descuento</span>
-              <span className="text-white">-{formatPrice(discount)}</span>
+              <span className="text-white">-{formatMoney(discount)}</span>
             </div>
             <div className="flex justify-between text-lg">
               <span className="text-white font-bold">Total</span>
