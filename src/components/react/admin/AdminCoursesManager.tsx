@@ -435,7 +435,7 @@ export default function AdminCoursesManager() {
               </div>
             </div>
             <div className="mt-5 flex flex-wrap gap-3">
-              <a href={`/cursos/${selectedCourse.slug}`} target="_blank" rel="noreferrer" className="rounded-xl border border-[#2A2A2A] px-4 py-2 text-sm text-white transition hover:border-[#00FF66]/50">
+              <a href={`/cursos/detalle?slug=${encodeURIComponent(selectedCourse.slug)}`} target="_blank" rel="noreferrer" className="rounded-xl border border-[#2A2A2A] px-4 py-2 text-sm text-white transition hover:border-[#00FF66]/50">
                 Ver en la web
               </a>
               <button type="button" onClick={() => handleEdit(selectedCourse)} className="rounded-xl bg-[#00FF66] px-4 py-2 text-sm font-bold text-[#0A0A0A] transition hover:bg-[#00CC52]">

@@ -163,7 +163,7 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
               <div className="absolute right-3 top-3 z-10">
                 <FavoriteButton course={curso} compact />
               </div>
-              <a href={`/cursos/${curso.slug}`} className="block">
+              <a href={`/cursos/detalle?slug=${encodeURIComponent(curso.slug)}`} className="block">
               <img
                 src={curso.thumbnailUrl ?? getCourseImage(curso.category.slug, curso.id, curso.title)}
                 alt={curso.title}
