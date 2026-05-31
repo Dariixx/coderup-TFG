@@ -103,7 +103,7 @@ export default function AccountDashboard() {
         </div>
         <div className="min-w-0 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
           <p className="text-[#888] text-sm mb-2">Certificados</p>
-          <p className="text-lg font-bold leading-tight text-white sm:text-xl">En preparación</p>
+          <p className="text-lg font-bold leading-tight text-white sm:text-xl">Próximamente</p>
         </div>
         <div className="min-w-0 rounded-2xl border border-[#2A2A2A] bg-[#1A1A1A] p-5">
           <p className="text-[#888] text-sm mb-2">Ajustes de cuenta</p>

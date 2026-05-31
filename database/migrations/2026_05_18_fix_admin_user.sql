@@ -16,3 +16,4 @@ WHERE email = 'dleonardomartos@gmail.com';
 SELECT id, name, email, role
 FROM users
 ORDER BY role;
+
