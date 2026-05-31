@@ -59,7 +59,6 @@ $migrationFiles = [
 ];
 
 try {
-    $conn->beginTransaction();
     foreach ($statements as $statement) {
         $conn->exec($statement);
     }
@@ -75,7 +74,6 @@ try {
             }
         }
     }
-    $conn->commit();
     sendSuccess(['statements' => count($statements), 'files' => count($migrationFiles)], 'Migración de catálogo y blog aplicada');
 } catch (Throwable $e) {
     if ($conn->inTransaction()) {
