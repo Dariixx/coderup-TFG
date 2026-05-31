@@ -44,10 +44,14 @@
   }
 
   :root[data-theme="light"] .bg-\[\#0A0A0A\],
+  :root[data-theme="light"] .bg-\[\#0A0A0A\]\/50,
   :root[data-theme="light"] .bg-\[\#111111\],
   :root[data-theme="light"] .bg-\[\#111111\]\/70,
+  :root[data-theme="light"] .bg-\[\#111\],
+  :root[data-theme="light"] .bg-\[\#111\]\/50,
   :root[data-theme="light"] .bg-\[\#1A1A1A\],
   :root[data-theme="light"] .bg-\[\#1A1A1A\]\/90,
+  :root[data-theme="light"] .bg-\[\#2A2A2A\],
   :root[data-theme="light"] .bg-gradient-to-br {
     background: #ffffff !important;
     background-color: #ffffff !important;
@@ -73,6 +77,10 @@
     color: #087a3d !important;
   }
 
+  :root[data-theme="light"] .text-\[\#9CFFBF\] {
+    color: #087a3d !important;
+  }
+
   :root[data-theme="light"] .bg-\[\#00FF66\] {
     background-color: #087a3d !important;
     color: #ffffff !important;
@@ -86,6 +94,23 @@
   :root[data-theme="light"] .border-t,
   :root[data-theme="light"] .border-b {
     border-color: #d8e0dc !important;
+  }
+
+  :root[data-theme="light"] .shadow-black\/30,
+  :root[data-theme="light"] .shadow-2xl {
+    --tw-shadow-color: rgba(17, 24, 39, 0.14) !important;
+  }
+
+  :root[data-theme="light"] [class*="text-red-300"] {
+    color: #b42318 !important;
+  }
+
+  :root[data-theme="light"] [class*="bg-red-500"] {
+    background-color: rgba(180, 35, 24, 0.08) !important;
+  }
+
+  :root[data-theme="light"] [class*="border-red-500"] {
+    border-color: rgba(180, 35, 24, 0.28) !important;
   }
 
   :root[data-theme="light"] input,

@@ -46,7 +46,7 @@ if (!data) {
             <div class="space-y-3 text-sm text-[#888]">
               <p><span class="text-white font-semibold">{data.instructor.yearsExperience}</span> años de experiencia</p>
               <p><span class="text-white font-semibold">{data.instructor.totalStudents}</span> estudiantes</p>
-              <p><span class="text-white font-semibold">{data.instructor.rating}</span> valoración media</p>
+              <p><span class="text-white font-semibold">{Number(data.instructor.rating ?? 0) > 0 ? Number(data.instructor.rating).toFixed(1) : "Sin"}</span> valoración media</p>
             </div>
             <div class="mt-6 flex gap-3">
               {data.instructor.linkedinUrl && <a href={data.instructor.linkedinUrl} class="text-[#888] hover:text-[#00FF66]"><Icon name="lucide:linkedin" class="w-5 h-5" /></a>}
@@ -79,7 +79,7 @@ if (!data) {
                       <p class="text-[#888] text-sm line-clamp-2 mb-4">{course.shortDescription}</p>
                       <div class="flex items-center justify-between text-sm">
                         <span class="text-[#00FF66] font-bold">{formatPrice(course.price)}</span>
-                        <span class="text-[#888] flex items-center gap-1"><Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" /> {course.rating}</span>
+                        <span class="text-[#888] flex items-center gap-1"><Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" /> {course.rating > 0 ? course.rating.toFixed(1) : "Sin valoraciones"}</span>
                       </div>
                     </div>
                   </a>

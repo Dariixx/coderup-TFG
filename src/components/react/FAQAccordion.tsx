@@ -18,7 +18,7 @@ export default function FAQAccordion({ items }: Props) {
         <div
           key={i}
           className={`border rounded-xl transition-all ${
-            openIndex === i ? "border-[#00FF66]/50 bg-[#1A1A1A]" : "border-[#2A2A2A] bg-[#111]"
+            openIndex === i ? "border-[#00FF66]/50 bg-[#1A1A1A]" : "border-[#2A2A2A] bg-[#111111]"
           }`}
         >
           <button

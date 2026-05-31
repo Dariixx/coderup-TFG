@@ -22,10 +22,34 @@ export default function AuthForm({ mode }: Props) {
     },
   ];
 
+  const validate = () => {
+    if (mode === "register" && formData.name.trim().length < 2) {
+      return "Escribe tu nombre para crear la cuenta.";
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      return "Revisa el email: debe tener formato nombre@dominio.com.";
+    }
+
+    if (!PASSWORD_REGEX.test(formData.password)) {
+      return "La contraseña necesita al menos 6 caracteres.";
+    }
+
+    return "";
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setStatus("loading");
     setMessage("");
+
+    const validationMessage = validate();
+    if (validationMessage) {
+      setStatus("error");
+      setMessage(validationMessage);
+      return;
+    }
+
+    setStatus("loading");
 
     const result =
       mode === "register"
@@ -46,7 +70,7 @@ export default function AuthForm({ mode }: Props) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       {mode === "register" && (
         <div>
           <label className="block text-sm text-[#888] mb-2">Nombre</label>
@@ -56,7 +80,6 @@ export default function AuthForm({ mode }: Props) {
             onChange={(event) => setFormData((prev) => ({ ...prev, name: event.target.value }))}
             className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
             placeholder="Tu nombre"
-            required
           />
         </div>
       )}
@@ -69,7 +92,6 @@ export default function AuthForm({ mode }: Props) {
           onChange={(event) => setFormData((prev) => ({ ...prev, email: event.target.value }))}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="tu@email.com"
-          required
         />
       </div>
 
@@ -81,8 +103,6 @@ export default function AuthForm({ mode }: Props) {
           onChange={(event) => setFormData((prev) => ({ ...prev, password: event.target.value }))}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="Mínimo 6 caracteres"
-          minLength={6}
-          required
         />
         {mode === "register" && (
           <div className="mt-3 rounded-xl border border-[#2A2A2A] bg-[#111111]/70 px-4 py-3" aria-live="polite">
@@ -124,15 +144,16 @@ export default function AuthForm({ mode }: Props) {
       </button>
 
       {message && (
-        <p
+        <div
           className={`rounded-xl border px-4 py-3 text-sm ${
             status === "error"
               ? "border-red-500/30 bg-red-500/10 text-red-300"
               : "border-[#00FF66]/30 bg-[#00FF66]/10 text-[#9CFFBF]"
           }`}
         >
-          {message}
-        </p>
+          <p className="font-semibold">{status === "error" ? "Hay algo que revisar" : "Listo"}</p>
+          <p className="mt-1">{message}</p>
+        </div>
       )}
     </form>
   );

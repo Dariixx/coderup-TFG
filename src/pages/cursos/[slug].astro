@@ -29,6 +29,7 @@ const aprenderás = curso?.whatYouLearn ?? [];
 const relatedCursos = curso ? allCourses.filter((c) => c.slug !== curso.slug).slice(0, 3) : [];
 const courseImage = curso ? curso.thumbnailUrl ?? getCourseImage(curso.category.slug, curso.id, curso.title) : "";
 const instructorImage = curso ? curso.instructor.avatarUrl ?? curso.instructor.avatar?.url ?? getInstructorAvatar(curso.instructor.id) : "";
+const hasRating = curso ? Number(curso.rating) > 0 : false;
 
 const cartItem = curso
   ? {
@@ -101,7 +102,7 @@ if (notFound) {
           <div class="flex flex-wrap items-center gap-6 mb-8 text-sm text-[#888]">
             <div class="flex items-center gap-2">
               <Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" />
-              <span class="text-white font-semibold">{curso.rating}</span>
+              <span class="text-white font-semibold">{hasRating ? curso.rating.toFixed(1) : "Sin valoraciones"}</span>
               <span>({curso.students} estudiantes)</span>
             </div>
             <div class="flex items-center gap-2">
@@ -115,6 +116,10 @@ if (notFound) {
             <div class="flex items-center gap-2">
               <Icon name="lucide:award" class="w-4 h-4 text-[#00FF66]" />
               <span>Certificado incluido</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <Icon name="lucide:tag" class="w-4 h-4 text-[#00FF66]" />
+              <span>{formatPrice(curso.price)}</span>
             </div>
           </div>
 
@@ -264,41 +269,36 @@ if (notFound) {
               <p class="text-4xl font-bold text-white mb-1">
                 {formatPrice(curso.price)}
               </p>
-              {curso.price > 0 && (
-                <p class="text-[#888] text-sm line-through">{formatPrice(curso.price * 1.5)}</p>
-              )}
             </div>
 
             <div class="mb-4">
               <AddToCartButton client:load size="large" item={cartItem} course={curso} />
             </div>
 
-            <p class="text-center text-[#888] text-xs mb-6">Garantía de devolución de 30 días</p>
-
             <div class="space-y-4 border-t border-[#2A2A2A] pt-6">
               <div class="flex items-center gap-3 text-sm">
-                <Icon name="lucide:infinity" class="w-4 h-4 text-[#00FF66]" />
-                <span class="text-[#888]">Acceso de por vida</span>
+                <Icon name="lucide:signal" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Nivel: {curso.level}</span>
               </div>
               <div class="flex items-center gap-3 text-sm">
-                <Icon name="lucide:smartphone" class="w-4 h-4 text-[#00FF66]" />
-                <span class="text-[#888]">Acceso en móvil y tablet</span>
+                <Icon name="lucide:clock" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Duración: {curso.duration}</span>
               </div>
               <div class="flex items-center gap-3 text-sm">
-                <Icon name="lucide:award" class="w-4 h-4 text-[#00FF66]" />
-                <span class="text-[#888]">Certificado de finalización</span>
+                <Icon name="lucide:list-checks" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Lecciones: {curso.lessons}</span>
               </div>
               <div class="flex items-center gap-3 text-sm">
-                <Icon name="lucide:download" class="w-4 h-4 text-[#00FF66]" />
-                <span class="text-[#888]">Recursos descargables</span>
+                <Icon name="lucide:book-open" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Temario: {temario.length} módulos</span>
               </div>
               <div class="flex items-center gap-3 text-sm">
-                <Icon name="lucide:refresh-cw" class="w-4 h-4 text-[#00FF66]" />
-                <span class="text-[#888]">Actualizaciones gratuitas</span>
+                <Icon name="lucide:alert-circle" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Requisitos: {requisitos.length || "sin requisitos previos"}</span>
               </div>
               <div class="flex items-center gap-3 text-sm">
-                <Icon name="lucide:message-circle" class="w-4 h-4 text-[#00FF66]" />
-                <span class="text-[#888]">Acceso a la comunidad</span>
+                <Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" />
+                <span class="text-[#888]">Valoración: {hasRating ? curso.rating.toFixed(1) : "sin valoraciones"}</span>
               </div>
             </div>
           </div>
@@ -331,7 +331,7 @@ if (notFound) {
                 <span class="text-[#00FF66] font-bold">{formatPrice(rel.price)}</span>
                 <div class="flex items-center gap-1 text-xs text-[#888]">
                   <Icon name="lucide:star" class="w-3 h-3 text-[#00FF66]" />
-                  <span>{rel.rating}</span>
+                  <span>{rel.rating > 0 ? rel.rating.toFixed(1) : "Sin valoraciones"}</span>
                 </div>
               </div>
             </div>

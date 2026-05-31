@@ -17,6 +17,7 @@ type HomeCourse = {
   slug: string;
   price: number | string;
   thumbnail_url?: string | null;
+  image?: string | null;
   short_description?: string | null;
   description?: string | null;
   category?: { name?: string };
@@ -27,6 +28,14 @@ type HomeCourse = {
   total_students?: number | string;
   students?: number | string;
   is_featured?: boolean | number | string | null;
+  duration?: string;
+  total_lessons?: number | string;
+  requirements?: string[];
+  curriculum?: Array<{ title: string; lessons: string[] }>;
+  instructor?: { name?: string; avatar_url?: string; specialty?: string };
+  instructor_name?: string;
+  instructor_avatar_url?: string;
+  instructor_specialty?: string;
 };
 
 type CoursesPayload = HomeCourse[] | { courses?: HomeCourse[] };
@@ -47,8 +56,11 @@ const courseCount = courses.length;
 const categoryCount = new Set(courses.map((course) => course.category_slug ?? course.category_name ?? course.category?.name).filter(Boolean)).size;
 const studentsTotal = courses.reduce((sum, course) => sum + Number(course.total_students ?? course.students ?? 0), 0);
 const studentsK = Math.round(studentsTotal / 1000);
-const ratingAverage = courses.length
-  ? courses.reduce((sum, course) => sum + Number(course.rating ?? 0), 0) / courses.length
+const ratedCourses = courses
+  .map((course) => Number(course.rating ?? 0))
+  .filter((rating) => Number.isFinite(rating) && rating > 0);
+const ratingAverage = ratedCourses.length
+  ? ratedCourses.reduce((sum, rating) => sum + rating, 0) / ratedCourses.length
   : 4.9;
 const ratingDecimal = Math.round((ratingAverage - Math.floor(ratingAverage)) * 10);
 
@@ -175,7 +187,7 @@ const faqs = [
         {featuredCourses.map((course) => (
           <a href={`/cursos/${course.slug}`} class="bg-[#1A1A1A] border border-[#2A2A2A] rounded-2xl overflow-hidden hover:border-[#00FF66]/50 transition group hover:-translate-y-1">
             <img
-              src={getCourseImage(course.category_slug ?? course.category_name ?? course.category?.name, course.id, course.title)}
+              src={course.thumbnail_url ?? course.image ?? getCourseImage(course.category_slug ?? course.category_name ?? course.category?.name, course.id, course.title)}
               alt={course.title}
               class="h-48 w-full object-cover bg-[#111111] transition duration-500 group-hover:scale-105"
               loading="lazy"
@@ -192,7 +204,20 @@ const faqs = [
                 <span class="text-[#00FF66] font-bold text-lg">{formatPrice(course.price)}</span>
                 <div class="flex items-center gap-1 text-sm text-[#888]">
                   <Icon name="lucide:star" class="w-4 h-4 text-[#00FF66]" />
-                  <span>{course.rating} · {course.total_students ?? course.students}</span>
+                  <span>{Number(course.rating ?? 0) > 0 ? `${Number(course.rating).toFixed(1)} · ` : "Sin valoraciones · "}{course.total_students ?? course.students}</span>
+                </div>
+              </div>
+              <div class="mt-4 flex items-center gap-3 rounded-xl border border-[#2A2A2A] bg-[#111111] p-3">
+                <img
+                  src={course.instructor?.avatar_url ?? course.instructor_avatar_url ?? IMAGE_FALLBACK}
+                  alt={course.instructor?.name ?? course.instructor_name ?? "Instructor"}
+                  class="h-9 w-9 rounded-full object-cover"
+                  loading="lazy"
+                  onerror={`this.onerror=null;this.src='${IMAGE_FALLBACK}'`}
+                />
+                <div class="min-w-0 text-left">
+                  <p class="truncate text-sm font-semibold text-white">{course.instructor?.name ?? course.instructor_name ?? "Instructor CoderUp"}</p>
+                  <p class="truncate text-xs text-[#888]">{course.duration ?? `${course.total_lessons ?? 0} lecciones`}</p>
                 </div>
               </div>
             </div>

@@ -10,6 +10,12 @@ export function ForgotPasswordForm() {
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setStatus("error");
+      setMessage("Revisa el email: debe tener formato nombre@dominio.com.");
+      return;
+    }
+
     setStatus("loading");
     setMessage("");
     setResetUrl("");
@@ -27,7 +33,7 @@ export function ForgotPasswordForm() {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-5" noValidate>
       <div>
         <label className="mb-2 block text-sm text-[#888]">Email</label>
         <input
@@ -36,7 +42,6 @@ export function ForgotPasswordForm() {
           onChange={(event) => setEmail(event.target.value)}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="tu@email.com"
-          required
         />
       </div>
       <button
@@ -104,7 +109,7 @@ export function ResetPasswordForm({ token: initialToken = "" }: { token?: string
   };
 
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-5" noValidate>
       <div>
         <label className="mb-2 block text-sm text-[#888]">Nueva contraseña</label>
         <input
@@ -113,7 +118,6 @@ export function ResetPasswordForm({ token: initialToken = "" }: { token?: string
           onChange={(event) => setPassword(event.target.value)}
           className="w-full rounded-xl border border-[#2A2A2A] bg-[#111111] px-4 py-3 text-white focus:border-[#00FF66]/50 focus:outline-none"
           placeholder="Mínimo 6 caracteres"
-          required
         />
         <div className="mt-3 rounded-xl border border-[#2A2A2A] bg-[#111111]/70 px-4 py-3">
           <p className={`text-sm ${isValid ? "text-[#9CFFBF]" : "text-red-300"}`}>
@@ -143,14 +147,15 @@ export function ResetPasswordForm({ token: initialToken = "" }: { token?: string
 
 function StatusMessage({ status, message }: { status: "idle" | "loading" | "success" | "error"; message: string }) {
   return (
-    <p
+    <div
       className={`rounded-xl border px-4 py-3 text-sm ${
         status === "error"
           ? "border-red-500/30 bg-red-500/10 text-red-300"
           : "border-[#00FF66]/30 bg-[#00FF66]/10 text-[#9CFFBF]"
       }`}
     >
-      {message}
-    </p>
+      <p className="font-semibold">{status === "error" ? "Hay algo que revisar" : "Listo"}</p>
+      <p className="mt-1">{message}</p>
+    </div>
   );
 }

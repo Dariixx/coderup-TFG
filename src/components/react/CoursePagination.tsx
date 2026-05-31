@@ -45,6 +45,10 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
   const totalPages = Math.ceil(filtered.length / cursosPerPage);
   const startIndex = (currentPage - 1) * cursosPerPage;
   const currentCursos = filtered.slice(startIndex, startIndex + cursosPerPage);
+  const ratingLabel = (course: Course) => (course.rating > 0 ? `${course.rating.toFixed(1)} valoración` : "Sin valoraciones");
+  const requirementsLabel = (course: Course) =>
+    course.requirements?.length ? `${course.requirements.length} requisitos` : "Sin requisitos previos";
+  const modulesLabel = (course: Course) => `${course.curriculum?.length ?? 0} módulos`;
 
   const goToPage = (page: number) => {
     setCurrentPage(page);
@@ -178,15 +182,48 @@ export default function CoursePagination({ cursos, cursosPerPage = 6 }: Props) {
                   </span>
                 </div>
                 <h3 className="text-xl font-bold text-white mb-2 group-hover:text-[#00FF66] transition">{curso.title}</h3>
-                <p className="text-[#888] text-sm mb-4">{curso.description}</p>
-                <div className="flex justify-between items-center">
-                  <span className="text-[#00FF66] font-bold text-lg">{curso.instructor.name}</span>
-                  <div className="flex items-center gap-1 text-sm text-[#888]">
-                    <svg className="w-4 h-4 text-[#00FF66]" fill="currentColor" viewBox="0 0 24 24">
+                <p className="text-[#888] text-sm mb-4 line-clamp-3">{curso.description}</p>
+                <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#2A2A2A] bg-[#111111] p-3">
+                  <img
+                    src={curso.instructor.avatarUrl ?? IMAGE_FALLBACK}
+                    alt={curso.instructor.name}
+                    className="h-10 w-10 shrink-0 rounded-full object-cover"
+                    loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.src = IMAGE_FALLBACK;
+                    }}
+                  />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-white">{curso.instructor.name}</p>
+                    <p className="truncate text-xs text-[#888]">{curso.instructor.specialty ?? curso.instructor.role}</p>
+                  </div>
+                </div>
+                <dl className="grid grid-cols-2 gap-2 text-xs text-[#888]">
+                  <div className="rounded-lg bg-[#111111] px-3 py-2">
+                    <dt className="text-[#00FF66]">Duración</dt>
+                    <dd>{curso.duration}</dd>
+                  </div>
+                  <div className="rounded-lg bg-[#111111] px-3 py-2">
+                    <dt className="text-[#00FF66]">Lecciones</dt>
+                    <dd>{curso.lessons}</dd>
+                  </div>
+                  <div className="rounded-lg bg-[#111111] px-3 py-2">
+                    <dt className="text-[#00FF66]">Temario</dt>
+                    <dd>{modulesLabel(curso)}</dd>
+                  </div>
+                  <div className="rounded-lg bg-[#111111] px-3 py-2">
+                    <dt className="text-[#00FF66]">Requisitos</dt>
+                    <dd>{requirementsLabel(curso)}</dd>
+                  </div>
+                </dl>
+                <div className="mt-4 flex items-center justify-between gap-3 border-t border-[#2A2A2A] pt-4 text-sm">
+                  <span className="font-bold text-[#00FF66]">{formatPrice(curso.price)}</span>
+                  <span className="flex items-center gap-1 text-[#888]">
+                    <svg className="h-4 w-4 text-[#00FF66]" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                     </svg>
-                    <span>{curso.rating} · {curso.students}</span>
-                  </div>
+                    {ratingLabel(curso)}
+                  </span>
                 </div>
               </div>
               </a>

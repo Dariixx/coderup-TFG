@@ -18,8 +18,11 @@ const courses = await getCourses();
 const courseCount = courses.length;
 const categoryCount = new Set(courses.map((course) => course.category.slug)).size;
 const certificateCount = courseCount;
-const averageRating = courseCount
-  ? (courses.reduce((sum, course) => sum + Number(course.rating ?? 0), 0) / courseCount).toFixed(1)
+const ratedCourses = courses
+  .map((course) => Number(course.rating ?? 0))
+  .filter((rating) => Number.isFinite(rating) && rating > 0);
+const averageRating = ratedCourses.length
+  ? (ratedCourses.reduce((sum, rating) => sum + rating, 0) / ratedCourses.length).toFixed(1)
   : "0.0";
 
 const stats = [
